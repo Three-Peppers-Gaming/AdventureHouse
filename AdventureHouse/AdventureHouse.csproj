@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <StartupObject>AdventureHouse.Program</StartupObject>
+    <ApplicationIcon>AdventureHouse.ico</ApplicationIcon>
+    <Title>Adventure House</Title>
+    <Company>Steve Sparks</Company>
+    <Product>Adventure House </Product>
+    <Description>This is a simple two word text adventure game. Try to escape from the house before you die.</Description>
+    <Copyright>Steven S. Sparks</Copyright>
+    <PackageProjectUrl>https://github.com/three-peppers-gaming</PackageProjectUrl>
+    <PackageIcon></PackageIcon>
+    <RepositoryUrl>https://github.com/three-peppers-gaming</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>game;text;adventure;free</PackageTags>
+    <PackageReleaseNotes>Initial version of the game based off the Adventure Server code. 
+Created a stand-alone .net 6 version</PackageReleaseNotes>
+    <AssemblyVersion></AssemblyVersion>
+    <FileVersion></FileVersion>
+    <SignAssembly>False</SignAssembly>
+    <Version>1.0.0.1</Version>
+    <AssemblyName>Adventure House</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="AdventureHouse.ico">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
+  </ItemGroup>
+
+
+</Project>
