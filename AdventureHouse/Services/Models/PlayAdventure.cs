@@ -11,6 +11,7 @@ namespace AdventureHouse.Services.Models
         public int GameID { get; set; } = 0;
         public string GameName { get; set; } = string.Empty;
         public string GameHelp { get; set; } = string.Empty;
+        public string GameThanks { get; set; } = string.Empty;
         public string InstanceID { get; set; } = string.Empty;
         public string WelcomeMessage { get; set; } = string.Empty;
         public int StartRoom { get; set; } = 0;

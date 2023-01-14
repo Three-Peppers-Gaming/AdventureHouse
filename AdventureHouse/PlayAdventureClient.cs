@@ -6,8 +6,12 @@ using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Media;
+using Windows.Media.Streaming.Adaptive;
 
 namespace AdventureHouse
 {
@@ -46,10 +50,86 @@ namespace AdventureHouse
             Console.WriteLine();
         }
 
+        // # of characters until the next space, EOL or end of string;
+        // This is used to see if the next place we can break a line in within 10% of the console max width;
+        public static int PeekToNexBreak(int currentposition, string s)
+        {
+            int l = s.Length;
+            int p = currentposition;
+            string cstr = string.Empty;
+            int c = 2;
 
+            if (currentposition == s.Length) return 0;
+            if ((currentposition + 1) == s.Length) return 1;
+
+            p = p + 2;
+
+            while (p < l-1) 
+            {
+                p++; 
+                cstr = s[p].ToString();
+
+                if (cstr == "\r") { return c; }
+                if (cstr == " ") { return c; }
+
+                c++;
+
+            }
+
+            return c;
+        }
 
 
         public static string Wrap(string text)
+        {
+
+            string outstr = string.Empty;
+            string cstr = string.Empty;
+
+            int l = text.Length;
+            int linelength = 0;
+            int maxwidth = (int)(Console.WindowWidth * .9);
+            int pad = (int)(Console.WindowWidth - maxwidth);
+
+            for (int i = 0; i < l; i++)
+            {
+                cstr = text[i].ToString();
+
+
+                if ((cstr == "\r") || (cstr == "\n"))
+                {
+
+                  linelength = 0;
+
+                }
+
+                // We have space, should we wrap the line?
+                if (cstr == " ")
+                {
+                    int peek = PeekToNexBreak(i, text); // find # charts out the next oppertunity to break the line. 
+                    int temp = (linelength + peek);
+
+                    if (((linelength + peek) > maxwidth))
+                    {
+                        outstr = outstr + "\r\n"; // ignore the space and add crlf
+                        cstr = "";
+                        linelength = 0;
+                    }
+
+                    if ((cstr == " ") && (linelength == 0)) cstr= "";
+
+                }
+
+                outstr = outstr + cstr;
+                linelength++;
+
+            }
+
+            return outstr;
+        }
+
+
+        public static string _oldWrap(string text)
         {
             if (string.IsNullOrWhiteSpace(text)) return string.Empty;
             
@@ -118,7 +198,7 @@ namespace AdventureHouse
             WriteLn(ConsoleColor.Cyan,RepoURL);
             WriteLn(ConsoleColor.White);
             Write(ConsoleColor.DarkRed, "ATTENTION:");
-            WriteLn(ConsoleColor.Yellow, " To exit type \"resign\" for other console command type \"chelp\"");
+            WriteLn(ConsoleColor.Yellow, " To exit type \"resign\", For other commands type \"chelp\"");
             WriteLn(ConsoleColor.Green);
         }
 
@@ -226,10 +306,13 @@ namespace AdventureHouse
                         Write(ConsoleColor.Yellow,gmr.RoomName);
                         WriteLn(ConsoleColor.Yellow);
                         WriteLn(ConsoleColor.Yellow);
+                        string msg = Wrap(gmr.RoomMessage);
                         WriteLn(ConsoleColor.Green,Wrap(gmr.RoomMessage));
                         Write(ConsoleColor.White,"You See: ");
-                        WriteLn(ConsoleColor.Cyan,Wrap(gmr.ItemsMessage));
-                        WriteLn(ConsoleColor.White);
+                        Write(ConsoleColor.Cyan,Wrap(gmr.ItemsMessage));
+                        WriteLn(ConsoleColor.White," ");
+                        WriteLn(ConsoleColor.White, " ");
+
                         Write(ConsoleColor.White,"Next Action?"); 
                         Write(ConsoleColor.Green," >"); 
 
@@ -248,7 +331,6 @@ namespace AdventureHouse
                         if (move.Length > 100) move = move.Substring(0,100);  
                         
                         if (!Scroll) Console.Clear();
-
                         try
                         {
                             

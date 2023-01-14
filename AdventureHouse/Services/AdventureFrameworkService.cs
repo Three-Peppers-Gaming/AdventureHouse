@@ -290,7 +290,7 @@ namespace AdventureHouse.Services
 
         private static Boolean Helper_IsMoveDirectionOK(Room room, string direction)
         {
-            switch (direction)
+            switch (direction.ToLower())
             {
                 case "north":
                     if (room.N < 99) return true;
@@ -347,7 +347,7 @@ namespace AdventureHouse.Services
                 Message = ""
             };
 
-            switch (direction)
+            switch (direction.ToLower())
             {
                 case "n":
                 case "nor":
@@ -548,6 +548,9 @@ namespace AdventureHouse.Services
             // setup output message
             gmr.RoomMessage = Object_GetRoom(p.Rooms, p.Player.Room).Desc + " ";
             gmr.RoomMessage += GetRoomPath(Object_GetRoom(p.Rooms, p.Player.Room)) + "\r\n" + actionMessage + "\r\n";
+
+            if (p.Player.Room == 0) gmr.RoomMessage += p.GameThanks;
+
             gmr.RoomMessage += GetHasPetMessage(p.Items, p.Messages, "\r\n");
             gmr.ItemsMessage = GetRoomItemsList(p.Player.Room, p.Items, true);
 
@@ -1088,7 +1091,7 @@ namespace AdventureHouse.Services
                     if (item.ActionResult.ToLower() == "fortune")
                     {
                         p.Player = Helper_SetPlayerPoints(false, cs.Modifier, p);
-                        cs.Message = $"You look at the {item.Action} and read: \"{_getfortune.ReturnTimeBasedFortune().phrase}\", The text mysteriously fades and disappears.";
+                        cs.Message = $"You look at the {item.Action} and read: \"{_getfortune.ReturnTimeBasedFortune().phrase}\", The text mysteriously fades and disappears.\r\n";
                     }
 
 

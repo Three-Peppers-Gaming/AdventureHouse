@@ -11,8 +11,8 @@ namespace AdventureHouse.Services.Data.AdventureData
     {
         public string GetAdventureHelpText()
         {
-            return "You pause and recall your mothers bedtime story. " +
-                   "Once upon a time a great explorer wondered into a mystery house. "
+            return "You pause and recall your mothers bedtime story:\r\n" +
+                     "Once upon a time a great explorer wondered into a mystery house. "
                    + "The adventurer visited rooms from the EAST to the WEST. "
                    + "Going UP and DOWN stairs and ladders looking for items. The hero "
                    + "took many actions such as LOOKing and GETting item found in their path. "
@@ -25,8 +25,26 @@ namespace AdventureHouse.Services.Data.AdventureData
                    + "RESTART from the beginning. The hero would often get and need to EAT "
                    + "a snack. The rest of the story fades from your mind, but you do recall "
                    + "your mom talking about the explorer who would WAVE things "
-                   + "while EATing an apple.";
+                   + "while EATing an apple.\r\n\r\nConsole help type \"chelp\"";
         }
+
+
+        public string GetAdventureThankYouText()
+        {
+            return  "CONGRATULATIONS! YOU WIN! (try the \"Points\" command)\r\n\r\n" +
+                    "You have been able to escape the game before you starved to death!\r\n" +
+                    "You can continue to explore by returning to the house \"west\".\r\n\r\n"
+                   + "We hope you have enjoyed this retro-style adventure game! "
+                   + "We have hidden some fun little surprises in the text and objects. "
+                   + "Or personal favorite is Stormi the kitten following you around the house after you "
+                   + "give her a nice PET. You can always SHOO her away if she is too much of a pest. "
+                   + "If you get a chance to READ the SLIP a few times it can make for a few laughs." +
+                   "\r\n\r\n" +
+                   "Have a Great Day and Let is know what you think!\r\n\r\n" +
+                   "\"The Three Peppers\" - Steve, Stevie, and Anabella\r\n\r\n";
+        }
+    
+
 
         public PlayAdventure SetupAdventure(string gameid)
             { 
@@ -36,8 +54,9 @@ namespace AdventureHouse.Services.Data.AdventureData
             var _play = new PlayAdventure
             {
                 GameID = 1,
-                GameName = "Adventure House 3.0 (.Net 5.0)",
+                GameName = "Adventure House 3.0 (.Net 6.0)",
                 GameHelp = GetAdventureHelpText(),
+                GameThanks= GetAdventureThankYouText(),
                 InstanceID = gameid,
                 StartRoom = 20,
                 WelcomeMessage = $"Dear {_gamerTag}, \r\n\r\nThis is a simple 2 word adventure game. Use simple but HELPful commands to find your way out before you die.\r\n\r\nGood Luck!\r\n\r\nThe Management.\r\n\r\n\r\n",
@@ -77,7 +96,7 @@ namespace AdventureHouse.Services.Data.AdventureData
                     new Item { Name="AKEY",Description= "A shiny, aesthetically pleasing key. Must open something.", Location = 88, Action= "The key fits perfectly and the door unlocked with some effort.", ActionVerb="USE", ActionResult = "UNLOCK", ActionValue = "1|E|0|This is the entrance. The door is unlocked.|This is the entrance. Door is now unlocked" },
                     new Item { Name="APIE", Description= "A small slice of apple pie. Mouthwatering.",Location = 88, Action= "A little cold, but there never really a good reason to turn down pie.", ActionVerb="EAT", ActionResult="HEALTH", ActionValue ="100", ActionPoints=10},
 #endif
-                new Item { Name="ROCK", Description= "A magic rock",Location = 06, Action= "This looks more like a coprolite fossel than a rock. Might want to get rid of this thing soon.", ActionVerb="THROW", ActionResult="TELEPORT", ActionValue ="95", ActionPoints=10 }
+                    new Item { Name="ROCK", Description= "A magic rock",Location = 06, Action= "This looks more like a coprolite fossel than a rock. Might want to get rid of this thing soon.", ActionVerb="THROW", ActionResult="TELEPORT", ActionValue ="95", ActionPoints=10 }
            };
 
                 return _items;
@@ -119,9 +138,9 @@ namespace AdventureHouse.Services.Data.AdventureData
 #if (DEBUG)
                 new Room { Number = 88, RoomPoints=50 ,Name = "Debug Room", Desc = "The Magic Debug Room Up - Leads to the Door, Down leads to the Attic", N = 99, S = 99, E = 99, W = 99, U = 1, D = 20 },
 #endif
-                new Room { Number = 93, RoomPoints=50 ,Name = "Psychedelic Ladder", Desc = "You are on a what seems like and endless glowing ladder. You see magic spiraling vortex. ", N = 99, S = 99, E = 19, W = 99, U = 95, D = 94 },
+                new Room { Number = 93, RoomPoints=50 ,Name = "Psychedelic Ladder", Desc = "You are on a what seems like and endless glowing ladder. You see magic spiraling vortex. ", N = 99, S = 99, E = 19, W = 19, U = 95, D = 94 },
                 new Room { Number = 94, RoomPoints=50 ,Name = "Memory Ladder", Desc = "You climbed on to the ladder and your memory of how to get back fades. You are on a what seems like and endless magic ladder.", N = 99, S = 99, E = 99, W = 99, U = 93, D = 95 },
-                new Room { Number = 95, RoomPoints=50 ,Name = "Magic Mush Room", Desc = "A magic room. The walls sparkle and shine. This room seems like a very happy place. You see 4 doors and ladders leading up and down", N = 20, S = 20, E = 20, W = 20, U = 94, D = 93 }
+                new Room { Number = 95, RoomPoints=50 ,Name = "Magic Mushroom", Desc = "A magic room. The walls sparkle and shine. This room seems like a very happy place. You see 4 doors and ladders leading up and down", N = 20, S = 20, E = 20, W = 20, U = 94, D = 93 }
 
             };
 
