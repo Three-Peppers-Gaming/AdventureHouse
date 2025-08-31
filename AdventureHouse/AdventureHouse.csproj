@@ -7,22 +7,22 @@
     <Nullable>enable</Nullable>
     <StartupObject>AdventureHouse.Program</StartupObject>
     <ApplicationIcon>AdventureHouse.ico</ApplicationIcon>
-    <Title>Adventure House</Title>
-    <Company>Steve Sparks</Company>
-    <Product>Adventure House </Product>
-    <Description>This is a simple two word text adventure game. Try to escape from the house before you die.</Description>
-    <Copyright>Steven S. Sparks</Copyright>
-    <PackageProjectUrl>https://github.com/three-peppers-gaming</PackageProjectUrl>
+    <Title>Adventure Realms</Title>
+    <Company>Steven Sparks</Company>
+    <Product>Adventure Realms</Product>
+    <Description>Simple two word text adventure games. Try to escape from them before you die!</Description>
+    <Copyright>Copyright © 2025 Steven Sparks</Copyright>
+    <PackageProjectUrl></PackageProjectUrl>
     <PackageIcon></PackageIcon>
-    <RepositoryUrl>https://github.com/three-peppers-gaming</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>game;text;adventure;free</PackageTags>
+    <RepositoryUrl></RepositoryUrl>
+    <RepositoryType></RepositoryType>
+    <PackageTags>game;text;adventure;free;offline</PackageTags>
     <PackageReleaseNotes>Enhanced version with Spectre.Console support and built-in command buffer</PackageReleaseNotes>
     <AssemblyVersion></AssemblyVersion>
     <FileVersion></FileVersion>
     <SignAssembly>False</SignAssembly>
-    <Version>1.0.6.0</Version>
-    <AssemblyName>AdventureHouse</AssemblyName>
+    <Version>1.0.8.0</Version>
+    <AssemblyName>AdventureRealms</AssemblyName>
     <Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
 

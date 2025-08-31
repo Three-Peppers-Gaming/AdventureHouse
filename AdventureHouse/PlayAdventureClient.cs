@@ -2,6 +2,7 @@
 using AdventureHouse.Services.Models;
 using AdventureServer.Interfaces;
 using AdventureServer.Services;
+using AdventureHouse.Services.Data.AdventureData;
 using Spectre.Console;
 using System.Text;
 
@@ -11,9 +12,6 @@ namespace AdventureHouse
     {
         private static readonly IAppVersionService appVersionService = new AppVersionService();
         private static GameMoveResult gmr = new(); // Initialize to avoid CS8618
-        private static readonly string SteveSparks = "Steve Sparks";
-        private static readonly string RepoURL = "https://github.com/Three-Peppers-Gaming";
-        private static readonly string WelcomeTitle = "Adventure House";
         
         private static bool UseClassicMode = false;
         private static bool ScrollMode = false;
@@ -21,27 +19,13 @@ namespace AdventureHouse
         
         // Add this field to your PlayAdventureClient class
         private static MapState? _mapState;
+        private static readonly AdventureHouseConfiguration _gameConfig = new();
 
         // Simple command buffer implementation using built-in Console features
         private static void InitializeCommandBuffer()
         {
-            // Initialize command history with common commands
-            var commonCommands = new[]
-            {
-                // Console commands - BOTH with and without forward slashes
-                "chelp", "/chelp", "/help", "clear", "classic", "intro", "scroll", "time", "resign", "map", "/map",
-                
-                // Game commands - basic
-                "help", "look", "get", "drop", "use", "eat", "read", "wave", "throw",
-                "inv", "inventory", "pet", "shoo", "points", "health", "quit", "newgame",
-                
-                // Directions
-                "north", "south", "east", "west", "up", "down", "n", "s", "e", "w", "u", "d",
-                "go north", "go south", "go east", "go west", "go up", "go down",
-            };
-            
-            // Pre-populate command history
-            foreach (var cmd in commonCommands)
+            // Pre-populate command history with common commands
+            foreach (var cmd in UIConfiguration.CommonGameCommands)
             {
                 CommandHistory.Add(cmd);
             }
@@ -52,63 +36,69 @@ namespace AdventureHouse
             AnsiConsole.Clear();
             
             // Create a fancy title
-            var title = new FigletText(WelcomeTitle)
+            var title = new FigletText(UIConfiguration.WelcomeTitle)
                 .LeftJustified()
-                .Color(Color.Cyan1);
+                .Color(UIConfiguration.InfoColor);
             AnsiConsole.Write(title);
 
-            // Version and developer info in a panel
+            // Version and copyright info in a panel
             var infoPanel = new Panel($"[bold green]Version:[/] {appVersionService.Version}\n" +
-                            $"[bold green]Developed by:[/] [red]{SteveSparks}[/]\n" +
-                            $"[bold green]GitHub:[/] [link={RepoURL}]{RepoURL}[/]")
+                            $"[bold yellow]{UIConfiguration.CopyrightNotice}[/]\n\n" +
+                            $"[cyan]{UIConfiguration.GameDescription}[/]")
                 .Header("[bold yellow]Game Information[/]")
-                .BorderColor(Color.Green)
+                .BorderColor(UIConfiguration.PrimaryBorderColor)
                 .RoundedBorder();
     
             AnsiConsole.Write(infoPanel);
 
             // Instructions - USING ASCII ONLY (no Unicode arrows or bullets)
-            AnsiConsole.MarkupLine("\n[bold red]ATTENTION:[/] [yellow]To exit type \"resign\", For console help type \"chelp\", For game help type \"help\"[/]");
+            AnsiConsole.MarkupLine($"\n[bold red]ATTENTION:[/] [yellow]{UIConfiguration.AttentionMessage}[/]");
             AnsiConsole.WriteLine();
-            AnsiConsole.MarkupLine("[dim]* Use Up/Down arrows for command history.[/]");
-            AnsiConsole.MarkupLine("[dim]* Use Left/Right arrows to edit[/]");
-            AnsiConsole.MarkupLine("[dim]* ESC to clear line[/]");
+            
+            foreach (var instruction in UIConfiguration.KeyboardInstructions)
+            {
+                AnsiConsole.MarkupLine($"[dim]{instruction}[/]");
+            }
             AnsiConsole.WriteLine();
 
             // NOW pause after ALL intro content is displayed
-            PauseWithSkip(5000, "[dim]Press Enter to continue or wait 5 seconds...[/]");
+            PauseWithSkip(UIConfiguration.DefaultPauseMilliseconds, $"[dim]{UIConfiguration.ContinueOrWaitPrompt}[/]");
         }
 
         private static void DisplayIntroClassic()
         {
             Console.Clear();
-            Console.ForegroundColor = ConsoleColor.DarkCyan;
-            Console.Write(WelcomeTitle.ToUpper());
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.ForegroundColor = UIConfiguration.ClassicHeaderColor;
+            Console.Write(UIConfiguration.WelcomeTitle.ToUpper());
+            Console.ForegroundColor = UIConfiguration.ClassicPrimaryColor;
             Console.WriteLine($" - {appVersionService.Version}");
             Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("Developed By: ");
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(SteveSparks);
-            Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("Find out more on GitHub at ");
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine(RepoURL);
-            Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.Write("ATTENTION:");
+            
+            // Highlight copyright in bright yellow
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(" To exit type \"resign\", For console help type \"chelp\", For game help type \"help\"");
+            Console.WriteLine(UIConfiguration.CopyrightNotice);
             Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.Gray;
-            // USING ASCII ONLY - no Unicode bullets or arrows
-            Console.WriteLine("* Use Up/Down arrows for command history * Use Left/Right arrows to edit * ESC to clear line");
+            
+            Console.ForegroundColor = UIConfiguration.ClassicWarningColor;
+            Console.Write("ATTENTION:");
+            Console.ForegroundColor = UIConfiguration.ClassicAccentColor;
+            Console.WriteLine($" {UIConfiguration.AttentionMessage}");
+            Console.WriteLine();
+            Console.ForegroundColor = UIConfiguration.ClassicTextColor;
+            
+            foreach (var instruction in UIConfiguration.KeyboardInstructions)
+            {
+                Console.WriteLine(instruction);
+            }
+            Console.WriteLine();
+            
+            // Game description at the bottom in cyan for better wrapping
+            Console.ForegroundColor = UIConfiguration.ClassicInfoColor;
+            Console.WriteLine(UIConfiguration.GameDescription);
             Console.WriteLine();
             
             // NOW pause after ALL intro content is displayed
-            PauseWithSkipClassic(5000, "Press Enter to continue or wait 5 seconds...");
+            PauseWithSkipClassic(UIConfiguration.DefaultPauseMilliseconds, UIConfiguration.ContinueOrWaitPrompt);
         }
 
         private static void DisplayHelpWithSpectre()
@@ -116,39 +106,30 @@ namespace AdventureHouse
             AnsiConsole.Clear();
             
             var helpTable = new Table()
-                .BorderColor(Color.Green)
+                .BorderColor(UIConfiguration.PrimaryBorderColor)
                 .AddColumn("[bold cyan]Command[/]")
                 .AddColumn("[bold cyan]Description[/]");
 
-            helpTable.AddRow("[white]chelp[/]", "Display this console commands help");
-            helpTable.AddRow("[white]help[/]", "Display in-game adventure help");
-            helpTable.AddRow("[white]map[/]", "Display ASCII map of current level"); // ADD THIS
-            helpTable.AddRow("[white]clear[/]", "Clear the screen and scroll buffer");
-            helpTable.AddRow("[white]classic[/]", "Toggle classic console mode");
-            helpTable.AddRow("[white]intro[/]", "Display game information");
-            helpTable.AddRow("[white]scroll[/]", "Toggle scrolling mode");
-            helpTable.AddRow("[white]time[/]", "Display system date and time");
-            helpTable.AddRow("[white]history[/]", "Show recent command history");
-            helpTable.AddRow("[white]resign[/]", "Exit game");
+            foreach (var (command, description) in UIConfiguration.ConsoleCommands)
+            {
+                helpTable.AddRow($"[white]{command}[/]", description);
+            }
 
             AnsiConsole.Write(new Panel(helpTable)
                 .Header("[bold yellow]Console Commands[/]")
-                .BorderColor(Color.Blue));
+                .BorderColor(UIConfiguration.SecondaryBorderColor));
 
             // Command buffer help - USING ASCII ONLY (no Unicode arrows)
             var bufferHelp = new Panel(
                 "[yellow]Enhanced Command Line:[/]\n" +
-                "* [cyan]Up/Down[/] arrows: Navigate command history\n" +
-                "* [cyan]Left/Right[/] arrows: Edit current command\n" +
-                "* [cyan]ESC[/]: Clear current line\n" +
-                "* [cyan]Enter[/]: Execute command")
+                string.Join("\n", UIConfiguration.EnhancedCommandLineFeatures.Select(f => $"* [cyan]{f.Replace("* ", "")}[/]")))
                 .Header("[bold green]Keyboard Shortcuts[/]")
-                .BorderColor(Color.Yellow)
+                .BorderColor(UIConfiguration.AccentBorderColor)
                 .RoundedBorder();
             
             AnsiConsole.Write(bufferHelp);
             AnsiConsole.WriteLine();
-            AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]");
+            AnsiConsole.MarkupLine($"[dim]{UIConfiguration.ContinuePrompt}[/]");
             Console.ReadKey(true);
         }
 
@@ -164,13 +145,13 @@ namespace AdventureHouse
 
             // Room header with fancy styling - NO SANITIZATION NEEDED
             var roomHeader = new Panel($"[bold yellow]{gameResult.RoomName}[/]")
-                .BorderColor(Color.Yellow)
+                .BorderColor(UIConfiguration.AccentBorderColor)
                 .RoundedBorder();
             AnsiConsole.Write(roomHeader);
 
             // Room description with word wrapping - NO SANITIZATION NEEDED
             var descriptionPanel = new Panel(WrapTextForSpectre(gameResult.RoomMessage))
-                .BorderColor(Color.Green)
+                .BorderColor(UIConfiguration.PrimaryBorderColor)
                 .RoundedBorder();
             AnsiConsole.Write(descriptionPanel);
 
@@ -181,15 +162,7 @@ namespace AdventureHouse
             }
 
             // Health status with color coding
-            var healthColor = gameResult.HealthReport.ToLower() switch
-            {
-                "great" => "green",
-                "okay" => "yellow",
-                "bad" => "orange1",
-                "horrible" => "red",
-                "dead" => "darkred",
-                _ => "white"
-            };
+            var healthColor = UIConfiguration.GetHealthColor(gameResult.HealthReport);
             
             AnsiConsole.MarkupLine($"[bold white]Health:[/] [{healthColor}]{gameResult.HealthReport}[/]");
             AnsiConsole.WriteLine();
@@ -199,17 +172,23 @@ namespace AdventureHouse
         {
             if (!ScrollMode) Console.Clear();
             
-            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.ForegroundColor = UIConfiguration.ClassicAccentColor;
             Console.WriteLine($"Room: {gameResult.RoomName}");
             Console.WriteLine();
             
-            Console.ForegroundColor = ConsoleColor.Green;
+            Console.ForegroundColor = UIConfiguration.ClassicPrimaryColor;
             Console.WriteLine(WrapText(gameResult.RoomMessage));
             
-            Console.ForegroundColor = ConsoleColor.White;
+            Console.ForegroundColor = UIConfiguration.ClassicSecondaryColor;
             Console.Write("You See: ");
-            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.ForegroundColor = UIConfiguration.ClassicInfoColor;
             Console.WriteLine(gameResult.ItemsMessage);
+            
+            // Health status with color coding
+            Console.ForegroundColor = UIConfiguration.ClassicSecondaryColor;
+            Console.Write("Health: ");
+            Console.ForegroundColor = UIConfiguration.GetHealthColorClassic(gameResult.HealthReport);
+            Console.WriteLine(gameResult.HealthReport);
             Console.WriteLine();
         }
 
@@ -217,7 +196,7 @@ namespace AdventureHouse
         {
             if (string.IsNullOrEmpty(text)) return string.Empty;
             
-            // Spectreاصة handles wrapping automatically, but we can clean up the text
+            // Spectre presse handles wrapping automatically, but we can clean up the text
             return text.Replace("\r\n", "\n").Replace("\r", "\n");
         }
 
@@ -225,7 +204,7 @@ namespace AdventureHouse
         {
             if (string.IsNullOrWhiteSpace(text)) return string.Empty;
             
-            var maxWidth = (int)(Console.WindowWidth * 0.9);
+            var maxWidth = (int)(Console.WindowWidth * UIConfiguration.TextWrapRatio);
             var lines = new StringBuilder();
             
             foreach (var paragraph in text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None))
@@ -589,7 +568,7 @@ namespace AdventureHouse
                 // Initialize with enhanced UI
                 if (!UseClassicMode)
                 {
-                    AnsiConsole.Write(new Rule("[bold green]Initializing Adventure House[/]"));
+                    AnsiConsole.Write(new Rule("[bold green]Initializing Adventure Realms[/]"));
                     DisplayIntroWithSpectre();
                 }
                 else
@@ -787,11 +766,11 @@ namespace AdventureHouse
             // Farewell message
             if (UseClassicMode)
             {
-                Console.WriteLine("Thanks for playing Adventure House!");
+                Console.WriteLine(UIConfiguration.GameExitMessage);
             }
             else
             {
-                AnsiConsole.Write(new Panel("[bold green]Thanks for playing Adventure House![/]")
+                AnsiConsole.Write(new Panel($"[bold green]{UIConfiguration.GameExitMessage}[/]")
                     .BorderColor(Color.Blue)
                     .RoundedBorder());
             }
@@ -877,7 +856,7 @@ namespace AdventureHouse
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine(_mapState.GenerateCurrentLevelMap());
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine(MapState.GetMapLegend());
+                Console.WriteLine(_mapState.GetMapLegend());
                 Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.WriteLine("Press any key to continue...");
                 Console.ReadKey(true);
@@ -890,9 +869,9 @@ namespace AdventureHouse
                 var currentRoomName = _mapState.GetCurrentRoomName().TrimEnd('.', '!');
                 
                 AnsiConsole.Write(new Panel(_mapState.GenerateCurrentLevelMap())
-                    .Header($"[bold yellow]{currentRoomName}[/]")  // CHANGED: Room name instead of "Adventure House Map"
+                    .Header($"[bold yellow]{currentRoomName}[/]")
                     .BorderColor(Color.Green));
-                AnsiConsole.MarkupLine($"[dim]{MapState.GetMapLegend()}[/]");
+                AnsiConsole.MarkupLine($"[dim]{_mapState.GetMapLegend()}[/]");
                 AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]");
                 Console.ReadKey(true);
             }
@@ -923,40 +902,7 @@ namespace AdventureHouse
         // Add this helper method to map room names to numbers
         private static int GetRoomNumberFromName(string roomName)
         {
-            // This maps your room names to their numbers based on your game data
-            return roomName?.ToLower().Trim() switch
-            {
-                "exit!" => 0,
-                "main entrance" => 1,
-                "downstairs hallway" => 2,
-                "guest bathroom" => 3,                    // Downstairs only
-                "living room" => 4,
-                "family room" => 5,
-                "nook" => 6,
-                "kitchen" => 7,
-                "utility hall" => 8,
-                "garage" => 9,
-                "main dining room" => 10,
-                "upstairs hallway" => 11,
-                "upstairs east hallway" => 12,
-                "upstairs north hallway" => 13,
-                "upstairs west hallway" => 14,
-                "spare room" => 15,
-                "utility room" => 16,
-                "upstairs bath" => 17,                    // Fixed: Now unique pattern
-                "master bedroom" => 18,
-                "master bedroom closet" => 19,
-                "attic" => 20,
-                "master bedroom bath" => 21,
-                "children's room" => 22,
-                "entertainment room" => 23,
-                "deck" => 24,
-                "debug room" => 88,
-                "psychedelic ladder" => 93,
-                "memory ladder" => 94,
-                "magic mushroom" => 95,
-                _ => -1
-            };
+            return _gameConfig.GetRoomNumberFromName(roomName);
         }
 
         // Enhanced pause with skip functionality for Spectre.Console mode

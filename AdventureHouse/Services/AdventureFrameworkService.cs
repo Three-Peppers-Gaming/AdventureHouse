@@ -1,5 +1,6 @@
 ﻿using AdventureHouse.Services.Models;
 using AdventurHouse.Services;
+using AdventureHouse.Services.Data.AdventureData;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace AdventureHouse.Services
@@ -15,10 +16,14 @@ namespace AdventureHouse.Services
         // Fortune Service for Reading the Book 
         private readonly IGetFortune _getfortune;
 
+        // Game configuration for current game
+        private readonly IGameConfiguration _gameConfig;
+
         public AdventureFrameworkService(IMemoryCache GameCache, IGetFortune getfortune)
         {
             _gameCache = GameCache;
             _getfortune = getfortune;
+            _gameConfig = adventureHouse.GetGameConfiguration();
         }
 
         #region Game Cache Management
@@ -120,7 +125,7 @@ namespace AdventureHouse.Services
         {
             List<Game> _games = new()
             {
-                new Game {Id =1, Name="Api Adventure House", Ver=".01", Desc="Figure out how to escape from the house."  },
+                new Game {Id =1, Name=_gameConfig.GameName, Ver=_gameConfig.GameVersion, Desc=_gameConfig.GameDescription  },
                 new Game {Id =1, Name="Adventure House Part 2!", Ver="00", Desc="Exact same game as API Adventure house but using a different name"}
             };
 
@@ -1111,6 +1116,99 @@ namespace AdventureHouse.Services
 
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

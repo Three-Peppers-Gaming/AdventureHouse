@@ -9,41 +9,22 @@ namespace AdventureHouse.Services.Data.AdventureData
 {
     public class AdventureHouseData
     {
+        private readonly AdventureHouseConfiguration _config = new();
+
         public string GetAdventureHelpText()
         {
-            return "You pause and recall your mother's bedtime story:\r\n" +
-                   "Once upon a time a great explorer wandered into a mystery house. " +
-                   "The adventurer visited rooms from the EAST to the WEST. " +
-                   "Going UP and DOWN stairs and ladders looking for items. The hero " +
-                   "took many actions such as LOOKing and GETting items found in their path. " +
-                   "From time to time the hero would USE these items to explore further. " +
-                   "Sometimes these things would need to be used in a specific way. " +
-                   "Fortunately for the adventurer, their backpack has infinite INVentory " +
-                   "space and they could carry almost anything. The adventure seemed never " +
-                   "to end unless a specific exit or item was found. There were times when " +
-                   "the adventurer would die, but since this is a story you can always " +
-                   "RESTART from the beginning. The hero would often get and need to EAT " +
-                   "a snack. The rest of the story fades from your mind, but you do recall " +
-                   "your mom talking about the explorer who would WAVE things " +
-                   "while EATing an apple.\r\n\r\nConsole help type \"chelp\"";
+            return _config.GetAdventureHelpText();
         }
-
 
         public string GetAdventureThankYouText()
         {
-            return  "CONGRATULATIONS! YOU WIN! (try the \"Points\" command)\r\n\r\n" +
-                    "You have been able to escape the game before you starved to death!\r\n" +
-                    "You can continue to explore by returning to the house \"west\".\r\n\r\n"
-                   + "We hope you have enjoyed this retro-style adventure game! "
-                   + "We have hidden some fun little surprises in the text and objects. "
-                   + "Or personal favorite is Stormi the kitten following you around the house after you "
-                   + "give her a nice PET. You can always SHOO her away if she is too much of a pest. "
-                   + "If you get a chance to READ the SLIP a few times it can make for a few laughs." +
-                   "\r\n\r\n" +
-                   "Have a Great Day and Let is know what you think!\r\n\r\n" +
-                   "\"The Three Peppers\" - Steve, Stevie, and Anabella\r\n\r\n";
+            return _config.GetAdventureThankYouText();
         }
-    
+
+        public AdventureHouseConfiguration GetGameConfiguration()
+        {
+            return _config;
+        }
 
 
         public PlayAdventure SetupAdventure(string gameid)
@@ -54,20 +35,20 @@ namespace AdventureHouse.Services.Data.AdventureData
             var _play = new PlayAdventure
             {
                 GameID = 1,
-                GameName = "Adventure House 3.5 (.Net 8.0)",
-                GameHelp = GetAdventureHelpText(),
-                GameThanks= GetAdventureThankYouText(),
+                GameName = _config.GameName,
+                GameHelp = _config.GetAdventureHelpText(),
+                GameThanks= _config.GetAdventureThankYouText(),
                 InstanceID = gameid,
-                StartRoom = 20,
-                WelcomeMessage = $"Dear {_gamerTag}, \r\n\r\nThis is a simple 2 word adventure game. Use simple but HELPful commands to find your way out before you die.\r\n\r\nGood Luck!\r\n\r\nThe Management.\r\n\r\n\r\n",
-                MaxHealth = 200,
-                HealthStep = 2,
+                StartRoom = _config.StartingRoom,
+                WelcomeMessage = _config.GetWelcomeMessage(_gamerTag),
+                MaxHealth = _config.MaxHealth,
+                HealthStep = _config.HealthStep,
                 Items = Items(),
                 Messages = Messages(),
                 Rooms = Rooms(),
-                Player = new Player { Name = _gamerTag, PlayerID = gameid, HealthMax = 200, HealthCurrent = 200, Room = 20, Steps = 2, Verbose = true, Points = 1, PlayerDead = false },
+                Player = new Player { Name = _gamerTag, PlayerID = gameid, HealthMax = _config.MaxHealth, HealthCurrent = _config.MaxHealth, Room = _config.StartingRoom, Steps = 2, Verbose = true, Points = _config.StartingPoints, PlayerDead = false },
                 GameActive = true,
-                PointsCheckList = new List<string> { "NewGame" }
+                PointsCheckList = new List<string> { _config.InitialPointsCheckList }
             };
 
                 return _play;
