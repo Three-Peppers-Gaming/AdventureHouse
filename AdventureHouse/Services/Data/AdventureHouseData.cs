@@ -46,6 +46,7 @@ namespace AdventureHouse.Services.Data.AdventureData
                 Items = Items(),
                 Messages = Messages(),
                 Rooms = Rooms(),
+                Monsters = Monsters(),
                 Player = new Player { Name = _gamerTag, PlayerID = gameid, HealthMax = _config.MaxHealth, HealthCurrent = _config.MaxHealth, Room = _config.StartingRoom, Steps = 2, Verbose = true, Points = _config.StartingPoints, PlayerDead = false },
                 GameActive = true,
                 PointsCheckList = new List<string> { _config.InitialPointsCheckList }
@@ -68,6 +69,7 @@ namespace AdventureHouse.Services.Data.AdventureData
                 new Item { Name="BREAD",  Description="A small loaf of bread. Not quite a lunch, too big for a snack.",Location=99, Action="It's too big for a snack. Maybe later, for lunch.", ActionVerb = "EAT", ActionResult="HEALTH", ActionValue = "100", ActionPoints= 10 },
                 new Item { Name="KITTEN", Description= "A delightful fuzzy kitten",Location = 20, Action= "The little fuzzball, a black and white kitten just looks so adorable!", ActionVerb="PET", ActionResult="FOLLOW", ActionValue ="20", ActionPoints=50 },
                 new Item { Name="SLIP", Description= "A small slip of paper that looks like The fortune cookie slip from yesterdays DEVELOPER lunch. The words seem to fade in and out over and over.",Location = 18, Action= "the fortune cookie slip from yesterdays DEVELOPER lunch", ActionVerb="READ", ActionResult="FORTUNE", ActionValue ="1", ActionPoints=33 },
+                new Item { Name="FLYSWATTER", Description= "A sturdy plastic fly swatter with a bright yellow handle. Perfect for dealing with pesky insects.",Location = 18, Action="You swing the fly swatter through the air with a satisfying whoosh sound.", ActionVerb="ATTACK", ActionResult="WEAPON", ActionValue ="MOSQUITO", ActionPoints=25 },
 #if (DEBUG)                  
                     new Item { Name="STICK", Description= "This is the developers helpful and magic stick.",Location = 00, Action= "This looks a lot a debugging tool that a developer would create to make his life easy.", ActionVerb="WAVE", ActionResult="TELEPORT", ActionValue ="88", ActionPoints=0},
                     new Item { Name="AWAND", Description= "A small wooden wand.",Location = 99, Action="You wave the wand and the room fades for a second.", ActionVerb="WAVE", ActionResult = "TELEPORT", ActionValue = "1", ActionPoints=1},
@@ -199,10 +201,48 @@ namespace AdventureHouse.Services.Data.AdventureData
                 new Message {MessageTag ="PetFollow", Messsage = "The @ sits and stars at its shadow." },
                 new Message {MessageTag ="PetFollow", Messsage = "The @ chases a bug into a small hole." },
                 new Message {MessageTag ="PetFollow", Messsage = "The @ sleeps quietly." },
-                new Message {MessageTag ="PetFollow", Messsage = "The @ runs across the room and then returns to your feet." }
+                new Message {MessageTag ="PetFollow", Messsage = "The @ runs across the room and then returns to your feet." },
+                new Message {MessageTag ="MonsterAppear", Messsage="A wild @ suddenly appears!"},
+                new Message {MessageTag ="MonsterAppear", Messsage="You hear a buzzing sound as a @ enters the room."},
+                new Message {MessageTag ="MonsterAppear", Messsage="Suddenly, a @ flies into view!"},
+                new Message {MessageTag ="MonsterAttack", Messsage="The @ attacks you!"},
+                new Message {MessageTag ="MonsterAttack", Messsage="The @ swoops down and strikes!"},
+                new Message {MessageTag ="MonsterMiss", Messsage="The @ misses you completely."},
+                new Message {MessageTag ="MonsterMiss", Messsage="You dodge the @'s attack."},
+                new Message {MessageTag ="MonsterHit", Messsage="The @ bites you! Ouch!"},
+                new Message {MessageTag ="MonsterHit", Messsage="The @ stings you painfully!"},
+                new Message {MessageTag ="MonsterDefeated", Messsage="You defeat the @! It flies away."},
+                new Message {MessageTag ="MonsterDefeated", Messsage="The @ is vanquished!"},
+                new Message {MessageTag ="AttackSuccess", Messsage="You successfully attack the @ with your @!"},
+                new Message {MessageTag ="AttackFailed", Messsage="You need the right weapon to attack the @."},
+                new Message {MessageTag ="NoMonster", Messsage="There's nothing here to attack."}
                 };
 
                 return _messsages;
+            }
+
+            private static List<Monster> Monsters()
+            {
+                var _monsters = new List<Monster>
+                {
+                    new Monster 
+                    { 
+                        Key = "MOSQUITO", 
+                        Name = "Mosquito", 
+                        Description = "A large, annoying mosquito buzzing around the room. It looks like it wants to make you its next meal.",
+                        RoomNumber = 23, // Entertainment Room
+                        ObjectNameThatCanAttackThem = "FLYSWATTER",
+                        AttacksToKill = 1,
+                        CurrentHealth = 1, // Initialize CurrentHealth to AttacksToKill
+                        CanHitPlayer = true,
+                        HitOdds = 30, // 30% chance to hit player
+                        HealthDamage = 5,
+                        AppearanceChance = 60, // 60% chance to appear when entering room
+                        IsPresent = false // Start as not present
+                    }
+                };
+
+                return _monsters;
             }
     }
 }

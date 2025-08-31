@@ -21,6 +21,7 @@ namespace AdventureHouse.Services.Models
         public List<Item> Items { get; set; } = new();
         public List<Message> Messages { get; set; } = new();
         public List<Room> Rooms { get; set; } = new();
+        public List<Monster> Monsters { get; set; } = new();
         public Boolean GameActive { get; set; } = false;
         public List<string> PointsCheckList { get; set; } = new();
 

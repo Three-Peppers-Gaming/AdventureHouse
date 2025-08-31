@@ -140,7 +140,13 @@ Note: Only visited rooms and paths between them are shown.
                    "RESTART from the beginning. The hero would often get and need to EAT " +
                    "a snack. The rest of the story fades from your mind, but you do recall " +
                    "your mom talking about the explorer who would WAVE things " +
-                   "while EATing an apple.\r\n\r\nConsole help type \"chelp\"";
+                   "while EATing an apple.\r\n\r\n" +
+                   "Your mother also mentioned that sometimes the adventurer would encounter " +
+                   "dangerous creatures in the house. When this happened, the brave explorer " +
+                   "would need to find the right weapon to ATTACK the beast. Without the proper " +
+                   "weapon, the creatures could not be defeated, and they might strike back! " +
+                   "The explorer could always flee to another room to escape danger.\r\n\r\n" +
+                   "Console help type \"chelp\"";
         }
 
         public string GetAdventureThankYouText()
