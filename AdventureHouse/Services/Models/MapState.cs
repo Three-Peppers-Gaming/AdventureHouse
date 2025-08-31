@@ -262,7 +262,7 @@ namespace AdventureHouse.Services.Models
         // Generate ASCII map for specific level - USING ASCII ONLY with BOXED ROOMS
         public string GenerateLevelMap(MapLevel level)
         {
-#if !DEBUG
+#if DEBUG
             // In release mode, don't show debug levels
             if (level == MapLevel.DebugLevel)
                 return "Debug level not available in release mode.";
