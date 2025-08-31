@@ -44,10 +44,18 @@ namespace AdventureHouse.Services.Data.AdventureData
         char DefaultRoomCharacter { get; }
         #endregion
 
+        #region Map Configuration
+        Dictionary<int, MapLevel> RoomToLevelMapping { get; }
+        Dictionary<MapLevel, (int GridWidth, int GridHeight)> LevelGridSizes { get; }
+        Dictionary<int, (int X, int Y)> RoomPositions { get; }
+        #endregion
+
         #region Helper Methods
         char GetRoomDisplayChar(string roomName);
         int GetRoomNumberFromName(string roomName);
         string GetLevelDisplayName(MapLevel level);
+        MapLevel GetLevelForRoom(int roomNumber);
+        (int X, int Y) GetRoomPosition(int roomNumber);
         #endregion
     }
 }

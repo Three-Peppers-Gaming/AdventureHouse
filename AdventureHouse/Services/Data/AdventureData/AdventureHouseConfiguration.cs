@@ -230,6 +230,100 @@ Note: Only visited rooms and paths between them are shown.
         {
             return LevelDisplayNames.GetValueOrDefault(level, "Unknown Level");
         }
+
+        /// <summary>
+        /// Get which level a room belongs to
+        /// </summary>
+        public MapLevel GetLevelForRoom(int roomNumber)
+        {
+            return RoomToLevelMapping.GetValueOrDefault(roomNumber, MapLevel.GroundFloor);
+        }
+
+        /// <summary>
+        /// Get the grid position for a room on its level
+        /// </summary>
+        public (int X, int Y) GetRoomPosition(int roomNumber)
+        {
+            return RoomPositions.GetValueOrDefault(roomNumber, (0, 0));
+        }
+        #endregion
+
+        #region Map Configuration
+        public Dictionary<int, MapLevel> RoomToLevelMapping => new()
+        {
+            [0] = MapLevel.Exit,
+            [1] = MapLevel.GroundFloor, [2] = MapLevel.GroundFloor, [3] = MapLevel.GroundFloor,
+            [4] = MapLevel.GroundFloor, [5] = MapLevel.GroundFloor, [6] = MapLevel.GroundFloor,
+            [7] = MapLevel.GroundFloor, [8] = MapLevel.GroundFloor, [9] = MapLevel.GroundFloor,
+            [10] = MapLevel.GroundFloor, [24] = MapLevel.GroundFloor,
+            [11] = MapLevel.UpperFloor, [12] = MapLevel.UpperFloor, [13] = MapLevel.UpperFloor,
+            [14] = MapLevel.UpperFloor, [15] = MapLevel.UpperFloor, [16] = MapLevel.UpperFloor,
+            [17] = MapLevel.UpperFloor, [18] = MapLevel.UpperFloor, [19] = MapLevel.UpperFloor,
+            [21] = MapLevel.UpperFloor, [22] = MapLevel.UpperFloor, [23] = MapLevel.UpperFloor,
+            [20] = MapLevel.Attic,
+            [93] = MapLevel.MagicRealm, [94] = MapLevel.MagicRealm, [95] = MapLevel.MagicRealm,
+#if DEBUG
+            [88] = MapLevel.DebugLevel
+#endif
+        };
+
+        public Dictionary<MapLevel, (int GridWidth, int GridHeight)> LevelGridSizes => new()
+        {
+            [MapLevel.GroundFloor] = (8, 7),   // Wide layout for house floors
+            [MapLevel.UpperFloor] = (8, 9),    // Upper floor layout
+            [MapLevel.Attic] = (3, 3),         // Small single room
+            [MapLevel.MagicRealm] = (3, 5),    // Vertical magic realm
+#if DEBUG
+            [MapLevel.DebugLevel] = (3, 3),    // Small debug area
+#endif
+            [MapLevel.Exit] = (3, 3)           // Exit area
+        };
+
+        public Dictionary<int, (int X, int Y)> RoomPositions => new()
+        {
+            // Ground Floor Layout
+            [1] = (5, 2),   // Main Entrance
+            [2] = (5, 4),   // Downstairs Hallway
+            [3] = (7, 4),   // Guest Bathroom
+            [4] = (5, 6),   // Living Room
+            [5] = (3, 6),   // Family Room
+            [6] = (3, 4),   // Nook
+            [7] = (3, 2),   // Kitchen
+            [8] = (3, 0),   // Utility Hall
+            [9] = (1, 0),   // Garage
+            [10] = (5, 0),  // Main Dining Room
+            [24] = (1, 4),  // Deck
+
+            // Upper Floor Layout
+            [11] = (5, 4),  // Upstairs Hallway
+            [12] = (5, 6),  // Upstairs East Hallway
+            [13] = (3, 4),  // Upstairs North Hallway
+            [14] = (3, 6),  // Upstairs West Hallway
+            [15] = (5, 8),  // Spare Room
+            [16] = (7, 4),  // Utility Room
+            [17] = (1, 4),  // Upstairs Bath
+            [18] = (3, 2),  // Master Bedroom
+            [19] = (5, 2),  // Master Bedroom Closet
+            [21] = (3, 0),  // Master Bedroom Bath
+            [22] = (1, 6),  // Children's Room
+            [23] = (3, 8),  // Entertainment Room
+
+            // Attic Layout
+            [20] = (1, 1),  // Attic (center of small map)
+
+            // Magic Realm Layout
+            [93] = (1, 1),  // Psychedelic Ladder (top)
+            [94] = (1, 3),  // Memory Ladder (bottom)
+            [95] = (1, 2),  // Magic Mushroom (center)
+
+#if DEBUG
+            // Debug Layout
+            [88] = (1, 1),  // Debug Room (center)
+#endif
+
+            // Exit Layout
+            [0] = (1, 1)    // Exit (center)
+        };
         #endregion
     }
 }

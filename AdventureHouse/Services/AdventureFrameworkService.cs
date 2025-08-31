@@ -627,10 +627,10 @@ namespace AdventureHouse.Services
             // This is use to know when we want to add 'and' or just a comma
 
             if (rm.N != 99) { pc++; };
-            if (rm.S != 99) { pc++; };
-            if (rm.E != 99) { pc++; };
-            if (rm.W != 99) { pc++; };
-            if (rm.U != 99) { pc++; };
+            if (rm.S != 99) { pc++; }
+            if (rm.E != 99) { pc++; }
+            if (rm.W != 99) { pc++; }
+            if (rm.U != 99) { pc++; }
             if (rm.D != 99) { pc++; };
 
             // A room could have no exit. You can "teleport" in a room with no exits so return and empty string
@@ -1116,6 +1116,102 @@ namespace AdventureHouse.Services
 
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

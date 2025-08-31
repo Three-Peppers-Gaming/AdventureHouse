@@ -72,6 +72,26 @@ namespace AdventureHouse.Services.Data.AdventureData
         public char DefaultRoomCharacter => '?';
         #endregion
 
+        #region Map Configuration
+        public Dictionary<int, MapLevel> RoomToLevelMapping => new()
+        {
+            [1] = MapLevel.GroundFloor,
+            [99] = MapLevel.Exit
+        };
+
+        public Dictionary<MapLevel, (int GridWidth, int GridHeight)> LevelGridSizes => new()
+        {
+            [MapLevel.GroundFloor] = (3, 3),
+            [MapLevel.Exit] = (3, 3)
+        };
+
+        public Dictionary<int, (int X, int Y)> RoomPositions => new()
+        {
+            [1] = (1, 1),
+            [99] = (1, 1)
+        };
+        #endregion
+
         #region Helper Methods
         public char GetRoomDisplayChar(string roomName)
         {
@@ -97,6 +117,16 @@ namespace AdventureHouse.Services.Data.AdventureData
         public string GetLevelDisplayName(MapLevel level)
         {
             return LevelDisplayNames.GetValueOrDefault(level, "Unknown Realm");
+        }
+
+        public MapLevel GetLevelForRoom(int roomNumber)
+        {
+            return RoomToLevelMapping.GetValueOrDefault(roomNumber, MapLevel.GroundFloor);
+        }
+
+        public (int X, int Y) GetRoomPosition(int roomNumber)
+        {
+            return RoomPositions.GetValueOrDefault(roomNumber, (0, 0));
         }
         #endregion
     }

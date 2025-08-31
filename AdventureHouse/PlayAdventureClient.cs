@@ -20,6 +20,7 @@ namespace AdventureHouse
         // Add this field to your PlayAdventureClient class
         private static MapState? _mapState;
         private static readonly AdventureHouseConfiguration _gameConfig = new();
+        private static AdventureFrameworkService? _gameClient;
 
         // Simple command buffer implementation using built-in Console features
         private static void InitializeCommandBuffer()
@@ -559,9 +560,11 @@ namespace AdventureHouse
             bool error = false;
             string errorMsg = string.Empty;
 
-            // Initialize command buffer AND map state
+            // Store client reference
+            _gameClient = client;
+
+            // Initialize command buffer
             InitializeCommandBuffer();
-            _mapState = new MapState();
 
             try
             {
@@ -580,6 +583,10 @@ namespace AdventureHouse
                 ShowLoadingProgress(() =>
                 {
                     gmr = client.FrameWork_NewGame(1);
+                    
+                    // Initialize map state with game data after getting game instance
+                    var gameInstance = client.GameInstance_GetObject(gmr.InstanceID);
+                    _mapState = new MapState(_gameConfig, gameInstance.Rooms, gameInstance.StartRoom);
                 });
 
                 instanceID = gmr.InstanceID;
