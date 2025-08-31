@@ -41,10 +41,10 @@ namespace AdventureHouse
                 .Color(UIConfiguration.InfoColor);
             AnsiConsole.Write(title);
 
-            // Version and developer info in a panel
+            // Version and copyright info in a panel
             var infoPanel = new Panel($"[bold green]Version:[/] {appVersionService.Version}\n" +
-                            $"[bold green]Developed by:[/] [red]{UIConfiguration.DeveloperName}[/]\n" +
-                            $"[bold green]GitHub:[/] [link={UIConfiguration.RepositoryURL}]{UIConfiguration.RepositoryURL}[/]")
+                            $"[bold yellow]{UIConfiguration.CopyrightNotice}[/]\n\n" +
+                            $"[cyan]{UIConfiguration.GameDescription}[/]")
                 .Header("[bold yellow]Game Information[/]")
                 .BorderColor(UIConfiguration.PrimaryBorderColor)
                 .RoundedBorder();
@@ -73,16 +73,12 @@ namespace AdventureHouse
             Console.ForegroundColor = UIConfiguration.ClassicPrimaryColor;
             Console.WriteLine($" - {appVersionService.Version}");
             Console.WriteLine();
-            Console.ForegroundColor = UIConfiguration.ClassicSecondaryColor;
-            Console.Write("Developed By: ");
-            Console.ForegroundColor = UIConfiguration.ClassicWarningColor;
-            Console.WriteLine(UIConfiguration.DeveloperName);
+            
+            // Highlight copyright in bright yellow
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine(UIConfiguration.CopyrightNotice);
             Console.WriteLine();
-            Console.ForegroundColor = UIConfiguration.ClassicSecondaryColor;
-            Console.Write("Find out more on GitHub at ");
-            Console.ForegroundColor = UIConfiguration.ClassicInfoColor;
-            Console.WriteLine(UIConfiguration.RepositoryURL);
-            Console.WriteLine();
+            
             Console.ForegroundColor = UIConfiguration.ClassicWarningColor;
             Console.Write("ATTENTION:");
             Console.ForegroundColor = UIConfiguration.ClassicAccentColor;
@@ -94,6 +90,11 @@ namespace AdventureHouse
             {
                 Console.WriteLine(instruction);
             }
+            Console.WriteLine();
+            
+            // Game description at the bottom in cyan for better wrapping
+            Console.ForegroundColor = UIConfiguration.ClassicInfoColor;
+            Console.WriteLine(UIConfiguration.GameDescription);
             Console.WriteLine();
             
             // NOW pause after ALL intro content is displayed
@@ -567,7 +568,7 @@ namespace AdventureHouse
                 // Initialize with enhanced UI
                 if (!UseClassicMode)
                 {
-                    AnsiConsole.Write(new Rule("[bold green]Initializing Adventure House[/]"));
+                    AnsiConsole.Write(new Rule("[bold green]Initializing Adventure Realms[/]"));
                     DisplayIntroWithSpectre();
                 }
                 else
@@ -765,11 +766,11 @@ namespace AdventureHouse
             // Farewell message
             if (UseClassicMode)
             {
-                Console.WriteLine("Thanks for playing Adventure House!");
+                Console.WriteLine(UIConfiguration.GameExitMessage);
             }
             else
             {
-                AnsiConsole.Write(new Panel("[bold green]Thanks for playing Adventure House![/]")
+                AnsiConsole.Write(new Panel($"[bold green]{UIConfiguration.GameExitMessage}[/]")
                     .BorderColor(Color.Blue)
                     .RoundedBorder());
             }

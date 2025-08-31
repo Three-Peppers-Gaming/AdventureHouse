@@ -10,10 +10,11 @@ namespace AdventureHouse.Services.Models
     public static class UIConfiguration
     {
         #region Application Information
-        public static readonly string WelcomeTitle = "Adventure House";
+        public static readonly string WelcomeTitle = "Adventure Realms!";
         public static readonly string DeveloperName = "Steve Sparks";
-        public static readonly string RepositoryURL = "https://github.com/Three-Peppers-Gaming";
-        public static readonly string GameDescription = "This is a simple two word text adventure games. Try to escape from the house before you die.";
+        public static readonly string GameDescription = "Simple two word text adventure games. Try to escape from them before you DIE!";
+        public static readonly string CompanyName = "Steven Sparks";
+        public static readonly string CopyrightNotice = "Copyright © 2025 Steven Sparks";
         #endregion
 
         #region Console Commands Configuration
@@ -57,7 +58,7 @@ namespace AdventureHouse.Services.Models
         public static readonly string[] EnhancedCommandLineFeatures = {
             "* Up/Down arrows: Navigate command history",
             "* Left/Right arrows: Edit current command", 
-            "* Home/End: Jump to start/start of line",
+            "* Home/End: Jump to start/end of line",
             "* ESC: Clear current line",
             "* Backspace/Delete: Edit text",
             "* Enter: Execute command"
@@ -182,7 +183,7 @@ General map footer text goes here.
         public static readonly string EmptyLevelMessage = "Empty level.";
         public static readonly string DebugNotAvailableMessage = "Debug level not available in release mode.";
         public static readonly string SetupGameMessage = "Setting up your adventure...";
-        public static readonly string GameExitMessage = "Thanks for playing Adventure House!";
+        public static readonly string GameExitMessage = "Thanks for playing Adventure Realms!";
         #endregion
 
         #region Helper Methods for UI Text Generation
