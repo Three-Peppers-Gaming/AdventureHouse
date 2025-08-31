@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text; // ADD THIS - Missing using directive for StringBuilder
 using AdventureHouse.Services.Models;
+using AdventureHouse.Services.Data.AdventureData;
 
 namespace AdventureHouse.Services.Models
 {
@@ -51,36 +52,8 @@ namespace AdventureHouse.Services.Models
         // USING ASCII ONLY - determine display character for room type
         private static char GetRoomDisplayChar(string roomName)
         {
-            return roomName.ToLower() switch
-            {
-                "exit!" => 'X',
-                "main entrance" => 'E',
-                "kitchen" => 'K',
-                "living room" => 'L',
-                "family room" => 'F',
-                "guest bathroom" => 'B',
-                "upstairs bath" => 'U',                   // Add this line
-                "master bedroom" => 'M',
-                "children's room" => 'C',
-                "attic" => 'A',
-                "deck" => 'D',
-                "garage" => 'G',
-                "nook" => 'N',
-                _ when roomName.ToLower().Contains("hallway") => 'H',
-                _ when roomName.ToLower().Contains("bathroom") => 'b',
-                _ when roomName.ToLower().Contains("bath") => 'b',  // Add this to catch the new name
-                _ when roomName.ToLower().Contains("bedroom") => 'm',
-                _ when roomName.ToLower().Contains("dining") => 'd',
-                _ when roomName.ToLower().Contains("utility") => 'u',
-                _ when roomName.ToLower().Contains("closet") => 'c',
-                _ when roomName.ToLower().Contains("entertainment") => 'e',
-                _ when roomName.ToLower().Contains("magic") => '*',
-                _ when roomName.ToLower().Contains("ladder") => '|',
-#if DEBUG
-                _ when roomName.ToLower().Contains("debug") => '?',
-#endif
-                _ => '.'
-            };
+            var gameConfig = new AdventureHouseConfiguration();
+            return gameConfig.GetRoomDisplayChar(roomName);
         }
     }
 
@@ -91,12 +64,14 @@ namespace AdventureHouse.Services.Models
         private readonly HashSet<int> _visitedRooms;
         private int _currentRoom;
         private MapLevel _currentLevel;
+        private readonly AdventureHouseConfiguration _gameConfig;
         
         public MapState()
         {
             _levelMaps = new Dictionary<MapLevel, Dictionary<int, MapPosition>>();
             _visitedRooms = new HashSet<int>();
             _currentRoom = 20; // Start in attic
+            _gameConfig = new AdventureHouseConfiguration();
             
             InitializeMaps();
         }
@@ -256,7 +231,7 @@ namespace AdventureHouse.Services.Models
             {
                 return _levelMaps[_currentLevel][_currentRoom].RoomName;
             }
-            return "Unknown Room";
+            return UIConfiguration.UnknownRoomMessage;
         }
 
         // Generate ASCII map for specific level - USING ASCII ONLY with BOXED ROOMS
@@ -265,15 +240,15 @@ namespace AdventureHouse.Services.Models
 #if DEBUG
             // In release mode, don't show debug levels
             if (level == MapLevel.DebugLevel)
-                return "Debug level not available in release mode.";
+                return UIConfiguration.DebugNotAvailableMessage;
 #endif
 
             if (!_levelMaps.ContainsKey(level))
-                return "No map available for this level.";
+                return UIConfiguration.NoMapAvailableMessage;
                 
             var levelRooms = _levelMaps[level];
             if (!levelRooms.Any())
-                return "Empty level.";
+                return UIConfiguration.EmptyLevelMessage;
                 
             // Calculate map bounds
             var minX = levelRooms.Values.Min(r => r.X);
@@ -285,12 +260,12 @@ namespace AdventureHouse.Services.Models
             var roomsHeight = maxY - minY + 1;
             
             // Create larger map grid for boxed rooms (each room takes 4x3 characters)
-            var mapWidth = roomsWidth * 4 - 1;   // 4 chars per room minus 1 for shared borders
-            var mapHeight = roomsHeight * 3 - 1; // 3 chars per room minus 1 for shared borders
+            var mapWidth = roomsWidth * UIConfiguration.RoomBoxWidth - 1;   // 4 chars per room minus 1 for shared borders
+            var mapHeight = roomsHeight * UIConfiguration.RoomBoxHeight - 1; // 3 chars per room minus 1 for shared borders
             
             // Ensure minimum size for single rooms
-            if (mapWidth < 4) mapWidth = 4;
-            if (mapHeight < 3) mapHeight = 3;
+            if (mapWidth < UIConfiguration.MinMapWidth) mapWidth = UIConfiguration.MinMapWidth;
+            if (mapHeight < UIConfiguration.MinMapHeight) mapHeight = UIConfiguration.MinMapHeight;
             
             var map = new char[mapHeight, mapWidth];
             
@@ -299,7 +274,7 @@ namespace AdventureHouse.Services.Models
             {
                 for (int x = 0; x < mapWidth; x++)
                 {
-                    map[y, x] = ' ';
+                    map[y, x] = UIConfiguration.SpaceCharacter;
                 }
             }
             
@@ -309,8 +284,8 @@ namespace AdventureHouse.Services.Models
             // SECOND: Draw room boxes for visited rooms (this will overwrite paths at room locations)
             foreach (var room in levelRooms.Values.Where(r => r.IsVisited))
             {
-                var roomStartX = (room.X - minX) * 4;
-                var roomStartY = (room.Y - minY) * 3;
+                var roomStartX = (room.X - minX) * UIConfiguration.RoomBoxWidth;
+                var roomStartY = (room.Y - minY) * UIConfiguration.RoomBoxHeight;
                 
                 // Ensure we don't go out of bounds
                 if (roomStartX + 3 >= mapWidth || roomStartY + 2 >= mapHeight) continue;
@@ -327,13 +302,13 @@ namespace AdventureHouse.Services.Models
                 
                 if (room.IsCurrentRoom)
                 {
-                    map[roomStartY + 1, roomStartX + 1] = '@'; // Player position
-                    map[roomStartY + 1, roomStartX + 2] = room.HasItemsVisible ? '+' : ' ';
+                    map[roomStartY + 1, roomStartX + 1] = UIConfiguration.PlayerCharacter; // Player position
+                    map[roomStartY + 1, roomStartX + 2] = room.HasItemsVisible ? UIConfiguration.ItemsIndicator : UIConfiguration.SpaceCharacter;
                 }
                 else
                 {
                     map[roomStartY + 1, roomStartX + 1] = room.DisplayChar; // Room character
-                    map[roomStartY + 1, roomStartX + 2] = room.HasItemsVisible ? '+' : ' '; // Items indicator
+                    map[roomStartY + 1, roomStartX + 2] = room.HasItemsVisible ? UIConfiguration.ItemsIndicator : UIConfiguration.SpaceCharacter; // Items indicator
                 }
                 
                 map[roomStartY + 1, roomStartX + 3] = '|';
@@ -366,15 +341,15 @@ namespace AdventureHouse.Services.Models
         {
             foreach (var room in levelRooms.Values.Where(r => r.IsVisited))
             {
-                var roomCenterX = (room.X - minX) * 4 + 2; // Center of room box
-                var roomCenterY = (room.Y - minY) * 3 + 1; // Center of room box
+                var roomCenterX = (room.X - minX) * UIConfiguration.RoomBoxWidth + 2; // Center of room box
+                var roomCenterY = (room.Y - minY) * UIConfiguration.RoomBoxHeight + 1; // Center of room box
                 
                 // Draw connections to other visited rooms
                 // EAST connection
-                if (room.East != 99 && levelRooms.ContainsKey(room.East) && levelRooms[room.East].IsVisited)
+                if (room.East != UIConfiguration.NoConnectionValue && levelRooms.ContainsKey(room.East) && levelRooms[room.East].IsVisited)
                 {
                     var targetRoom = levelRooms[room.East];
-                    var targetX = (targetRoom.X - minX) * 4;
+                    var targetX = (targetRoom.X - minX) * UIConfiguration.RoomBoxWidth;
                     var pathY = roomCenterY;
                     
                     // Draw dotted line from room edge to target room edge
@@ -382,17 +357,17 @@ namespace AdventureHouse.Services.Models
                     {
                         if (x < mapWidth && pathY < mapHeight)
                         {
-                            if (map[pathY, x] == ' ') // Don't overwrite existing content
-                                map[pathY, x] = (x % 2 == 0) ? '.' : ' '; // Dotted line
+                            if (map[pathY, x] == UIConfiguration.SpaceCharacter) // Don't overwrite existing content
+                                map[pathY, x] = (x % 2 == 0) ? '.' : UIConfiguration.SpaceCharacter; // Dotted line
                         }
                     }
                 }
                 
                 // SOUTH connection
-                if (room.South != 99 && levelRooms.ContainsKey(room.South) && levelRooms[room.South].IsVisited)
+                if (room.South != UIConfiguration.NoConnectionValue && levelRooms.ContainsKey(room.South) && levelRooms[room.South].IsVisited)
                 {
                     var targetRoom = levelRooms[room.South];
-                    var targetY = (targetRoom.Y - minY) * 3;
+                    var targetY = (targetRoom.Y - minY) * UIConfiguration.RoomBoxHeight;
                     var pathX = roomCenterX;
                     
                     // Draw dotted line from room edge to target room edge
@@ -400,29 +375,29 @@ namespace AdventureHouse.Services.Models
                     {
                         if (pathX < mapWidth && y < mapHeight)
                         {
-                            if (map[y, pathX] == ' ') // Don't overwrite existing content
-                                map[y, pathX] = (y % 2 == 0) ? ':' : ' '; // Dotted vertical line
+                            if (map[y, pathX] == UIConfiguration.SpaceCharacter) // Don't overwrite existing content
+                                map[y, pathX] = (y % 2 == 0) ? ':' : UIConfiguration.SpaceCharacter; // Dotted vertical line
                         }
                     }
                 }
                 
                 // UP/DOWN connections (show with special characters)
-                if (room.Up != 99 && levelRooms.ContainsKey(room.Up) && levelRooms[room.Up].IsVisited)
+                if (room.Up != UIConfiguration.NoConnectionValue && levelRooms.ContainsKey(room.Up) && levelRooms[room.Up].IsVisited)
                 {
                     // Show up connection with ^ symbol near room
                     if (roomCenterX + 1 < mapWidth && roomCenterY - 1 >= 0)
                     {
-                        if (map[roomCenterY - 1, roomCenterX + 1] == ' ')
+                        if (map[roomCenterY - 1, roomCenterX + 1] == UIConfiguration.SpaceCharacter)
                             map[roomCenterY - 1, roomCenterX + 1] = '^';
                     }
                 }
                 
-                if (room.Down != 99 && levelRooms.ContainsKey(room.Down) && levelRooms[room.Down].IsVisited)
+                if (room.Down != UIConfiguration.NoConnectionValue && levelRooms.ContainsKey(room.Down) && levelRooms[room.Down].IsVisited)
                 {
                     // Show down connection with v symbol near room
                     if (roomCenterX + 1 < mapWidth && roomCenterY + 3 < mapHeight)
                     {
-                        if (map[roomCenterY + 3, roomCenterX + 1] == ' ')
+                        if (map[roomCenterY + 3, roomCenterX + 1] == UIConfiguration.SpaceCharacter)
                             map[roomCenterY + 3, roomCenterX + 1] = 'v';
                     }
                 }
@@ -432,48 +407,14 @@ namespace AdventureHouse.Services.Models
         // Get display name for level with debug exclusion
         private static string GetLevelDisplayName(MapLevel level)
         {
-            return level switch
-            {
-                MapLevel.GroundFloor => "Ground Floor",
-                MapLevel.UpperFloor => "Upper Floor",
-                MapLevel.Attic => "Attic",
-                MapLevel.MagicRealm => "Magic Realm",
-#if DEBUG
-                MapLevel.DebugLevel => "Debug Level",
-#endif
-                MapLevel.Exit => "Freedom!",
-                _ => "Unknown Level"
-            };
+            var gameConfig = new AdventureHouseConfiguration();
+            return gameConfig.GetLevelDisplayName(level);
         }
         
         // Update the GetMapLegend method to include path connections
-        public static string GetMapLegend()
+        public string GetMapLegend()
         {
-            return @"
-MAP LEGEND (ASCII ONLY - BOXED ROOMS WITH PATHS):
-+---+  = Room Box     @ = Your Location (replaces room char)    
-|E  |  = Entrance     |K| = Kitchen        |L| = Living Room
-|M+ |  = Room + Items |C| = Children Room  |B| = Guest Bathroom  
-|U  |  = Upstairs Bath|H| = Hallway        |D| = Deck/Dining     
-|G  |  = Garage       |A| = Attic          |*| = Magic Room      
-||  |  = Ladder       |.| = Other Room
-
-PATH CONNECTIONS:
-. . .  = Horizontal path (East/West)
-:      = Vertical path (North/South)  
-  :    
-^      = Stairs/ladder going Up
-v      = Stairs/ladder going Down
-" +
-#if DEBUG
-@"|?  |  = Debug Room
-"
-#else
-""
-#endif
-+ @"
-Note: Only visited rooms and paths between them are shown.
-";
+            return _gameConfig.GetCompleteMapLegend();
         }
         
         // Get current level info
