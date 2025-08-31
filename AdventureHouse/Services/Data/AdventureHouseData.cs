@@ -11,21 +11,21 @@ namespace AdventureHouse.Services.Data.AdventureData
     {
         public string GetAdventureHelpText()
         {
-            return "You pause and recall your mothers bedtime story:\r\n" +
-                     "Once upon a time a great explorer wondered into a mystery house. "
-                   + "The adventurer visited rooms from the EAST to the WEST. "
-                   + "Going UP and DOWN stairs and ladders looking for items. The hero "
-                   + "took many actions such as LOOKing and GETting item found in their path. "
-                   + "From time to time the hero would USE these items to explore further. "
-                   + "Sometimes these things would need to used in a specific way. "
-                   + "Fortunately for the adventurer, their backpack has infinite INVentory "
-                   + "space and they could carry almost anything. The adventure seemed never "
-                   + "to end unless a specific exit or item was found. There were times when "
-                   + "the adventurer would die, but since this is a story you can always "
-                   + "RESTART from the beginning. The hero would often get and need to EAT "
-                   + "a snack. The rest of the story fades from your mind, but you do recall "
-                   + "your mom talking about the explorer who would WAVE things "
-                   + "while EATing an apple.\r\n\r\nConsole help type \"chelp\"";
+            return "You pause and recall your mother's bedtime story:\r\n" +
+                   "Once upon a time a great explorer wandered into a mystery house. " +
+                   "The adventurer visited rooms from the EAST to the WEST. " +
+                   "Going UP and DOWN stairs and ladders looking for items. The hero " +
+                   "took many actions such as LOOKing and GETting items found in their path. " +
+                   "From time to time the hero would USE these items to explore further. " +
+                   "Sometimes these things would need to be used in a specific way. " +
+                   "Fortunately for the adventurer, their backpack has infinite INVentory " +
+                   "space and they could carry almost anything. The adventure seemed never " +
+                   "to end unless a specific exit or item was found. There were times when " +
+                   "the adventurer would die, but since this is a story you can always " +
+                   "RESTART from the beginning. The hero would often get and need to EAT " +
+                   "a snack. The rest of the story fades from your mind, but you do recall " +
+                   "your mom talking about the explorer who would WAVE things " +
+                   "while EATing an apple.\r\n\r\nConsole help type \"chelp\"";
         }
 
 
@@ -54,7 +54,7 @@ namespace AdventureHouse.Services.Data.AdventureData
             var _play = new PlayAdventure
             {
                 GameID = 1,
-                GameName = "Adventure House 3.0 (.Net 6.0)",
+                GameName = "Adventure House 3.5 (.Net 8.0)",
                 GameHelp = GetAdventureHelpText(),
                 GameThanks= GetAdventureThankYouText(),
                 InstanceID = gameid,
@@ -80,7 +80,7 @@ namespace AdventureHouse.Services.Data.AdventureData
             {
                 new Item { Name="BREAD",  Description="A small loaf of bread. Not quite a lunch, too big for an afternoon snack.",Location=06, Action="The bread was fresh and warm.", ActionVerb = "EAT", ActionResult="HEALTH", ActionValue = "100", ActionPoints = 5},
                 new Item { Name="BUGLE", Description="A bugle. You were never very good with instruments.",Location= 20, Action="You try to no avail to produce something that could constitute music.", ActionVerb ="USE", ActionResult = "HEALTH", ActionValue = "-1" , ActionPoints=1 },
-                new Item { Name="APPLE",Description= "A nice, red apple that looks fresh, shiney and very apetizing.", Location = 07, Action="Tastes just as good as it looked.", ActionVerb = "EAT", ActionResult = "HEALTH", ActionValue = "25", ActionPoints = 10 },
+                new Item { Name="APPLE",Description= "A nice, red apple that looks fresh, shiny and very appetizing.", Location = 07, Action="Tastes just as good as it looked.", ActionVerb = "EAT", ActionResult = "HEALTH", ActionValue = "25", ActionPoints = 10 },
                 new Item { Name="KEY",Description= "A shiny brushed metal aesthetically pleasing key that has a good weight and feel. This must open something.", Location = 24, Action= "The key fits perfectly and the door unlocked with some effort.", ActionVerb="USE", ActionResult = "UNLOCK", ActionValue = "1|E|0|This is the entrance. The door is unlocked.|This is the entrance. Door is now unlocked", ActionPoints=100},
                 new Item { Name="WAND", Description= "A small wooden wand with G. Stilton scratched into the base.",Location = 17, Action="You wave the wand and the room fades for a second.", ActionVerb="WAVE", ActionResult = "TELEPORT", ActionValue = "1", ActionPoints=10 },
                 new Item { Name="PIE", Description= "A small slice of apple pie. It looks mouthwatering and fresh.",Location = 10, Action= "A little cold, but there is never really a good reason to turn down pie.", ActionVerb="EAT", ActionResult="HEALTH", ActionValue ="100", ActionPoints = 10 },
@@ -122,7 +122,7 @@ namespace AdventureHouse.Services.Data.AdventureData
                 new Room { Number = 13, RoomPoints=5 ,Name = "Upstairs North Hallway", Desc = "The part of the hall has a large closet. ", N = 18, S = 14, E = 11, W = 17, U = 99, D = 99 },
                 new Room { Number = 14, RoomPoints=5 ,Name = "Upstairs West Hallway", Desc = "The long hallway has with a small closet. That door is nailed shut with an out of order sign on the door. ", N = 13, S = 23, E = 99, W = 22, U = 99, D = 99 },
                 new Room { Number = 15, RoomPoints=5 ,Name = "Spare Room", Desc = "The bedroom has a queen size bed and several KISS posters on the wall. It looks like it was a fun party room. The bed is covered in roses that look a bit old. The pedals like they were place there months ago.", N = 12, S = 99, E = 99, W = 99, U = 99, D = 99 },
-                new Room { Number = 16, RoomPoints=5 ,Name = "Utility Room", Desc = "This is a laundry room with a washer and dryer. The dryer looks fine but the washer looks rusty and needs to bew replaced.", N = 99, S = 99, E = 99, W = 11, U = 99, D = 99 },
+                new Room { Number = 16, RoomPoints=5 ,Name = "Utility Room", Desc = "This is a laundry room with a washer and dryer. The dryer looks fine but the washer looks rusty and needs to be replaced.", N = 99, S = 99, E = 99, W = 11, U = 99, D = 99 },
                 new Room { Number = 17, RoomPoints=5 ,Name = "Guest Bathroom", Desc = "The main bathroom with a large bathtub that is full of bubble bath. The water looks dirty and it stinks.", N = 99, S = 99, E = 13, W = 99, U = 99, D = 99 },
                 new Room { Number = 18, RoomPoints=5 ,Name = "Master Bedroom", Desc = "The master bedroom with an inviting king size bed. The room is messy and it seems like they had a party here.", N = 21, S = 13, E = 19, W = 99, U = 99, D = 99 },
                 new Room { Number = 19, RoomPoints=5 ,Name = "Master Bedroom Closet", Desc = "This is a long and narrow walk-in closet. A good place to put stairs to an attic.", N = 99, S = 99, E = 99, W = 18, U = 20, D = 99 },
