@@ -3,557 +3,42 @@ using AdventureHouse.Services.Models;
 using AdventureServer.Interfaces;
 using AdventureServer.Services;
 using AdventureHouse.Services.Data.AdventureData;
+using AdventurHouse.Services;
 using Spectre.Console;
 using System.Text;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using AdventureHouse.Services.UI;
+using AdventureHouse.Services.Input;
+using AdventureHouse.Services.GameManagement;
+using AdventureHouse.Services.Commands;
 
 namespace AdventureHouse
 {
+    /// <summary>
+    /// Main game client that orchestrates the adventure game flow
+    /// Now uses a service-based architecture for better separation of concerns
+    /// </summary>
     internal class PlayAdventureClient
     {
-        private static readonly IAppVersionService appVersionService = new AppVersionService();
         private static GameMoveResult gmr = new(); // Initialize to avoid CS8618
         
         private static bool UseClassicMode = false;
         private static bool ScrollMode = false;
-        private static readonly List<string> CommandHistory = new();
         
-        // Add this field to your PlayAdventureClient class
-        private static MapState? _mapState;
-        private static readonly AdventureHouseConfiguration _gameConfig = new();
-        private static AdventureFrameworkService? _gameClient;
+        // Services
+        private static IDisplayService? _displayService;
+        private static IInputService? _inputService;
+        private static IGameStateService? _gameStateService;
+        private static IConsoleCommandService? _consoleCommandService;
+        private static AdventurHouse.Services.IPlayAdventure? _gameClient;
+        private static IGameInstanceService? _gameInstanceService;
 
-        // Simple command buffer implementation using built-in Console features
-        private static void InitializeCommandBuffer()
-        {
-            // Pre-populate command history with common commands
-            foreach (var cmd in UIConfiguration.CommonGameCommands)
-            {
-                CommandHistory.Add(cmd);
-            }
-        }
-
-        private static void DisplayIntroWithSpectre()
-        {
-            AnsiConsole.Clear();
-            
-            // Create a fancy title
-            var title = new FigletText(UIConfiguration.WelcomeTitle)
-                .LeftJustified()
-                .Color(UIConfiguration.InfoColor);
-            AnsiConsole.Write(title);
-
-            // Version and copyright info in a panel
-            var infoPanel = new Panel($"[bold green]Version:[/] {appVersionService.Version}\n" +
-                            $"[bold yellow]{UIConfiguration.CopyrightNotice}[/]\n\n" +
-                            $"[cyan]{UIConfiguration.GameDescription}[/]")
-                .Header("[bold yellow]Game Information[/]")
-                .BorderColor(UIConfiguration.PrimaryBorderColor)
-                .RoundedBorder();
-    
-            AnsiConsole.Write(infoPanel);
-
-            // Instructions - USING ASCII ONLY (no Unicode arrows or bullets)
-            AnsiConsole.MarkupLine($"\n[bold red]ATTENTION:[/] [yellow]{UIConfiguration.AttentionMessage}[/]");
-            AnsiConsole.WriteLine();
-            
-            foreach (var instruction in UIConfiguration.KeyboardInstructions)
-            {
-                AnsiConsole.MarkupLine($"[dim]{instruction}[/]");
-            }
-            AnsiConsole.WriteLine();
-
-            // NOW pause after ALL intro content is displayed
-            PauseWithSkip(UIConfiguration.DefaultPauseMilliseconds, $"[dim]{UIConfiguration.ContinueOrWaitPrompt}[/]");
-        }
-
-        private static void DisplayIntroClassic()
-        {
-            Console.Clear();
-            Console.ForegroundColor = UIConfiguration.ClassicHeaderColor;
-            Console.Write(UIConfiguration.WelcomeTitle.ToUpper());
-            Console.ForegroundColor = UIConfiguration.ClassicPrimaryColor;
-            Console.WriteLine($" - {appVersionService.Version}");
-            Console.WriteLine();
-            
-            // Highlight copyright in bright yellow
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(UIConfiguration.CopyrightNotice);
-            Console.WriteLine();
-            
-            Console.ForegroundColor = UIConfiguration.ClassicWarningColor;
-            Console.Write("ATTENTION:");
-            Console.ForegroundColor = UIConfiguration.ClassicAccentColor;
-            Console.WriteLine($" {UIConfiguration.AttentionMessage}");
-            Console.WriteLine();
-            Console.ForegroundColor = UIConfiguration.ClassicTextColor;
-            
-            foreach (var instruction in UIConfiguration.KeyboardInstructions)
-            {
-                Console.WriteLine(instruction);
-            }
-            Console.WriteLine();
-            
-            // Game description at the bottom in cyan for better wrapping
-            Console.ForegroundColor = UIConfiguration.ClassicInfoColor;
-            Console.WriteLine(UIConfiguration.GameDescription);
-            Console.WriteLine();
-            
-            // NOW pause after ALL intro content is displayed
-            PauseWithSkipClassic(UIConfiguration.DefaultPauseMilliseconds, UIConfiguration.ContinueOrWaitPrompt);
-        }
-
-        private static void DisplayHelpWithSpectre()
-        {
-            AnsiConsole.Clear();
-            
-            var helpTable = new Table()
-                .BorderColor(UIConfiguration.PrimaryBorderColor)
-                .AddColumn("[bold cyan]Command[/]")
-                .AddColumn("[bold cyan]Description[/]");
-
-            foreach (var (command, description) in UIConfiguration.ConsoleCommands)
-            {
-                helpTable.AddRow($"[white]{command}[/]", description);
-            }
-
-            AnsiConsole.Write(new Panel(helpTable)
-                .Header("[bold yellow]Console Commands[/]")
-                .BorderColor(UIConfiguration.SecondaryBorderColor));
-
-            // Command buffer help - USING ASCII ONLY (no Unicode arrows)
-            var bufferHelp = new Panel(
-                "[yellow]Enhanced Command Line:[/]\n" +
-                string.Join("\n", UIConfiguration.EnhancedCommandLineFeatures.Select(f => $"* [cyan]{f.Replace("* ", "")}[/]")))
-                .Header("[bold green]Keyboard Shortcuts[/]")
-                .BorderColor(UIConfiguration.AccentBorderColor)
-                .RoundedBorder();
-            
-            AnsiConsole.Write(bufferHelp);
-            AnsiConsole.WriteLine();
-            AnsiConsole.MarkupLine($"[dim]{UIConfiguration.ContinuePrompt}[/]");
-            Console.ReadKey(true);
-        }
-
-        private static void DisplayGameState(GameMoveResult gameResult, bool useEnhanced = true)
-        {
-            if (!useEnhanced || UseClassicMode)
-            {
-                DisplayGameStateClassic(gameResult);
-                return;
-            }
-
-            if (!ScrollMode) AnsiConsole.Clear();
-
-            // Room header with fancy styling - NO SANITIZATION NEEDED
-            var roomHeader = new Panel($"[bold yellow]{gameResult.RoomName}[/]")
-                .BorderColor(UIConfiguration.AccentBorderColor)
-                .RoundedBorder();
-            AnsiConsole.Write(roomHeader);
-
-            // Room description with word wrapping - NO SANITIZATION NEEDED
-            var descriptionPanel = new Panel(WrapTextForSpectre(gameResult.RoomMessage))
-                .BorderColor(UIConfiguration.PrimaryBorderColor)
-                .RoundedBorder();
-            AnsiConsole.Write(descriptionPanel);
-
-            // Items section - NO SANITIZATION NEEDED
-            if (!string.IsNullOrEmpty(gameResult.ItemsMessage) && gameResult.ItemsMessage != "No Items")
-            {
-                AnsiConsole.MarkupLine($"[bold white]You See:[/] [cyan]{gameResult.ItemsMessage}[/]");
-            }
-
-            // Health status with color coding
-            var healthColor = UIConfiguration.GetHealthColor(gameResult.HealthReport);
-            
-            AnsiConsole.MarkupLine($"[bold white]Health:[/] [{healthColor}]{gameResult.HealthReport}[/]");
-            AnsiConsole.WriteLine();
-        }
-
-        private static void DisplayGameStateClassic(GameMoveResult gameResult)
-        {
-            if (!ScrollMode) Console.Clear();
-            
-            Console.ForegroundColor = UIConfiguration.ClassicAccentColor;
-            Console.WriteLine($"Room: {gameResult.RoomName}");
-            Console.WriteLine();
-            
-            Console.ForegroundColor = UIConfiguration.ClassicPrimaryColor;
-            Console.WriteLine(WrapText(gameResult.RoomMessage));
-            
-            Console.ForegroundColor = UIConfiguration.ClassicSecondaryColor;
-            Console.Write("You See: ");
-            Console.ForegroundColor = UIConfiguration.ClassicInfoColor;
-            Console.WriteLine(gameResult.ItemsMessage);
-            
-            // Health status with color coding
-            Console.ForegroundColor = UIConfiguration.ClassicSecondaryColor;
-            Console.Write("Health: ");
-            Console.ForegroundColor = UIConfiguration.GetHealthColorClassic(gameResult.HealthReport);
-            Console.WriteLine(gameResult.HealthReport);
-            Console.WriteLine();
-        }
-
-        private static string WrapTextForSpectre(string text)
-        {
-            if (string.IsNullOrEmpty(text)) return string.Empty;
-            
-            // Spectre presse handles wrapping automatically, but we can clean up the text
-            return text.Replace("\r\n", "\n").Replace("\r", "\n");
-        }
-
-        private static string WrapText(string text)
-        {
-            if (string.IsNullOrWhiteSpace(text)) return string.Empty;
-            
-            var maxWidth = (int)(Console.WindowWidth * UIConfiguration.TextWrapRatio);
-            var lines = new StringBuilder();
-            
-            foreach (var paragraph in text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None))
-            {
-                if (string.IsNullOrWhiteSpace(paragraph))
-                {
-                    lines.AppendLine();
-                    continue;
-                }
-                
-                var words = paragraph.Split(' ');
-                var currentLine = new StringBuilder();
-                
-                foreach (var word in words)
-                {
-                    if (currentLine.Length + word.Length + 1 > maxWidth)
-                    {
-                        lines.AppendLine(currentLine.ToString());
-                        currentLine.Clear();
-                    }
-                    
-                    if (currentLine.Length > 0) currentLine.Append(' ');
-                    currentLine.Append(word);
-                }
-                
-                if (currentLine.Length > 0)
-                    lines.AppendLine(currentLine.ToString());
-            }
-            
-            return lines.ToString();
-        }
-
-        private static string GetUserInputWithHistory()
-        {
-            string input = string.Empty;
-            int historyIndex = CommandHistory.Count;
-            List<ConsoleKeyInfo> currentLine = new();
-            int cursorPosition = 0;
-
-            Console.Write("Next Action? > ");
-            int startPosition = Console.CursorLeft;
-
-            while (true)
-            {
-                ConsoleKeyInfo keyInfo = Console.ReadKey(true);
-
-                switch (keyInfo.Key)
-                {
-                    case ConsoleKey.Enter:
-                        Console.WriteLine();
-                        input = new string(currentLine.Select(k => k.KeyChar).ToArray());
-                        
-                        // Add to history if not empty and not duplicate of last command
-                        if (!string.IsNullOrWhiteSpace(input) && 
-                            (CommandHistory.Count == 0 || CommandHistory.Last() != input))
-                        {
-                            CommandHistory.Add(input);
-                        }
-                        return input;
-
-                    case ConsoleKey.UpArrow:
-                        if (historyIndex > 0)
-                        {
-                            historyIndex--;
-                            LoadFromHistory(historyIndex, ref currentLine, ref cursorPosition, startPosition);
-                        }
-                        break;
-
-                    case ConsoleKey.DownArrow:
-                        if (historyIndex < CommandHistory.Count - 1)
-                        {
-                            historyIndex++;
-                            LoadFromHistory(historyIndex, ref currentLine, ref cursorPosition, startPosition);
-                        }
-                        else if (historyIndex == CommandHistory.Count - 1)
-                        {
-                            historyIndex++;
-                            currentLine.Clear();
-                            cursorPosition = 0;
-                            RefreshLine(currentLine, startPosition, cursorPosition);
-                        }
-                        break;
-
-                    case ConsoleKey.LeftArrow:
-                        if (cursorPosition > 0)
-                        {
-                            cursorPosition--;
-                            Console.SetCursorPosition(startPosition + cursorPosition, Console.CursorTop);
-                        }
-                        break;
-
-                    case ConsoleKey.RightArrow:
-                        if (cursorPosition < currentLine.Count)
-                        {
-                            cursorPosition++;
-                            Console.SetCursorPosition(startPosition + cursorPosition, Console.CursorTop);
-                        }
-                        break;
-
-                    case ConsoleKey.Home:
-                        cursorPosition = 0;
-                        Console.SetCursorPosition(startPosition, Console.CursorTop);
-                        break;
-
-                    case ConsoleKey.End:
-                        cursorPosition = currentLine.Count;
-                        Console.SetCursorPosition(startPosition + cursorPosition, Console.CursorTop);
-                        break;
-
-                    case ConsoleKey.Escape:
-                        currentLine.Clear();
-                        cursorPosition = 0;
-                        historyIndex = CommandHistory.Count;
-                        RefreshLine(currentLine, startPosition, cursorPosition);
-                        break;
-
-                    case ConsoleKey.Backspace:
-                        if (cursorPosition > 0)
-                        {
-                            currentLine.RemoveAt(cursorPosition - 1);
-                            cursorPosition--;
-                            RefreshLine(currentLine, startPosition, cursorPosition);
-                        }
-                        break;
-
-                    case ConsoleKey.Delete:
-                        if (cursorPosition < currentLine.Count)
-                        {
-                            currentLine.RemoveAt(cursorPosition);
-                            RefreshLine(currentLine, startPosition, cursorPosition);
-                        }
-                        break;
-
-                    default:
-                        // Only accept printable ASCII characters (32-126)
-                        if (!char.IsControl(keyInfo.KeyChar) && keyInfo.KeyChar >= 32 && keyInfo.KeyChar <= 126)
-                        {
-                            currentLine.Insert(cursorPosition, keyInfo);
-                            cursorPosition++;
-                            RefreshLine(currentLine, startPosition, cursorPosition);
-                        }
-                        break;
-                }
-            }
-        }
-
-        // Simpler version for enhanced mode
-        private static string GetUserInputWithHistorySimple()
-        {
-            string input = string.Empty;
-            int historyIndex = CommandHistory.Count;
-            List<ConsoleKeyInfo> currentLine = new();
-            int cursorPosition = 0;
-
-            int startPosition = Console.CursorLeft;
-
-            while (true)
-            {
-                ConsoleKeyInfo keyInfo = Console.ReadKey(true);
-
-                switch (keyInfo.Key)
-                {
-                    case ConsoleKey.Enter:
-                        Console.WriteLine();
-                        input = new string(currentLine.Select(k => k.KeyChar).ToArray());
-                        
-                        // Add to history if not empty and not duplicate of last command
-                        if (!string.IsNullOrWhiteSpace(input) && 
-                            (CommandHistory.Count == 0 || CommandHistory.Last() != input))
-                        {
-                            CommandHistory.Add(input);
-                        }
-                        return input;
-
-                    case ConsoleKey.UpArrow:
-                        if (historyIndex > 0)
-                        {
-                            historyIndex--;
-                            LoadFromHistory(historyIndex, ref currentLine, ref cursorPosition, startPosition);
-                        }
-                        break;
-
-                    case ConsoleKey.DownArrow:
-                        if (historyIndex < CommandHistory.Count - 1)
-                        {
-                            historyIndex++;
-                            LoadFromHistory(historyIndex, ref currentLine, ref cursorPosition, startPosition);
-                        }
-                        else if (historyIndex == CommandHistory.Count - 1)
-                        {
-                            historyIndex++;
-                            currentLine.Clear();
-                            cursorPosition = 0;
-                            RefreshLine(currentLine, startPosition, cursorPosition);
-                        }
-                        break;
-
-                    case ConsoleKey.LeftArrow:
-                        if (cursorPosition > 0)
-                        {
-                            cursorPosition--;
-                            Console.SetCursorPosition(startPosition + cursorPosition, Console.CursorTop);
-                        }
-                        break;
-
-                    case ConsoleKey.RightArrow:
-                        if (cursorPosition < currentLine.Count)
-                        {
-                            cursorPosition++;
-                            Console.SetCursorPosition(startPosition + cursorPosition, Console.CursorTop);
-                        }
-                        break;
-
-                    case ConsoleKey.Home:
-                        cursorPosition = 0;
-                        Console.SetCursorPosition(startPosition, Console.CursorTop);
-                        break;
-
-                    case ConsoleKey.End:
-                        cursorPosition = currentLine.Count;
-                        Console.SetCursorPosition(startPosition + cursorPosition, Console.CursorTop);
-                        break;
-
-                    case ConsoleKey.Escape:
-                        currentLine.Clear();
-                        cursorPosition = 0;
-                        historyIndex = CommandHistory.Count;
-                        RefreshLine(currentLine, startPosition, cursorPosition);
-                        break;
-
-                    case ConsoleKey.Backspace:
-                        if (cursorPosition > 0)
-                        {
-                            currentLine.RemoveAt(cursorPosition - 1);
-                            cursorPosition--;
-                            RefreshLine(currentLine, startPosition, cursorPosition);
-                        }
-                        break;
-
-                    case ConsoleKey.Delete:
-                        if (cursorPosition < currentLine.Count)
-                        {
-                            currentLine.RemoveAt(cursorPosition);
-                            RefreshLine(currentLine, startPosition, cursorPosition);
-                        }
-                        break;
-
-                    default:
-                        // Only accept printable ASCII characters (32-126)
-                        if (!char.IsControl(keyInfo.KeyChar) && keyInfo.KeyChar >= 32 && keyInfo.KeyChar <= 126)
-                        {
-                            currentLine.Insert(cursorPosition, keyInfo);
-                            cursorPosition++;
-                            RefreshLine(currentLine, startPosition, cursorPosition);
-                        }
-                        break;
-                }
-            }
-        }
-
-        private static void LoadFromHistory(int historyIndex, ref List<ConsoleKeyInfo> currentLine, ref int cursorPosition, int startPosition)
-        {
-            if (historyIndex >= 0 && historyIndex < CommandHistory.Count)
-            {
-                currentLine.Clear();
-                string historyCommand = CommandHistory[historyIndex];
-                foreach (char c in historyCommand)
-                {
-                    currentLine.Add(new ConsoleKeyInfo(c, (ConsoleKey)c, false, false, false));
-                }
-                cursorPosition = currentLine.Count;
-                RefreshLine(currentLine, startPosition, cursorPosition);
-            }
-        }
-
-        private static void RefreshLine(List<ConsoleKeyInfo> currentLine, int startPosition, int cursorPosition)
-        {
-            try
-            {
-                // Clear the line
-                Console.SetCursorPosition(startPosition, Console.CursorTop);
-                Console.Write(new string(' ', Math.Min(Console.WindowWidth - startPosition - 1, 120)));
-                Console.SetCursorPosition(startPosition, Console.CursorTop);
-                
-                // Write current line
-                foreach (var keyInfo in currentLine)
-                {
-                    Console.Write(keyInfo.KeyChar);
-                }
-                
-                // Set cursor position
-                Console.SetCursorPosition(startPosition + cursorPosition, Console.CursorTop);
-            }
-            catch
-            {
-                // If console operations fail, just continue
-            }
-        }
-
-        private static string GetUserInput()
-        {
-            if (UseClassicMode)
-            {
-                Console.ForegroundColor = ConsoleColor.White;
-                
-                // Use enhanced input with command buffer
-                var input = GetUserInputWithHistory();
-                return input;
-            }
-            else
-            {
-                // For enhanced mode, use Spectre.Console prompt but then use our command buffer
-                AnsiConsole.MarkupLine("[bold white]Next Action?[/]");
-                Console.Write("> ");
-                
-                // Get input using our custom command buffer
-                var input = GetUserInputWithHistorySimple();
-                return input;
-            }
-        }
-
-        private static void ShowLoadingProgress(Action gameInitAction)
-        {
-            if (UseClassicMode)
-            {
-                Console.WriteLine("Setting up your adventure...");
-                gameInitAction();
-                return;
-            }
-
-            // Use Spectre.Console's progress display
-            AnsiConsole.Progress()
-                .Start(ctx =>
-                {
-                    var task = ctx.AddTask("[green]Setting up your adventure...[/]");
-                    
-                    task.Increment(25);
-                    Thread.Sleep(100); // Brief pause for visual effect
-                    
-                    task.Increment(25);
-                    gameInitAction();
-                    
-                    task.Increment(50);
-                    Thread.Sleep(100);
-                });
-        }
-
-        public static void PlayAdventure(AdventureFrameworkService client)
+        /// <summary>
+        /// Main entry point for playing the adventure game
+        /// </summary>
+        /// <param name="client">The game client interface</param>
+        public static void PlayAdventure(AdventurHouse.Services.IPlayAdventure client)
         {
             string instanceID = string.Empty;
             string move = string.Empty;
@@ -563,197 +48,103 @@ namespace AdventureHouse
             // Store client reference
             _gameClient = client;
 
-            // Initialize command buffer
-            InitializeCommandBuffer();
+            // Initialize services
+            InitializeServices();
 
             try
             {
                 // Initialize with enhanced UI
-                if (!UseClassicMode)
-                {
-                    AnsiConsole.Write(new Rule("[bold green]Initializing Adventure Realms[/]"));
-                    DisplayIntroWithSpectre();
-                }
-                else
-                {
-                    DisplayIntroClassic();
-                }
+                _displayService!.DisplayIntro(UseClassicMode);
 
                 // Setup game with progress indicator
-                ShowLoadingProgress(() =>
+                _displayService!.ShowLoadingProgress(() =>
                 {
-                    gmr = client.FrameWork_NewGame(1);
-                    
-                    // Initialize map state with game data after getting game instance
-                    var gameInstance = client.GameInstance_GetObject(gmr.InstanceID);
-                    _mapState = new MapState(_gameConfig, gameInstance.Rooms, gameInstance.StartRoom);
-                });
+                    gmr = _gameStateService!.InitializeGame(client, 1);
+                }, UseClassicMode);
 
                 instanceID = gmr.InstanceID;
                 error = false;
             }
             catch (Exception e)
             {
+                error = true;
                 errorMsg = e.ToString();
-                if (UseClassicMode)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine(WrapText(errorMsg));
-                }
-                else
-                {
-                    AnsiConsole.WriteException(e);
-                }
+                _displayService!.DisplayError(errorMsg, UseClassicMode);
                 return;
             }
 
+            // Main game loop
             while (move != "resign")
             {
                 // Handle console commands BEFORE sending to game engine
-                // STRIP FORWARD SLASHES and normalize commands
                 var normalizedMove = move.Trim().ToLower().TrimStart('/');
                 
-                switch (normalizedMove)
+                var (wasProcessed, commandResult) = _consoleCommandService!.ProcessConsoleCommand(
+                    normalizedMove,
+                    _displayService!,
+                    _inputService!,
+                    _gameStateService!,
+                    UseClassicMode,
+                    ScrollMode);
+
+                if (wasProcessed)
                 {
-                    case "chelp":
-                    case "help":  // Now both chelp and /help work
-                    case "chlp": // Common typo
-                        if (UseClassicMode) DisplayHelpClassic();
-                        else DisplayHelpWithSpectre();
-                        move = ""; // Clear the move so it doesn't get processed by game
-                        continue; // Skip the rest of the loop
-                        
-                    case "map":  // Now both map and /map work
-                        DisplayMap();
-                        move = "";
-                        continue;
-                        
-                    case "time":
-                        var timeText = $"Date and Time: {DateTime.Now:F}";
-                        if (UseClassicMode)
-                        {
-                            Console.ForegroundColor = ConsoleColor.Green;
-                            Console.WriteLine(timeText);
-                            Console.WriteLine("Press any key to continue...");
-                            Console.ReadKey(true);
-                        }
-                        else
-                        {
-                            AnsiConsole.MarkupLine($"[bold green]{timeText}[/]");
-                            AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]");
-                            Console.ReadKey(true);
-                        }
-                        move = "";
-                        continue;
-
-                    case "intro":
-                        if (UseClassicMode) DisplayIntroClassic();
-                        else DisplayIntroWithSpectre();
-                        move = "";
-                        continue;
-
-                    case "classic":
-                        UseClassicMode = !UseClassicMode;
-                        var mode = UseClassicMode ? "Classic" : "Enhanced";
-                        if (UseClassicMode)
-                        {
-                            Console.Clear();
-                            Console.WriteLine($"Switched to {mode} mode");
-                        }
-                        else
-                        {
-                            AnsiConsole.Clear();
-                            AnsiConsole.MarkupLine($"[bold green]Switched to {mode} mode[/]");
-                        }
-                        move = "look";
-                        break; // Continue to process as game command
-
-                    case "clear":
-                    case "cls":
-                        if (UseClassicMode) Console.Clear();
-                        else AnsiConsole.Clear();
-                        move = "look";
-                        break; // Continue to process as game command
-
-                    case "scroll":
-                        ScrollMode = !ScrollMode;
-                        var scrollStatus = ScrollMode ? "enabled" : "disabled";
-                        if (UseClassicMode)
-                        {
-                            Console.WriteLine($"Scrolling {scrollStatus}");
-                            Console.WriteLine("Press any key to continue...");
-                            Console.ReadKey(true);
-                        }
-                        else
-                        {
-                            AnsiConsole.MarkupLine($"[yellow]Scrolling {scrollStatus}[/]");
-                            AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]");
-                            Console.ReadKey(true);
-                        }
-                        move = "";
-                        continue;
-                        
-                    case "history":
-                        // Show command history - NO SANITIZATION NEEDED
-                        if (UseClassicMode)
-                        {
-                            Console.WriteLine("Command History:");
-                            for (int i = Math.Max(0, CommandHistory.Count - 10); i < CommandHistory.Count; i++)
-                            {
-                                Console.WriteLine($"{i + 1}: {CommandHistory[i]}");
-                            }
-                            Console.WriteLine("Press any key to continue...");
-                            Console.ReadKey(true);
-                        }
-                        else
-                        {
-                            var historyTable = new Table()
-                                .BorderColor(Color.Blue)
-                                .AddColumn("Command");
+                    // Handle the result of console command processing
+                    switch (commandResult.Action)
+                    {
+                        case ConsoleCommandAction.Continue:
+                            move = ""; // Clear the move so it doesn't get processed by game
+                            continue; // Skip the rest of the loop
                             
-                            for (int i = Math.Max(0, CommandHistory.Count - 10); i < CommandHistory.Count; i++)
+                        case ConsoleCommandAction.ProcessAsGameCommand:
+                            move = commandResult.GameCommand ?? "";
+                            break; // Continue to process as game command
+                            
+                        case ConsoleCommandAction.ToggleMode:
+                            if (commandResult.ToggleClassicMode)
                             {
-                                historyTable.AddRow($"[cyan]{CommandHistory[i]}[/]");
+                                UseClassicMode = !UseClassicMode;
+                                var mode = UseClassicMode ? "Classic" : "Enhanced";
+                                if (UseClassicMode)
+                                {
+                                    Console.WriteLine($"Switched to {mode} mode");
+                                }
+                                else
+                                {
+                                    AnsiConsole.Clear();
+                                    AnsiConsole.MarkupLine($"[bold green]Switched to {mode} mode[/]");
+                                }
+                                move = commandResult.GameCommand ?? "look";
                             }
                             
-                            AnsiConsole.Write(new Panel(historyTable)
-                                .Header("[bold yellow]Recent Command History[/]")
-                                .BorderColor(Color.Blue));
-                                
-                            AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]");
-                            Console.ReadKey(true);
-                        }
-                        move = "";
-                        continue;
+                            if (commandResult.ToggleScrollMode)
+                            {
+                                ScrollMode = !ScrollMode;
+                                move = "";
+                                continue;
+                            }
+                            break; // Continue to process as game command
+                    }
                 }
 
                 // Display game state
-                DisplayGameState(gmr, !UseClassicMode);
+                _displayService!.DisplayGameState(gmr, !UseClassicMode, ScrollMode);
 
                 // UPDATE MAP STATE based on current game state
-                UpdateMapState();
+                _gameStateService!.UpdateMapState(gmr);
 
                 // Handle errors
                 if (error)
                 {
-                    if (UseClassicMode)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Client Error:");
-                        Console.WriteLine(WrapText(errorMsg));
-                    }
-                    else
-                    {
-                        AnsiConsole.MarkupLine("[bold red]Client Error:[/]");
-                        AnsiConsole.WriteException(new Exception(errorMsg));
-                    }
+                    _displayService!.DisplayError(errorMsg, UseClassicMode);
                     error = false;
                 }
 
                 // Get user input with enhanced command buffer support
-                move = GetUserInput();
+                move = _inputService!.GetUserInput(UseClassicMode);
                 if (string.IsNullOrEmpty(move)) move = "";
-                if (move.Length > 100) move = move.Substring(0, 100);
+                if (move.Length > UIConfiguration.MaxCommandLength) 
+                    move = move.Substring(0, UIConfiguration.MaxCommandLength);
 
                 // Process move through game engine (if it's not a console command)
                 if (!string.IsNullOrEmpty(move))
@@ -771,227 +162,24 @@ namespace AdventureHouse
             }
 
             // Farewell message
-            if (UseClassicMode)
-            {
-                Console.WriteLine(UIConfiguration.GameExitMessage);
-            }
-            else
-            {
-                AnsiConsole.Write(new Panel($"[bold green]{UIConfiguration.GameExitMessage}[/]")
-                    .BorderColor(Color.Blue)
-                    .RoundedBorder());
-            }
+            _displayService!.DisplayFarewell(UseClassicMode);
         }
 
-        private static void DisplayHelpClassic()
+        /// <summary>
+        /// Initialize all services used by the game client
+        /// </summary>
+        private static void InitializeServices()
         {
-            Console.Clear();
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine("Console Commands:");
-            Console.WriteLine();
+            // Create service instances
+            var appVersionService = new AdventureServer.Services.AppVersionService();
             
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("Chelp   - ");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Display this console commands help");
-            
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("Help    - ");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Display in-game adventure help");
-            
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("Clear   - ");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Clear the screen and scroll buffer");
-            
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("Classic - ");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Toggle between classic and enhanced display modes");
-            
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("Intro   - ");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Display Game Information");
-            
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("Scroll  - ");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Toggle scrolling mode");
-            
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("Time    - ");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Display System date and time");
-            
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("History - ");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Show recent command history");
-            
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("Resign  - ");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Exit Game");
-            Console.WriteLine();
-            
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine("Enhanced Command Line Features:");
-            // USING ASCII ONLY - no Unicode bullets or arrows
-            Console.WriteLine("* Up/Down arrows: Navigate command history");
-            Console.WriteLine("* Left/Right arrows: Edit current command");
-            Console.WriteLine("* Home/End: Jump to start/end of line");
-            Console.WriteLine("* ESC: Clear current line");
-            Console.WriteLine("* Backspace/Delete: Edit text");
-            Console.WriteLine("* Enter: Execute command");
-            Console.WriteLine();
-            
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadKey(true);
-        }
+            _displayService = new DisplayService(appVersionService);
+            _inputService = new InputService();
+            _gameStateService = new GameStateService();
+            _consoleCommandService = new ConsoleCommandService();
 
-        // Method to display the map
-        private static void DisplayMap()
-        {
-            if (_mapState == null) return;
-            
-            if (UseClassicMode)
-            {
-                Console.Clear();
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine(_mapState.GenerateCurrentLevelMap());
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine(_mapState.GetMapLegend());
-                Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.WriteLine("Press any key to continue...");
-                Console.ReadKey(true);
-            }
-            else
-            {
-                AnsiConsole.Clear();
-                
-                // FIXED: Use current room name instead of hardcoded "Adventure House Map"
-                var currentRoomName = _mapState.GetCurrentRoomName().TrimEnd('.', '!');
-                
-                AnsiConsole.Write(new Panel(_mapState.GenerateCurrentLevelMap())
-                    .Header($"[bold yellow]{currentRoomName}[/]")
-                    .BorderColor(Color.Green));
-                AnsiConsole.MarkupLine($"[dim]{_mapState.GetMapLegend()}[/]");
-                AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]");
-                Console.ReadKey(true);
-            }
-        }
-
-        // Method to update map state based on current game result
-        private static void UpdateMapState()
-        {
-            if (_mapState == null || gmr == null) return;
-            
-            // Since we don't have direct access to current room number from GameMoveResult,
-            // we'll need to extract it from the room name or maintain it separately
-            // For now, let's create a simple room name to number mapping
-            var currentRoomNumber = GetRoomNumberFromName(gmr.RoomName);
-            
-            if (currentRoomNumber > 0)
-            {
-                _mapState.UpdatePlayerPosition(currentRoomNumber);
-                
-                // Update items visibility based on whether room has visible items
-                bool hasItems = !string.IsNullOrEmpty(gmr.ItemsMessage) && 
-                               gmr.ItemsMessage != "No Items" && 
-                               !gmr.ItemsMessage.Contains("nothing");
-                _mapState.UpdateRoomItems(currentRoomNumber, hasItems);
-            }
-        }
-
-        // Add this helper method to map room names to numbers
-        private static int GetRoomNumberFromName(string roomName)
-        {
-            return _gameConfig.GetRoomNumberFromName(roomName);
-        }
-
-        // Enhanced pause with skip functionality for Spectre.Console mode
-        private static void PauseWithSkip(int milliseconds, string message)
-        {
-            AnsiConsole.WriteLine();
-            AnsiConsole.MarkupLine(message);
-            
-            var startTime = DateTime.Now;
-            var timeout = TimeSpan.FromMilliseconds(milliseconds);
-            
-            while (DateTime.Now - startTime < timeout)
-            {
-                if (Console.KeyAvailable)
-                {
-                    var keyInfo = Console.ReadKey(true);
-                    if (keyInfo.Key == ConsoleKey.Enter)
-                    {
-                        break; // Skip the remaining wait time
-                    }
-                    // Consume any other keys to prevent beeping
-                }
-                
-                Thread.Sleep(50); // Small sleep to prevent excessive CPU usage
-            }
-            
-            // Clear the pause message lines more safely
-            try
-            {
-                Console.SetCursorPosition(0, Console.CursorTop - 2);
-                Console.Write(new string(' ', Math.Min(Console.WindowWidth - 1, 120))); // Safe width limit
-                Console.SetCursorPosition(0, Console.CursorTop);
-                Console.Write(new string(' ', Math.Min(Console.WindowWidth - 1, 120))); // Safe width limit
-                Console.SetCursorPosition(0, Console.CursorTop - 1);
-            }
-            catch
-            {
-                // If cursor positioning fails, just move on
-                Console.WriteLine();
-            }
-        }
-
-        // Classic pause with skip functionality for Classic mode
-        private static void PauseWithSkipClassic(int milliseconds, string message)
-        {
-            Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine(message);
-            Console.ForegroundColor = ConsoleColor.White;
-            
-            var startTime = DateTime.Now;
-            var timeout = TimeSpan.FromMilliseconds(milliseconds);
-            
-            while (DateTime.Now - startTime < timeout)
-            {
-                if (Console.KeyAvailable)
-                {
-                    var keyInfo = Console.ReadKey(true);
-                    if (keyInfo.Key == ConsoleKey.Enter)
-                    {
-                        break; // Skip the remaining wait time
-                    }
-                    // Consume any other keys to prevent beeping
-                }
-                
-                Thread.Sleep(50); // Small sleep to prevent excessive CPU usage
-            }
-            
-            // Clear the pause message lines more safely
-            try
-            {
-                Console.SetCursorPosition(0, Console.CursorTop - 2);
-                Console.Write(new string(' ', Math.Min(Console.WindowWidth - 1, 120))); // Safe width limit
-                Console.SetCursorPosition(0, Console.CursorTop);
-                Console.Write(new string(' ', Math.Min(Console.WindowWidth - 1, 120))); // Safe width limit
-                Console.SetCursorPosition(0, Console.CursorTop - 1);
-            }
-            catch
-            {
-                // If cursor positioning fails, just move on
-                Console.WriteLine();
-            }
+            // Initialize command buffer
+            _inputService.InitializeCommandBuffer();
         }
     }
 }

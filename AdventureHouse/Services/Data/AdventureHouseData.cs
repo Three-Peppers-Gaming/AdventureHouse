@@ -245,7 +245,8 @@ namespace AdventureHouse.Services.Data.AdventureData
                         HitOdds = 30, // 30% chance to hit player
                         HealthDamage = 5,
                         AppearanceChance = 60, // 60% chance to appear when entering room
-                        IsPresent = false // Start as not present
+                        IsPresent = false, // Start as not present
+                        PetAttackChance = 30 // 30% chance pet will attack when player lacks flyswatter
                     }
                 };
 

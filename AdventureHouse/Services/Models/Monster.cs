@@ -19,5 +19,6 @@ namespace AdventureHouse.Services.Models
         public int AppearanceChance { get; set; } = 50; // 1-100, chance monster appears in room
         public bool IsPresent { get; set; } = false; // Whether monster is currently in the room
         public int CurrentHealth { get; set; } = 1; // Current health of monster (starts at AttacksToKill)
+        public int PetAttackChance { get; set; } = 30; // 1-100, chance pet will attack this monster when player lacks weapon
     }
 }
