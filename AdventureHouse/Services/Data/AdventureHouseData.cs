@@ -215,7 +215,14 @@ namespace AdventureHouse.Services.Data.AdventureData
                 new Message {MessageTag ="MonsterDefeated", Messsage="The @ is vanquished!"},
                 new Message {MessageTag ="AttackSuccess", Messsage="You successfully attack the @ with your @!"},
                 new Message {MessageTag ="AttackFailed", Messsage="You need the right weapon to attack the @."},
-                new Message {MessageTag ="NoMonster", Messsage="There's nothing here to attack."}
+                new Message {MessageTag ="NoMonster", Messsage="There's nothing here to attack."},
+                new Message {MessageTag ="PetAttackSuccess", Messsage="Your brave @ leaps to your defense!"},
+                new Message {MessageTag ="PetAttackSuccess", Messsage="The loyal @ springs into action!"},
+                new Message {MessageTag ="PetAttackSuccess", Messsage="Your @ courageously attacks the enemy!"},
+                new Message {MessageTag ="PetAttackFailed", Messsage="Your @ wants to help but looks uncertain."},
+                new Message {MessageTag ="PetAttackFailed", Messsage="The @ hesitates, not sure how to help."},
+                new Message {MessageTag ="PetDefeated", Messsage="Your heroic @ saves the day!"},
+                new Message {MessageTag ="PetDefeated", Messsage="The brave @ emerges victorious!"}
                 };
 
                 return _messsages;

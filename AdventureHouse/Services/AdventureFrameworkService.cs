@@ -416,21 +416,64 @@ namespace AdventureHouse.Services
                 return new Tuple<PlayAdventure, CommandState>(p, cs);
             }
 
-            // Player doesn't have the required weapon - check if they have other weapons
-            var playerWeapons = p.Items.Where(i =>
-                i.Location == 9999 &&
-                i.ActionResult?.ToUpper() == "WEAPON").ToList();
+            // Player doesn't have the required weapon - check for pet attack chance
+            var followingPet = p.Items.FirstOrDefault(i => i.Location == 9998);
 
-            if (playerWeapons.Any())
+            if (followingPet != null)
             {
-                // Player has weapons but not the right one for this monster
-                var weaponNames = string.Join(", ", playerWeapons.Select(w => w.Name.ToLower()));
-                cs.Message = $"Your {weaponNames} won't work against the {targetMonster.Name}. You need a {targetMonster.ObjectNameThatCanAttackThem.ToLower()} to defeat it.";
+                // Pet is following - roll for attack chance (1 in 20, need > 14, so 15-20 = 6/20 = 30%)
+                var random = new Random();
+                var petAttackRoll = random.Next(1, 21); // 1-20
+
+                if (petAttackRoll > 14) // 15, 16, 17, 18, 19, 20 = success
+                {
+                    // Pet attacks with same effectiveness as required weapon
+                    targetMonster.CurrentHealth--;
+                    cs.Message = $"Your {followingPet.Name} leaps into action and attacks the {targetMonster.Name}!";
+
+                    if (targetMonster.CurrentHealth <= 0)
+                    {
+                        // Monster is defeated by pet - reset for future spawning
+                        targetMonster.IsPresent = false;
+                        targetMonster.CurrentHealth = targetMonster.AttacksToKill; // Reset health for next spawn
+                        cs.Message += "\r\n" + $"Your brave {followingPet.Name} defeats the {targetMonster.Name}!";
+                        cs.Message += "\r\n" + GetFunMessage(p.Messages, "MonsterDefeated", targetMonster.Name);
+
+                        // Award points for pet defeating monster
+                        p.Player = Helper_SetPlayerPoints(true, $"PetDefeated{targetMonster.Name}", p);
+                    }
+                    else
+                    {
+                        cs.Message += $" The {targetMonster.Name} is wounded but still fighting!";
+                    }
+
+                    return new Tuple<PlayAdventure, CommandState>(p, cs);
+                }
+                else
+                {
+                    // Pet failed to attack - show original weapon needed message plus pet attempt
+                    cs.Message = $"You need a {targetMonster.ObjectNameThatCanAttackThem.ToLower()} to attack the {targetMonster.Name}. ";
+                    cs.Message += $"Your {followingPet.Name} looks ready to help but hesitates.";
+                }
             }
             else
             {
-                // Player has no weapons at all
-                cs.Message = $"You need a {targetMonster.ObjectNameThatCanAttackThem.ToLower()} to attack the {targetMonster.Name}.";
+                // No pet following - check if they have other weapons
+                var playerWeapons = p.Items.Where(i =>
+                    i.Location == 9999 &&
+                    i.ActionResult?.ToUpper() == "WEAPON").ToList();
+
+                if (playerWeapons.Any())
+                {
+                    // Player has weapons but not the right one for this monster
+                    var weaponNames = string.Join(", ", playerWeapons.Select(w => w.Name.ToLower()));
+                    cs.Message = $"Your {weaponNames} won't work against the {targetMonster.Name}. You need a {targetMonster.ObjectNameThatCanAttackThem.ToLower()} to defeat it.";
+                }
+                else
+                {
+                    // Player has no weapons at all
+                    cs.Message = $"You need a {targetMonster.ObjectNameThatCanAttackThem.ToLower()} to attack the {targetMonster.Name}.";
+                }
             }
 
             cs.Valid = false;
