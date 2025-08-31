@@ -18,6 +18,9 @@ namespace AdventureHouse
         private static bool UseClassicMode = false;
         private static bool ScrollMode = false;
         private static readonly List<string> CommandHistory = new();
+        
+        // Add this field to your PlayAdventureClient class
+        private static MapState? _mapState;
 
         // Simple command buffer implementation using built-in Console features
         private static void InitializeCommandBuffer()
@@ -25,8 +28,8 @@ namespace AdventureHouse
             // Initialize command history with common commands
             var commonCommands = new[]
             {
-                // Console commands
-                "chelp", "clear", "classic", "intro", "scroll", "time", "resign",
+                // Console commands - BOTH with and without forward slashes
+                "chelp", "/chelp", "/help", "clear", "classic", "intro", "scroll", "time", "resign", "map", "/map",
                 
                 // Game commands - basic
                 "help", "look", "get", "drop", "use", "eat", "read", "wave", "throw",
@@ -119,6 +122,7 @@ namespace AdventureHouse
 
             helpTable.AddRow("[white]chelp[/]", "Display this console commands help");
             helpTable.AddRow("[white]help[/]", "Display in-game adventure help");
+            helpTable.AddRow("[white]map[/]", "Display ASCII map of current level"); // ADD THIS
             helpTable.AddRow("[white]clear[/]", "Clear the screen and scroll buffer");
             helpTable.AddRow("[white]classic[/]", "Toggle classic console mode");
             helpTable.AddRow("[white]intro[/]", "Display game information");
@@ -213,7 +217,7 @@ namespace AdventureHouse
         {
             if (string.IsNullOrEmpty(text)) return string.Empty;
             
-            // Spectre.Console handles wrapping automatically, but we can clean up the text
+            // Spectreاصة handles wrapping automatically, but we can clean up the text
             return text.Replace("\r\n", "\n").Replace("\r", "\n");
         }
 
@@ -576,8 +580,9 @@ namespace AdventureHouse
             bool error = false;
             string errorMsg = string.Empty;
 
-            // Initialize command buffer
+            // Initialize command buffer AND map state
             InitializeCommandBuffer();
+            _mapState = new MapState();
 
             try
             {
@@ -619,14 +624,23 @@ namespace AdventureHouse
             while (move != "resign")
             {
                 // Handle console commands BEFORE sending to game engine
-                switch (move.Trim().ToLower())
+                // STRIP FORWARD SLASHES and normalize commands
+                var normalizedMove = move.Trim().ToLower().TrimStart('/');
+                
+                switch (normalizedMove)
                 {
                     case "chelp":
+                    case "help":  // Now both chelp and /help work
                     case "chlp": // Common typo
                         if (UseClassicMode) DisplayHelpClassic();
                         else DisplayHelpWithSpectre();
                         move = ""; // Clear the move so it doesn't get processed by game
                         continue; // Skip the rest of the loop
+                        
+                    case "map":  // Now both map and /map work
+                        DisplayMap();
+                        move = "";
+                        continue;
                         
                     case "time":
                         var timeText = $"Date and Time: {DateTime.Now:F}";
@@ -729,6 +743,9 @@ namespace AdventureHouse
 
                 // Display game state
                 DisplayGameState(gmr, !UseClassicMode);
+
+                // UPDATE MAP STATE based on current game state
+                UpdateMapState();
 
                 // Handle errors
                 if (error)
@@ -847,6 +864,99 @@ namespace AdventureHouse
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey(true);
+        }
+
+        // Method to display the map
+        private static void DisplayMap()
+        {
+            if (_mapState == null) return;
+            
+            if (UseClassicMode)
+            {
+                Console.Clear();
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine(_mapState.GenerateCurrentLevelMap());
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine(MapState.GetMapLegend());
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadKey(true);
+            }
+            else
+            {
+                AnsiConsole.Clear();
+                
+                // FIXED: Use current room name instead of hardcoded "Adventure House Map"
+                var currentRoomName = _mapState.GetCurrentRoomName().TrimEnd('.', '!');
+                
+                AnsiConsole.Write(new Panel(_mapState.GenerateCurrentLevelMap())
+                    .Header($"[bold yellow]{currentRoomName}[/]")  // CHANGED: Room name instead of "Adventure House Map"
+                    .BorderColor(Color.Green));
+                AnsiConsole.MarkupLine($"[dim]{MapState.GetMapLegend()}[/]");
+                AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]");
+                Console.ReadKey(true);
+            }
+        }
+
+        // Method to update map state based on current game result
+        private static void UpdateMapState()
+        {
+            if (_mapState == null || gmr == null) return;
+            
+            // Since we don't have direct access to current room number from GameMoveResult,
+            // we'll need to extract it from the room name or maintain it separately
+            // For now, let's create a simple room name to number mapping
+            var currentRoomNumber = GetRoomNumberFromName(gmr.RoomName);
+            
+            if (currentRoomNumber > 0)
+            {
+                _mapState.UpdatePlayerPosition(currentRoomNumber);
+                
+                // Update items visibility based on whether room has visible items
+                bool hasItems = !string.IsNullOrEmpty(gmr.ItemsMessage) && 
+                               gmr.ItemsMessage != "No Items" && 
+                               !gmr.ItemsMessage.Contains("nothing");
+                _mapState.UpdateRoomItems(currentRoomNumber, hasItems);
+            }
+        }
+
+        // Add this helper method to map room names to numbers
+        private static int GetRoomNumberFromName(string roomName)
+        {
+            // This maps your room names to their numbers based on your game data
+            return roomName?.ToLower().Trim() switch
+            {
+                "exit!" => 0,
+                "main entrance" => 1,
+                "downstairs hallway" => 2,
+                "guest bathroom" => 3,                    // Downstairs only
+                "living room" => 4,
+                "family room" => 5,
+                "nook" => 6,
+                "kitchen" => 7,
+                "utility hall" => 8,
+                "garage" => 9,
+                "main dining room" => 10,
+                "upstairs hallway" => 11,
+                "upstairs east hallway" => 12,
+                "upstairs north hallway" => 13,
+                "upstairs west hallway" => 14,
+                "spare room" => 15,
+                "utility room" => 16,
+                "upstairs bath" => 17,                    // Fixed: Now unique pattern
+                "master bedroom" => 18,
+                "master bedroom closet" => 19,
+                "attic" => 20,
+                "master bedroom bath" => 21,
+                "children's room" => 22,
+                "entertainment room" => 23,
+                "deck" => 24,
+                "debug room" => 88,
+                "psychedelic ladder" => 93,
+                "memory ladder" => 94,
+                "magic mushroom" => 95,
+                _ => -1
+            };
         }
 
         // Enhanced pause with skip functionality for Spectre.Console mode
