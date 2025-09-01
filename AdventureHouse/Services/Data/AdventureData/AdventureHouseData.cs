@@ -169,38 +169,6 @@ namespace AdventureHouse.Services.Data.AdventureData
             {
                 new() 
                 { 
-                    Key = "spider", 
-                    Name = "Giant Spider", 
-                    Description = "A large, menacing spider blocks your path.", 
-                    RoomNumber = 3, 
-                    ObjectNameThatCanAttackThem = "Sword", 
-                    AttacksToKill = 2, 
-                    CanHitPlayer = true, 
-                    HitOdds = 30, 
-                    HealthDamage = 15, 
-                    AppearanceChance = 40, 
-                    IsPresent = false, 
-                    CurrentHealth = 2, 
-                    PetAttackChance = 25 
-                },
-                new() 
-                { 
-                    Key = "bat", 
-                    Name = "Vampire Bat", 
-                    Description = "A blood-thirsty bat swoops around the room.", 
-                    RoomNumber = 7, 
-                    ObjectNameThatCanAttackThem = "Hammer", 
-                    AttacksToKill = 1, 
-                    CanHitPlayer = true, 
-                    HitOdds = 25, 
-                    HealthDamage = 10, 
-                    AppearanceChance = 35, 
-                    IsPresent = false, 
-                    CurrentHealth = 1, 
-                    PetAttackChance = 30 
-                },
-                new() 
-                { 
                     Key = "MOSQUITO", 
                     Name = "Mosquito", 
                     Description = "A large, annoying mosquito buzzing around the room. It looks like it wants to make you its next meal.", 
