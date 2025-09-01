@@ -29,9 +29,9 @@ namespace AdventureHouse.Services.GameManagement
         MapState? MapState { get; }
 
         /// <summary>
-        /// Get the current game configuration
+        /// Get the current game configuration (now supports multiple game types)
         /// </summary>
-        AdventureHouseConfiguration GameConfig { get; }
+        IGameConfiguration? GameConfig { get; }
 
         /// <summary>
         /// Get room number from room name

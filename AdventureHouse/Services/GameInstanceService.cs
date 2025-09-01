@@ -8,6 +8,7 @@ namespace AdventureHouse.Services
     {
         private readonly IMemoryCache _gameCache;
         private readonly AdventureHouseData _adventureHouse = new();
+        private readonly SpaceStationData _spaceStation = new();
 
         public GameInstanceService(IMemoryCache gameCache)
         {
@@ -17,11 +18,26 @@ namespace AdventureHouse.Services
         public string CreateNewGameInstance(int gameChoice)
         {
             var tempId = Guid.NewGuid().ToString();
-            if (gameChoice == 1)
+            
+            switch (gameChoice)
             {
-                var p = _adventureHouse.SetupAdventure(tempId);
-                AddToCache(p);
+                case 1:
+                    var adventureHouse = _adventureHouse.SetupAdventure(tempId);
+                    AddToCache(adventureHouse);
+                    break;
+                    
+                case 2:
+                    var spaceStation = _spaceStation.SetupAdventure(tempId);
+                    AddToCache(spaceStation);
+                    break;
+                    
+                default:
+                    // Default to Adventure House
+                    var defaultGame = _adventureHouse.SetupAdventure(tempId);
+                    AddToCache(defaultGame);
+                    break;
             }
+            
             return tempId;
         }
 

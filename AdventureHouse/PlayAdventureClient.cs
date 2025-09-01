@@ -53,14 +53,21 @@ namespace AdventureHouse
 
             try
             {
-                // Initialize with enhanced UI
+                // Display intro screen first
                 _displayService!.DisplayIntro(UseClassicMode);
 
-                // Setup game with progress indicator
+                // Get available games and let user select
+                var availableGames = client.FrameWork_GetGames();
+                int selectedGameId = _displayService!.DisplayAdventureSelection(availableGames, UseClassicMode);
+
+                // Setup game with progress indicator using selected adventure
                 _displayService!.ShowLoadingProgress(() =>
                 {
-                    gmr = _gameStateService!.InitializeGame(client, 1);
+                    gmr = _gameStateService!.InitializeGame(client, selectedGameId);
                 }, UseClassicMode);
+
+                // Ensure map state is updated with the initial room position
+                _gameStateService!.UpdateMapState(gmr);
 
                 instanceID = gmr.InstanceID;
                 error = false;

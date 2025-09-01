@@ -59,6 +59,10 @@ namespace AdventureHouse.Services
                 "taste" => "use",
                 "unlock" => "use",
                 "lock" => "use",
+                "start" => "activate",
+                "power" => "activate",
+                "boot" => "activate",
+                "turn" => "activate",
                 "examine" => "look",
                 "inventory" => "inv",
                 "pack" => "inv",
@@ -76,6 +80,11 @@ namespace AdventureHouse.Services
                 "kill" => "attack",
                 "slay" => "attack",
                 "strike" => "attack",
+#if DEBUG
+                "validate" => "validateadventure",
+                "check" => "validateadventure",
+                "verify" => "validateadventure",
+#endif
                 _ => cmd,
             };
         }

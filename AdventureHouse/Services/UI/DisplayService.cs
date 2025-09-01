@@ -30,6 +30,18 @@ namespace AdventureHouse.Services.UI
             }
         }
 
+        public int DisplayAdventureSelection(List<Game> availableGames, bool useClassicMode)
+        {
+            if (useClassicMode)
+            {
+                return DisplayAdventureSelectionClassic(availableGames);
+            }
+            else
+            {
+                return DisplayAdventureSelectionWithSpectre(availableGames);
+            }
+        }
+
         private void DisplayIntroWithSpectre()
         {
             AnsiConsole.Clear();
@@ -508,5 +520,115 @@ namespace AdventureHouse.Services.UI
         }
 
         #endregion
+
+        private int DisplayAdventureSelectionWithSpectre(List<Game> availableGames)
+        {
+            AnsiConsole.Clear();
+            
+            // Create a fancy title
+            var title = new FigletText("Adventure Selection")
+                .LeftJustified()
+                .Color(Color.Yellow);
+            AnsiConsole.Write(title);
+
+            // Create a table showing available adventures
+            var adventureTable = new Table()
+                .BorderColor(Color.Blue)
+                .AddColumn("[bold cyan]#[/]")
+                .AddColumn("[bold cyan]Adventure Name[/]")
+                .AddColumn("[bold cyan]Version[/]")
+                .AddColumn("[bold cyan]Description[/]");
+
+            foreach (var game in availableGames)
+            {
+                adventureTable.AddRow(
+                    $"[white]{game.Id}[/]",
+                    $"[yellow]{game.Name}[/]",
+                    $"[green]v{game.Ver}[/]",
+                    $"[cyan]{game.Desc}[/]"
+                );
+            }
+
+            AnsiConsole.Write(new Panel(adventureTable)
+                .Header("[bold yellow]Available Adventures[/]")
+                .BorderColor(Color.Green)
+                .RoundedBorder());
+
+            AnsiConsole.WriteLine();
+            
+            // Get user selection
+            while (true)
+            {
+                var selection = AnsiConsole.Ask<string>("[bold green]Enter the number of your adventure choice:[/]");
+                
+                if (int.TryParse(selection, out int gameId))
+                {
+                    var selectedGame = availableGames.FirstOrDefault(g => g.Id == gameId);
+                    if (selectedGame != null)
+                    {
+                        AnsiConsole.MarkupLine($"[bold green]You selected:[/] [yellow]{selectedGame.Name}[/]");
+                        AnsiConsole.MarkupLine("[dim]Loading adventure...[/]");
+                        Thread.Sleep(1000);
+                        return gameId;
+                    }
+                }
+                
+                AnsiConsole.MarkupLine("[bold red]Invalid selection. Please try again.[/]");
+            }
+        }
+
+        private int DisplayAdventureSelectionClassic(List<Game> availableGames)
+        {
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("ADVENTURE SELECTION");
+            Console.WriteLine("===================");
+            Console.WriteLine();
+            
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("Available Adventures:");
+            Console.WriteLine();
+            
+            foreach (var game in availableGames)
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.Write($"{game.Id}. ");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write($"{game.Name} ");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.Write($"(v{game.Ver})");
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.WriteLine($"   {game.Desc}");
+                Console.WriteLine();
+            }
+            
+            // Get user selection
+            while (true)
+            {
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write("Enter the number of your adventure choice: ");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                
+                var input = Console.ReadLine();
+                
+                if (int.TryParse(input, out int gameId))
+                {
+                    var selectedGame = availableGames.FirstOrDefault(g => g.Id == gameId);
+                    if (selectedGame != null)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine($"You selected: {selectedGame.Name}");
+                        Console.WriteLine("Loading adventure...");
+                        Thread.Sleep(1000);
+                        return gameId;
+                    }
+                }
+                
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Invalid selection. Please try again.");
+                Console.WriteLine();
+            }
+        }
     }
 }

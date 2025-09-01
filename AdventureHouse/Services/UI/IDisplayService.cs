@@ -15,6 +15,14 @@ namespace AdventureHouse.Services.UI
         void DisplayIntro(bool useClassicMode);
 
         /// <summary>
+        /// Display adventure selection screen and get user choice
+        /// </summary>
+        /// <param name="availableGames">List of available games to choose from</param>
+        /// <param name="useClassicMode">Whether to use classic console mode</param>
+        /// <returns>The selected game ID</returns>
+        int DisplayAdventureSelection(List<Game> availableGames, bool useClassicMode);
+
+        /// <summary>
         /// Display the help screen
         /// </summary>
         /// <param name="useClassicMode">Whether to use classic console mode</param>
