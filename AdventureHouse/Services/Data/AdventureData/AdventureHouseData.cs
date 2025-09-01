@@ -63,6 +63,7 @@ namespace AdventureHouse.Services.Data.AdventureData
                 new() { Name = "KITTEN", Description = "A delightful fuzzy kitten", Location = 20, Action = "The little fuzzball, a black and white kitten just looks so adorable!", ActionVerb = "PET", ActionResult = "FOLLOW", ActionValue = "20", ActionPoints = 50 },
                 new() { Name = "SLIP", Description = "A small slip of paper that looks like The fortune cookie slip from yesterdays DEVELOPER lunch. The words seem to fade in and out over and over.", Location = 18, Action = "the fortune cookie slip from yesterdays DEVELOPER lunch", ActionVerb = "READ", ActionResult = "FORTUNE", ActionValue = "1", ActionPoints = 33 },
                 new() { Name = "ROCK", Description = "A magic rock", Location = 6, Action = "This looks more like a coprolite fossel than a rock. Might want to get rid of this thing soon.", ActionVerb = "THROW", ActionResult = "TELEPORT", ActionValue = "95", ActionPoints = 10 },
+                new() { Name = "FLYSWATTER", Description = "A sturdy plastic fly swatter with a bright yellow handle. Perfect for dealing with pesky insects.", Location = 18, Action = "You swing the fly swatter through the air with a satisfying whoosh sound.", ActionVerb = "ATTACK", ActionResult = "WEAPON", ActionValue = "MOSQUITO", ActionPoints = 25 },
 #if DEBUG
                 new() { Name = "STICK", Description = "This is the developers helpful and magic stick.", Location = 0, Action = "This looks a lot a debugging tool that a developer would create to make his life easy.", ActionVerb = "WAVE", ActionResult = "TELEPORT", ActionValue = "88", ActionPoints = 0 },
                 new() { Name = "AWAND", Description = "A small wooden wand.", Location = 99, Action = "You wave the wand and the room fades for a second.", ActionVerb = "WAVE", ActionResult = "TELEPORT", ActionValue = "1", ActionPoints = 1 },
@@ -138,11 +139,27 @@ namespace AdventureHouse.Services.Data.AdventureData
                 new() { MessageTag = "west", Messsage = "You can't go that way." },
                 new() { MessageTag = "up", Messsage = "You can't go that way." },
                 new() { MessageTag = "down", Messsage = "You can't go that way." },
-                new() { MessageTag = "MonsterAppear", Messsage = "A wild @ appears!" },
-                new() { MessageTag = "MonsterHit", Messsage = "The @ attacks you!" },
-                new() { MessageTag = "MonsterMiss", Messsage = "The @ misses its attack." },
-                new() { MessageTag = "MonsterDefeated", Messsage = "You have defeated the @!" },
-                new() { MessageTag = "NoMonster", Messsage = "There's nothing to attack here." }
+                new() { MessageTag = "MonsterAppear", Messsage = "A wild @ suddenly appears!" },
+                new() { MessageTag = "MonsterAppear", Messsage = "You hear a buzzing sound as a @ enters the room." },
+                new() { MessageTag = "MonsterAppear", Messsage = "Suddenly, a @ flies into view!" },
+                new() { MessageTag = "MonsterAttack", Messsage = "The @ attacks you!" },
+                new() { MessageTag = "MonsterAttack", Messsage = "The @ swoops down and strikes!" },
+                new() { MessageTag = "MonsterHit", Messsage = "The @ bites you! Ouch!" },
+                new() { MessageTag = "MonsterHit", Messsage = "The @ stings you painfully!" },
+                new() { MessageTag = "MonsterMiss", Messsage = "The @ misses you completely." },
+                new() { MessageTag = "MonsterMiss", Messsage = "You dodge the @'s attack." },
+                new() { MessageTag = "MonsterDefeated", Messsage = "You defeat the @! It flies away." },
+                new() { MessageTag = "MonsterDefeated", Messsage = "The @ is vanquished!" },
+                new() { MessageTag = "AttackSuccess", Messsage = "You successfully attack the @ with your @!" },
+                new() { MessageTag = "AttackFailed", Messsage = "You need the right weapon to attack the @." },
+                new() { MessageTag = "NoMonster", Messsage = "There's nothing here to attack." },
+                new() { MessageTag = "PetAttackSuccess", Messsage = "Your brave @ leaps to your defense!" },
+                new() { MessageTag = "PetAttackSuccess", Messsage = "The loyal @ springs into action!" },
+                new() { MessageTag = "PetAttackSuccess", Messsage = "Your @ courageously attacks the enemy!" },
+                new() { MessageTag = "PetAttackFailed", Messsage = "Your @ wants to help but looks uncertain." },
+                new() { MessageTag = "PetAttackFailed", Messsage = "The @ hesitates, not sure how to help." },
+                new() { MessageTag = "PetDefeated", Messsage = "Your heroic @ saves the day!" },
+                new() { MessageTag = "PetDefeated", Messsage = "The brave @ emerges victorious!" }
             };
         }
 
@@ -178,6 +195,22 @@ namespace AdventureHouse.Services.Data.AdventureData
                     HitOdds = 25, 
                     HealthDamage = 10, 
                     AppearanceChance = 35, 
+                    IsPresent = false, 
+                    CurrentHealth = 1, 
+                    PetAttackChance = 30 
+                },
+                new() 
+                { 
+                    Key = "MOSQUITO", 
+                    Name = "Mosquito", 
+                    Description = "A large, annoying mosquito buzzing around the room. It looks like it wants to make you its next meal.", 
+                    RoomNumber = 23, 
+                    ObjectNameThatCanAttackThem = "FLYSWATTER", 
+                    AttacksToKill = 1, 
+                    CanHitPlayer = true, 
+                    HitOdds = 30, 
+                    HealthDamage = 5, 
+                    AppearanceChance = 60, 
                     IsPresent = false, 
                     CurrentHealth = 1, 
                     PetAttackChance = 30 
