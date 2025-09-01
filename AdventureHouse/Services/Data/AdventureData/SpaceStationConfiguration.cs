@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
-using AdventureHouse.Services.Models;
+using AdventureHouse.Services.Shared.Models;
+using AdventureHouse.Services.AdventureServer.Models;
+using AdventureHouse.Services.AdventureClient.Models;
+
+
 
 namespace AdventureHouse.Services.Data.AdventureData
 {
@@ -16,7 +20,7 @@ namespace AdventureHouse.Services.Data.AdventureData
         #endregion
 
         #region Room Display Configuration
-        public Dictionary<string, char> RoomDisplayCharacters => new()
+        public Dictionary<string, char> RoomCharacterMapping => new()
         {
             ["hibernation chamber"] = 'H',
             ["command center"] = 'C',
@@ -48,6 +52,8 @@ namespace AdventureHouse.Services.Data.AdventureData
             ["eng lift"] = '|',
             ["science lift"] = '|'
         };
+
+        public Dictionary<string, char> RoomDisplayCharacters => RoomCharacterMapping;
 
         public Dictionary<string, char> RoomTypeCharacters => new()
         {
@@ -127,6 +133,8 @@ namespace AdventureHouse.Services.Data.AdventureData
         #endregion
 
         #region Map Legend and Help Text
+        public string MapLegend => MapLegendContent + MapLegendFooter;
+        
         public string MapLegendContent => @"
 SPACE STATION MAP LEGEND:
 +---+  = Room          @ = Your Location    |H| = Hibernation
@@ -193,7 +201,7 @@ Emergency systems may reveal additional pathways.
 
         public string GetAdventureThankYouText()
         {
-            return "?? ESCAPE POD LAUNCHED SUCCESSFULLY! ??\r\n\r\n" +
+            return "? ESCAPE POD LAUNCHED SUCCESSFULLY! ?\r\n\r\n" +
                    "CONGRATULATIONS, SURVIVOR!\r\n\r\n" +
                    "You have successfully escaped the abandoned space station before it " +
                    "became completely overrun by the mysterious gooplings! Your quick thinking " +
@@ -239,11 +247,11 @@ Emergency systems may reveal additional pathways.
         #endregion
 
         #region Game Settings and Constants
-        public int StartingRoom => 1; // Hibernation Chamber
+        public int StartingRoom => 1; // Hibernation Chamber - Start here, not room 20!
         public int MaxHealth => 300;
         public int HealthStep => 3;
         public int StartingPoints => 10;
-        public string InitialPointsCheckList => "Awakened";
+        public List<string> InitialPointsCheckList => new() { "Awakened" };
 
         // Special location constants
         public int InventoryLocation => 9999;
@@ -289,7 +297,7 @@ Emergency systems may reveal additional pathways.
 
         public (int X, int Y) GetRoomPosition(int roomNumber)
         {
-            return RoomPositions.GetValueOrDefault(roomNumber, (0, 0));
+            return RoomPositionMapping.GetValueOrDefault(roomNumber, (0, 0));
         }
         #endregion
 
@@ -339,7 +347,7 @@ Emergency systems may reveal additional pathways.
             [MapLevel.Exit] = (3, 3)
         };
 
-        public Dictionary<int, (int X, int Y)> RoomPositions => new()
+        public Dictionary<int, (int X, int Y)> RoomPositionMapping => new()
         {
             // Level 1 - Command Deck Layout (6x4)
             [1] = (1, 1),  // Hibernation Chamber
@@ -396,6 +404,8 @@ Emergency systems may reveal additional pathways.
             // Exit
             [0] = (1, 1)    // Escape Pod Exit
         };
+
+        public Dictionary<int, (int X, int Y)> RoomPositions => RoomPositionMapping;
         #endregion
     }
 }

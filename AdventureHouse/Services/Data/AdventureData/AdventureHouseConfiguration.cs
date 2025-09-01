@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using AdventureHouse.Services.Models;
+using AdventureHouse.Services.AdventureClient.Models;
 
 namespace AdventureHouse.Services.Data.AdventureData
 {
@@ -17,7 +17,7 @@ namespace AdventureHouse.Services.Data.AdventureData
         #endregion
 
         #region Room Display Configuration
-        public Dictionary<string, char> RoomDisplayCharacters => new()
+        public Dictionary<string, char> RoomCharacterMapping => new()
         {
             ["exit!"] = 'X',
             ["main entrance"] = 'E',
@@ -31,8 +31,25 @@ namespace AdventureHouse.Services.Data.AdventureData
             ["attic"] = 'A',
             ["deck"] = 'D',
             ["garage"] = 'G',
-            ["nook"] = 'N'
+            ["nook"] = 'N',
+            ["downstairs hallway"] = 'H',
+            ["upstairs hallway"] = 'H',
+            ["upstairs east hallway"] = 'H',
+            ["upstairs north hallway"] = 'H',
+            ["upstairs west hallway"] = 'H',
+            ["utility hall"] = 'u',
+            ["main dining room"] = 'd',
+            ["spare room"] = 'm',
+            ["utility room"] = 'u',
+            ["master bedroom closet"] = 'c',
+            ["master bedroom bath"] = 'b',
+            ["entertainment room"] = 'e',
+            ["psychedelic ladder"] = '|',
+            ["memory ladder"] = '|',
+            ["magic mushroom"] = '*'
         };
+
+        public Dictionary<string, char> RoomDisplayCharacters => RoomCharacterMapping;
 
         public Dictionary<string, char> RoomTypeCharacters => new()
         {
@@ -78,7 +95,9 @@ namespace AdventureHouse.Services.Data.AdventureData
             ["children's room"] = 22,
             ["entertainment room"] = 23,
             ["deck"] = 24,
+#if DEBUG
             ["debug room"] = 88,
+#endif
             ["psychedelic ladder"] = 93,
             ["memory ladder"] = 94,
             ["magic mushroom"] = 95
@@ -86,7 +105,7 @@ namespace AdventureHouse.Services.Data.AdventureData
         #endregion
 
         #region Map Legend and Help Text
-        public string MapLegendContent => @"
+        public string MapLegend => @"
 MAP LEGEND (ASCII ONLY - BOXED ROOMS WITH PATHS):
 +---+  = Room Box     @ = Your Location (replaces room char)    
 |E  |  = Entrance     |K| = Kitchen        |L| = Living Room
@@ -101,29 +120,15 @@ PATH CONNECTIONS:
   :    
 ^      = Stairs/ladder going Up
 v      = Stairs/ladder going Down
-";
 
-#if DEBUG
-        public string MapLegendDebugAddition => @"|?  |  = Debug Room
-";
-#endif
-
-        public string MapLegendFooter => @"
 Note: Only visited rooms and paths between them are shown.
 ";
+        
+        public string MapLegendContent => MapLegend;
+        public string MapLegendFooter => "";
 
-        public string GetCompleteMapLegend()
-        {
-            var legend = MapLegendContent;
-#if DEBUG
-            legend += MapLegendDebugAddition;
-#endif
-            legend += MapLegendFooter;
-            return legend;
-        }
-        #endregion
+        public string GetCompleteMapLegend() => MapLegend;
 
-        #region Game Help and Story Text
         public string GetAdventureHelpText()
         {
             return "You pause and recall your mother's bedtime story:\r\n" +
@@ -170,11 +175,23 @@ Note: Only visited rooms and paths between them are shown.
         }
         #endregion
 
+        #region Game Settings and Constants
+        public int StartingRoom => 20; // Attic - Start here!
+        public int MaxHealth => 200;
+        public int HealthStep => 2;
+        public int StartingPoints => 1;
+        public List<string> InitialPointsCheckList => new() { "NewGame" };
+        public int InventoryLocation => 9999;
+        public int PetFollowLocation => 9998;
+        public int NoConnectionValue => 99;
+        public char DefaultRoomCharacter => '.';
+        #endregion
+
         #region Map Level Display Names
         public Dictionary<MapLevel, string> LevelDisplayNames => new()
         {
             [MapLevel.GroundFloor] = "Ground Floor",
-            [MapLevel.UpperFloor] = "Upper Floor", 
+            [MapLevel.UpperFloor] = "Upper Floor",
             [MapLevel.Attic] = "Attic",
             [MapLevel.MagicRealm] = "Magic Realm",
 #if DEBUG
@@ -182,76 +199,6 @@ Note: Only visited rooms and paths between them are shown.
 #endif
             [MapLevel.Exit] = "Freedom!"
         };
-        #endregion
-
-        #region Game Settings and Constants
-        public int StartingRoom => 20;
-        public int MaxHealth => 200;
-        public int HealthStep => 2;
-        public int StartingPoints => 1;
-        public string InitialPointsCheckList => "NewGame";
-
-        // Special location constants for Adventure House
-        public int InventoryLocation => 9999;
-        public int PetFollowLocation => 9998;
-        public int NoConnectionValue => 99;
-        public char DefaultRoomCharacter => '.';
-        #endregion
-
-        #region Helper Methods
-        /// <summary>
-        /// Get room display character based on room name for Adventure House game
-        /// </summary>
-        public char GetRoomDisplayChar(string roomName)
-        {
-            var cleanName = roomName?.ToLower() ?? string.Empty;
-            
-            // Check exact matches first
-            if (RoomDisplayCharacters.TryGetValue(cleanName, out char exactChar))
-                return exactChar;
-            
-            // Then check partial matches for room types
-            foreach (var (pattern, character) in RoomTypeCharacters)
-            {
-                if (cleanName.Contains(pattern))
-                    return character;
-            }
-            
-            return DefaultRoomCharacter;
-        }
-
-        /// <summary>
-        /// Get room number from room name using Adventure House mapping
-        /// </summary>
-        public int GetRoomNumberFromName(string roomName)
-        {
-            var cleanName = roomName?.ToLower().Trim() ?? string.Empty;
-            return RoomNameToNumberMapping.GetValueOrDefault(cleanName, -1);
-        }
-
-        /// <summary>
-        /// Get level display name for Adventure House game
-        /// </summary>
-        public string GetLevelDisplayName(MapLevel level)
-        {
-            return LevelDisplayNames.GetValueOrDefault(level, "Unknown Level");
-        }
-
-        /// <summary>
-        /// Get which level a room belongs to
-        /// </summary>
-        public MapLevel GetLevelForRoom(int roomNumber)
-        {
-            return RoomToLevelMapping.GetValueOrDefault(roomNumber, MapLevel.GroundFloor);
-        }
-
-        /// <summary>
-        /// Get the grid position for a room on its level
-        /// </summary>
-        public (int X, int Y) GetRoomPosition(int roomNumber)
-        {
-            return RoomPositions.GetValueOrDefault(roomNumber, (0, 0));
-        }
         #endregion
 
         #region Map Configuration
@@ -285,7 +232,7 @@ Note: Only visited rooms and paths between them are shown.
             [MapLevel.Exit] = (3, 3)           // Exit area
         };
 
-        public Dictionary<int, (int X, int Y)> RoomPositions => new()
+        public Dictionary<int, (int X, int Y)> RoomPositionMapping => new()
         {
             // Ground Floor Layout
             [1] = (5, 2),   // Main Entrance
@@ -330,6 +277,48 @@ Note: Only visited rooms and paths between them are shown.
             // Exit Layout
             [0] = (1, 1)    // Exit (center)
         };
+
+        public Dictionary<int, (int X, int Y)> RoomPositions => RoomPositionMapping;
+        #endregion
+
+        #region Helper Methods
+        public char GetRoomDisplayChar(string roomName)
+        {
+            var cleanName = roomName?.ToLower() ?? string.Empty;
+
+            // Check exact matches first
+            if (RoomDisplayCharacters.TryGetValue(cleanName, out char exactChar))
+                return exactChar;
+
+            // Then check partial matches for room types
+            foreach (var (pattern, character) in RoomTypeCharacters)
+            {
+                if (cleanName.Contains(pattern))
+                    return character;
+            }
+
+            return DefaultRoomCharacter;
+        }
+
+        public string GetLevelDisplayName(MapLevel level)
+        {
+            return LevelDisplayNames.GetValueOrDefault(level, "Unknown Level");
+        }
+
+        public MapLevel GetLevelForRoom(int roomNumber)
+        {
+            return RoomToLevelMapping.GetValueOrDefault(roomNumber, MapLevel.GroundFloor);
+        }
+
+        public (int X, int Y) GetRoomPosition(int roomNumber)
+        {
+            return RoomPositionMapping.GetValueOrDefault(roomNumber, (0, 0));
+        }
+
+        public int GetRoomNumberFromName(string roomName)
+        {
+            return RoomNameToNumberMapping.GetValueOrDefault(roomName?.ToLower() ?? "", -1);
+        }
         #endregion
     }
 }

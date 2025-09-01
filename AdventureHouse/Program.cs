@@ -1,7 +1,7 @@
-﻿using AdventureHouse.Services;
-using AdventureHouse.Services.Models;
-using AdventureServer.Services;
-using AdventurHouse.Services;
+﻿using AdventureHouse.Services.Shared.FortuneService;
+using AdventureHouse.Services.Shared.CommandProcessing;
+using AdventureHouse.Services.AdventureServer;
+using AdventureHouse.Services.AdventureClient;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace AdventureHouse
@@ -13,36 +13,22 @@ namespace AdventureHouse
             Console.Title = "Adventure House";
             Console.SetWindowSize(80, 30);
 
-            // Create services manually in dependency order
+            // Create the core dependencies for the Adventure Server
             var memoryCache = new MemoryCache(new MemoryCacheOptions());
             var getFortuneService = new GetFortuneService();
-            var gameInstanceService = new GameInstanceService(memoryCache);
             var commandProcessingService = new CommandProcessingService();
-            var playerManagementService = new PlayerManagementService();
-            var messageService = new MessageService();
-            
-            // Create services that depend on others
-            var monsterManagementService = new MonsterManagementService(playerManagementService, messageService);
-            var itemManagementService = new ItemManagementService(playerManagementService, null, messageService); // RoomManagementService will be set later
-            var roomManagementService = new RoomManagementService(commandProcessingService, monsterManagementService, messageService);
-            
-            // Update itemManagementService with roomManagementService dependency
-            // Note: This creates a circular dependency issue - we may need to refactor the services
-            
-            // Create the main framework service with all dependencies
-            var adventureFrameworkService = new AdventureFrameworkService(
+
+            // Create the Adventure Server (contains all game logic)
+            var adventureServer = new AdventureFrameworkService(
                 memoryCache,
                 getFortuneService,
-                gameInstanceService,
-                commandProcessingService,
-                playerManagementService,
-                monsterManagementService,
-                itemManagementService,
-                roomManagementService,
-                messageService);
-            
-            // Start the game
-            PlayAdventureClient.PlayAdventure(adventureFrameworkService);
+                commandProcessingService);
+
+            // Create the Adventure Client (handles all UI and user interaction)
+            var adventureClient = new AdventureClientService();
+
+            // Start the adventure - client connects to server
+            adventureClient.StartAdventure(adventureServer);
         }
     }
 }

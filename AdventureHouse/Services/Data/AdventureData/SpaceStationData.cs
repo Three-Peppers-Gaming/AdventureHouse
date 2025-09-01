@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AdventureHouse.Services.Models;
+using AdventureHouse.Services.AdventureServer.Models;
+using AdventureHouse.Services.AdventureClient.Models;
+using PlayAdventureModel = AdventureHouse.Services.AdventureServer.Models.PlayAdventure;
 
 namespace AdventureHouse.Services.Data.AdventureData
 {
@@ -29,11 +31,11 @@ namespace AdventureHouse.Services.Data.AdventureData
             return _config;
         }
 
-        public PlayAdventure SetupAdventure(string gameid)
+        public PlayAdventureModel SetupAdventure(string gameid)
         {
             var _gamerTag = new GamerTags().RandomTag();
 
-            var _play = new PlayAdventure
+            var _play = new PlayAdventureModel
             {
                 GameID = 2,
                 GameName = _config.GameName,
@@ -61,7 +63,7 @@ namespace AdventureHouse.Services.Data.AdventureData
                     PlayerDead = false 
                 },
                 GameActive = true,
-                PointsCheckList = new List<string> { _config.InitialPointsCheckList }
+                PointsCheckList = _config.InitialPointsCheckList
             };
 
             return _play;

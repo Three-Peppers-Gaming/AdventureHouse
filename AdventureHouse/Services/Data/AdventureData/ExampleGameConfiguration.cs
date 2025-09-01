@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using AdventureHouse.Services.Models;
+using AdventureHouse.Services.AdventureClient.Models;
+
 
 namespace AdventureHouse.Services.Data.AdventureData
 {
@@ -17,18 +18,18 @@ namespace AdventureHouse.Services.Data.AdventureData
         #endregion
 
         #region Room Display Configuration
-        public Dictionary<string, char> RoomDisplayCharacters => new()
+        public Dictionary<string, char> RoomCharacterMapping => new()
         {
             ["start"] = 'S',
             ["finish"] = 'F',
-            ["treasure"] = 'T'
-        };
-
-        public Dictionary<string, char> RoomTypeCharacters => new()
-        {
+            ["treasure"] = 'T',
             ["corridor"] = 'C',
             ["chamber"] = 'H'
         };
+
+        public Dictionary<string, char> RoomDisplayCharacters => RoomCharacterMapping;
+
+        public Dictionary<string, char> RoomTypeCharacters => RoomCharacterMapping;
 
         public Dictionary<string, int> RoomNameToNumberMapping => new()
         {
@@ -38,6 +39,7 @@ namespace AdventureHouse.Services.Data.AdventureData
         #endregion
 
         #region Map and Help Text
+        public string MapLegend => "Example game map legend content with footer text.";
         public string MapLegendContent => "Example game map legend content.";
         public string MapLegendFooter => "Example footer text.";
         
@@ -65,7 +67,7 @@ namespace AdventureHouse.Services.Data.AdventureData
         public int MaxHealth => 100;
         public int HealthStep => 1;
         public int StartingPoints => 0;
-        public string InitialPointsCheckList => "Start";
+        public List<string> InitialPointsCheckList => new() { "Start" };
         public int InventoryLocation => 1000;
         public int PetFollowLocation => 1001;
         public int NoConnectionValue => 99;
@@ -85,11 +87,13 @@ namespace AdventureHouse.Services.Data.AdventureData
             [MapLevel.Exit] = (3, 3)
         };
 
-        public Dictionary<int, (int X, int Y)> RoomPositions => new()
+        public Dictionary<int, (int X, int Y)> RoomPositionMapping => new()
         {
             [1] = (1, 1),
             [99] = (1, 1)
         };
+
+        public Dictionary<int, (int X, int Y)> RoomPositions => RoomPositionMapping;
         #endregion
 
         #region Helper Methods
@@ -126,7 +130,7 @@ namespace AdventureHouse.Services.Data.AdventureData
 
         public (int X, int Y) GetRoomPosition(int roomNumber)
         {
-            return RoomPositions.GetValueOrDefault(roomNumber, (0, 0));
+            return RoomPositionMapping.GetValueOrDefault(roomNumber, (0, 0));
         }
         #endregion
     }
