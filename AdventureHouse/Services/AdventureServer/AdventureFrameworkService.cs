@@ -312,9 +312,27 @@ namespace AdventureHouse.Services.AdventureServer
         private (PlayAdventureModel, CommandState) ProcessNonMovementActions(PlayAdventureModel playAdventure, CommandState commandState)
         {
             // Item management commands
-            if (new[] { "get", "drop", "pet", "shoo", "inv", "look" }.Contains(commandState.Command))
+            if (new[] { "get", "drop", "pet", "shoo", "inv" }.Contains(commandState.Command))
             {
                 return _itemManagementService.ProcessItemCommand(playAdventure, commandState);
+            }
+            
+            // Look command - always return room description if no target specified
+            if (commandState.Command == "look")
+            {
+                if (string.IsNullOrWhiteSpace(commandState.Modifier))
+                {
+                    // Look with no target - return room description
+                    var room = _roomManagementService.GetRoom(playAdventure.Rooms, playAdventure.Player.Room);
+                    commandState.Message = room.Desc + " " + _messageService.GetRoomPath(room);
+                    commandState.Valid = true;
+                }
+                else
+                {
+                    // Look at specific item
+                    return _itemManagementService.ProcessItemCommand(playAdventure, commandState);
+                }
+                return (playAdventure, commandState);
             }
 
             // Item usage commands

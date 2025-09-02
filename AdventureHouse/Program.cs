@@ -25,22 +25,39 @@ namespace AdventureHouse
                 RunServerTest();
                 return;
             }
-
-            // Check for GUI mode - temporarily disabled due to build issues
-            if (args.Length > 0 && args[0] == "--gui")
-            {
-                Console.WriteLine("Terminal.Gui mode is temporarily disabled due to build issues.");
-                Console.WriteLine("Running console mode instead...");
-                // Fall through to console mode
-            }
-
-            // Default to console client
+            
+            // Initialize server services
             var gameCache = new MemoryCache(new MemoryCacheOptions());
             var fortuneService = new GetFortuneService();
             var commandProcessingService = new CommandProcessingService();
             var server = new AdventureFrameworkService(gameCache, fortuneService, commandProcessingService);
-            var client = new AdventureClientService();
-            client.StartAdventure(server);
+
+            // Check for console/classic mode
+            if (args.Length > 0 && (args[0] == "--console" || args[0] == "--classic" || args[0] == "-c"))
+            {
+                Console.WriteLine("Starting in classic console mode...");
+                var consoleClient = new AdventureClientService();
+                consoleClient.StartAdventure(server);
+                return;
+            }
+
+            // Default to Terminal.Gui mode
+            try
+            {
+                Console.WriteLine("Starting Adventure Realms with Terminal.Gui interface...");
+                var guiClient = new TerminalGuiAdventureClient(server);
+                guiClient.StartAdventure(server);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to start Terminal.Gui interface: {ex.Message}");
+                Console.WriteLine("Falling back to classic console mode...");
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadKey();
+                
+                var consoleClient = new AdventureClientService();
+                consoleClient.StartAdventure(server);
+            }
         }
 
         private static void RunServerTest()
