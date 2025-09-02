@@ -4,7 +4,8 @@ using AdventureHouse.Services.AdventureClient.Models;
 namespace AdventureHouse.Services.AdventureClient.UI
 {
     /// <summary>
-    /// Interface for display services that handle UI rendering for the Adventure Client
+    /// Interface for display services that handle UI rendering for the Adventure Client.
+    /// Now supports both console-based rendering and Terminal.Gui rendering.
     /// </summary>
     public interface IDisplayService
     {
@@ -39,9 +40,9 @@ namespace AdventureHouse.Services.AdventureClient.UI
         /// <summary>
         /// Display the map
         /// </summary>
-        /// <param name="mapState">The current map state</param>
+        /// <param name="mapText">The map text to display</param>
         /// <param name="useClassicMode">Whether to use classic console mode</param>
-        void DisplayMap(MapState? mapState, bool useClassicMode);
+        void DisplayMap(string mapText, bool useClassicMode);
 
         /// <summary>
         /// Show loading progress
@@ -93,5 +94,37 @@ namespace AdventureHouse.Services.AdventureClient.UI
         /// </summary>
         /// <param name="output">The output to display</param>
         void DisplayConsoleOutput(string output);
+
+        // Terminal.Gui specific methods for bridging to the new UI system
+
+        /// <summary>
+        /// Create a Terminal.Gui map view from MapModel data
+        /// </summary>
+        Terminal.Gui.FrameView CreateTerminalGuiMapView(MapModel mapModel, Terminal.Gui.Rect bounds);
+
+        /// <summary>
+        /// Create a Terminal.Gui status view from game data
+        /// </summary>
+        Terminal.Gui.FrameView CreateTerminalGuiStatusView(MapModel mapModel, string healthStatus, Terminal.Gui.Rect bounds);
+
+        /// <summary>
+        /// Create a Terminal.Gui legend view
+        /// </summary>
+        Terminal.Gui.FrameView CreateTerminalGuiLegendView(MapModel mapModel, Terminal.Gui.Rect bounds);
+
+        /// <summary>
+        /// Update an existing Terminal.Gui map view with new data
+        /// </summary>
+        void UpdateTerminalGuiMapView(Terminal.Gui.FrameView mapView, MapModel mapModel);
+
+        /// <summary>
+        /// Update an existing Terminal.Gui status view with new data
+        /// </summary>
+        void UpdateTerminalGuiStatusView(Terminal.Gui.FrameView statusView, MapModel mapModel, string healthStatus);
+
+        /// <summary>
+        /// Render map to string for Terminal.Gui TextView display
+        /// </summary>
+        string RenderMapToString(MapModel mapModel, int width = 80, int height = 40);
     }
 }

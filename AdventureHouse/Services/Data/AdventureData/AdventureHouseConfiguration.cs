@@ -11,7 +11,7 @@ namespace AdventureHouse.Services.Data.AdventureData
     public class AdventureHouseConfiguration : IGameConfiguration
     {
         #region Game Identity
-        public string GameName => "Adventure House 3.5 (.Net 9.0)";
+        public string GameName => "Adventure House";
         public string GameVersion => "3.5";
         public string GameDescription => "Figure out how to escape from the house.";
         #endregion
@@ -317,7 +317,27 @@ Note: Only visited rooms and paths between them are shown.
 
         public int GetRoomNumberFromName(string roomName)
         {
-            return RoomNameToNumberMapping.GetValueOrDefault(roomName?.ToLower() ?? "", -1);
+            var cleanName = roomName?.ToLower().Trim() ?? string.Empty;
+            
+            // Check exact matches first
+            if (RoomNameToNumberMapping.TryGetValue(cleanName, out int exactMatch))
+                return exactMatch;
+            
+            // Check partial matches - look for rooms that contain key words from the room name
+            foreach (var kvp in RoomNameToNumberMapping)
+            {
+                var mappingKey = kvp.Key;
+                var roomNumber = kvp.Value;
+                
+                // If the clean name contains the mapping key or vice versa
+                if (cleanName.Contains(mappingKey) || mappingKey.Contains(cleanName))
+                {
+                    return roomNumber;
+                }
+            }
+            
+            // If no match found, return -1
+            return -1;
         }
         #endregion
     }

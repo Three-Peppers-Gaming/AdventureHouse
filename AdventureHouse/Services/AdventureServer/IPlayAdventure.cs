@@ -2,37 +2,25 @@ using AdventureHouse.Services.Shared.Models;
 
 namespace AdventureHouse.Services.AdventureServer
 {
+    /// <summary>
+    /// Clean Adventure Server API with 100% client-server decoupling
+    /// Only 2 endpoints needed for complete game functionality
+    /// </summary>
     public interface IPlayAdventure 
     {
         /// <summary>
-        /// Create a new game instance for the specified game ID
+        /// Endpoint 1: Get list of available games
+        /// Client calls this to display game selection menu
         /// </summary>
-        /// <param name="GameID">The ID of the game to create</param>
-        /// <returns>Initial game state</returns>
-        public GameMoveResult FrameWork_NewGame(int GameID);
+        /// <returns>List of available games with metadata</returns>
+        List<Game> GameList();
 
         /// <summary>
-        /// Get list of available games
+        /// Endpoint 2: Play game - handles all game interactions
+        /// This single endpoint handles: new game creation, moves, commands, everything
         /// </summary>
-        /// <returns>List of available games</returns>
-        public List<Game> FrameWork_GetGames();
-
-        /// <summary>
-        /// Process a game move (including console commands)
-        /// This is the single entry point for all client interactions
-        /// </summary>
-        /// <param name="gameMove">The move to process</param>
-        /// <returns>Game state and any console output</returns>
-        GameMoveResult FrameWork_GameMove(GameMove gameMove);
-
-        /// <summary>
-        /// Initialize a new game session with client display preferences
-        /// This combines game creation with initial setup
-        /// </summary>
-        /// <param name="gameId">The game ID to start</param>
-        /// <param name="useClassicMode">Client display mode preference</param>
-        /// <param name="useScrollMode">Client scroll mode preference</param>
-        /// <returns>Complete initial game state with intro and available games</returns>
-        GameMoveResult FrameWork_StartGameSession(int gameId, bool useClassicMode = false, bool useScrollMode = false);
+        /// <param name="request">Game play request with session ID and command</param>
+        /// <returns>Complete game state response</returns>
+        GamePlayResponse PlayGame(GamePlayRequest request);
     }
 }
