@@ -137,7 +137,7 @@ namespace AdventureHouse.Services.Data.AdventureData
                     N = 99, S = 99, E = 99, W = 13, U = 99, D = 99 },
 
                 new Room { Number = 15, RoomPoints = 40, Name = "Crew Medical Bay", 
-                    Desc = "The crew's medical facility with basic treatment equipment. Medical supplies are scattered, and one of the examination tables shows signs of recent use.", 
+                    Desc = "The crew's medical facility with basic treatment equipment. Medical supplies are scattered about.", 
                     N = 8, S = 99, E = 16, W = 99, U = 99, D = 99 },
 
                 new Room { Number = 16, RoomPoints = 10, Name = "Crew Lift", 
@@ -219,7 +219,7 @@ namespace AdventureHouse.Services.Data.AdventureData
                     N = 27, S = 39, E = 35, W = 33, U = 99, D = 99 },
 
                 new Room { Number = 35, RoomPoints = 500, Name = "Escape Pod Bay", 
-                    Desc = "The emergency evacuation facility. A single escape pod remains in its launch tube, but the access panel shows it requires special authorization to activate.", 
+                    Desc = "The emergency evacuation facility. A single escape pod remains in its launch tube, requiring special authorization to activate.", 
                     N = 30, S = 40, E = 36, W = 34, U = 99, D = 99 },
 
                 new Room { Number = 36, RoomPoints = 10, Name = "Eng Lift", 
@@ -613,7 +613,7 @@ namespace AdventureHouse.Services.Data.AdventureData
                 { 
                     Key = "CAKEBITE", 
                     Name = "Cakebite", 
-                    Description = "A grotesque creature that appears to be made of animated cake batter mixed with biological matter. It oozes frosting and snaps with cake-cutter teeth.",
+                    Description = "A grotesque creature made of animated cake batter mixed with biological matter. It oozes frosting and snaps with cake-cutter teeth.",
                     RoomNumber = 18, // Hydroponics Lab
                     ObjectNameThatCanAttackThem = "BLASTER",
                     AttacksToKill = 2,
@@ -649,7 +649,7 @@ namespace AdventureHouse.Services.Data.AdventureData
                 { 
                     Key = "GOOPLING", 
                     Name = "Goopling", 
-                    Description = "A writhing mass of organic goo that resulted from the antimatter cake experiment. It pulsates with malevolent energy and seems hungry for living tissue.",
+                    Description = "A writhing mass of organic goo from the antimatter cake experiment. It pulsates with malevolent energy and seems hungry for living tissue.",
                     RoomNumber = 24, // Containment Lab
                     ObjectNameThatCanAttackThem = "BLASTER",
                     AttacksToKill = 3,

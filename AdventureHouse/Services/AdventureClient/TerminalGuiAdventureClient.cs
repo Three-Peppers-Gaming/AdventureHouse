@@ -33,13 +33,14 @@ namespace AdventureHouse.Services.AdventureClient
         private FrameView _inputView = null!;
         private FrameView _legendView = null!;
         private FrameView _itemsView = null!;  // New items display box
+        private FrameView _gameInfoView = null!;  // New game info box
         private MenuBar _menuBar = null!;
         private TextView _gameTextView = null!;
         private TextView _mapTextView = null!;
         private TextField _inputField = null!;
         private TextView _legendTextView = null!;
         private TextView _itemsTextView = null!;  // New items text view
-        // Removed StatusBar - using menus instead
+        private TextView _gameInfoTextView = null!;  // New game info text view
         
         // Game State
         private string _currentSessionId = "";
@@ -50,6 +51,13 @@ namespace AdventureHouse.Services.AdventureClient
         private List<string> _commandHistory = new();
         private int _historyIndex = -1;
         private bool _gameInProgress = false;
+        private string _playerGamerTag = "Player"; // Default gamer tag
+        
+        // Add this field to track current room
+        private string _currentRoomName = "";
+        
+        // Add field to track the original title when focus changes
+        private string _originalGameViewTitle = "Welcome";
         
         // Color Schemes with proper menu colors and readability
         private static readonly ColorScheme BlueScheme = new ColorScheme
@@ -72,8 +80,8 @@ namespace AdventureHouse.Services.AdventureClient
         
         private static readonly ColorScheme InputScheme = new ColorScheme
         {
-            Normal = new Terminal.Gui.Attribute(Color.White, Color.Black),  // White on black
-            Focus = new Terminal.Gui.Attribute(Color.White, Color.Black),   // White on black
+            Normal = new Terminal.Gui.Attribute(Color.White, Color.Black),
+            Focus = new Terminal.Gui.Attribute(Color.White, Color.Black),
             HotNormal = new Terminal.Gui.Attribute(Color.White, Color.Black),
             HotFocus = new Terminal.Gui.Attribute(Color.White, Color.Black),
             Disabled = new Terminal.Gui.Attribute(Color.Gray, Color.Black)
@@ -94,6 +102,46 @@ namespace AdventureHouse.Services.AdventureClient
             Focus = new Terminal.Gui.Attribute(Color.Magenta, Color.Black),
             HotNormal = new Terminal.Gui.Attribute(Color.Cyan, Color.Black),
             HotFocus = new Terminal.Gui.Attribute(Color.Cyan, Color.Black),
+            Disabled = new Terminal.Gui.Attribute(Color.Gray, Color.Black)
+        };
+        
+        // Green text on black background for game info box
+        private static readonly ColorScheme GameInfoScheme = new ColorScheme
+        {
+            Normal = new Terminal.Gui.Attribute(Color.Green, Color.Black),
+            Focus = new Terminal.Gui.Attribute(Color.Green, Color.Black),
+            HotNormal = new Terminal.Gui.Attribute(Color.Green, Color.Black),
+            HotFocus = new Terminal.Gui.Attribute(Color.Green, Color.Black),
+            Disabled = new Terminal.Gui.Attribute(Color.Gray, Color.Black)
+        };
+        
+        // Light blue text for player commands - changed to Cyan
+        private static readonly ColorScheme PlayerCommandScheme = new ColorScheme
+        {
+            Normal = new Terminal.Gui.Attribute(Color.Cyan, Color.Black),
+            Focus = new Terminal.Gui.Attribute(Color.Cyan, Color.Black),
+            HotNormal = new Terminal.Gui.Attribute(Color.Cyan, Color.Black),
+            HotFocus = new Terminal.Gui.Attribute(Color.Cyan, Color.Black),
+            Disabled = new Terminal.Gui.Attribute(Color.Gray, Color.Black)
+        };
+        
+        // Location text color scheme - Bright Yellow
+        private static readonly ColorScheme LocationScheme = new ColorScheme
+        {
+            Normal = new Terminal.Gui.Attribute(Color.BrightYellow, Color.Black),
+            Focus = new Terminal.Gui.Attribute(Color.BrightYellow, Color.Black),
+            HotNormal = new Terminal.Gui.Attribute(Color.BrightYellow, Color.Black),
+            HotFocus = new Terminal.Gui.Attribute(Color.BrightYellow, Color.Black),
+            Disabled = new Terminal.Gui.Attribute(Color.Gray, Color.Black)
+        };
+        
+        // Response text color scheme - Red
+        private static readonly ColorScheme ResponseScheme = new ColorScheme
+        {
+            Normal = new Terminal.Gui.Attribute(Color.Red, Color.Black),
+            Focus = new Terminal.Gui.Attribute(Color.Red, Color.Black),
+            HotNormal = new Terminal.Gui.Attribute(Color.Red, Color.Black),
+            HotFocus = new Terminal.Gui.Attribute(Color.Red, Color.Black),
             Disabled = new Terminal.Gui.Attribute(Color.Gray, Color.Black)
         };
         
@@ -122,6 +170,10 @@ namespace AdventureHouse.Services.AdventureClient
                 
                 // Create and run the main UI with welcome screen (no immediate game selection)
                 CreateMainUI();
+                
+                // Start the focus monitoring system
+                StartFocusMonitor();
+                
                 Application.Run();
             }
             catch (Exception ex)
@@ -141,6 +193,7 @@ namespace AdventureHouse.Services.AdventureClient
             {
                 try
                 {
+                    StopFocusMonitor();
                     Application.Shutdown();
                 }
                 catch
@@ -164,7 +217,30 @@ namespace AdventureHouse.Services.AdventureClient
             Application.Top.Add(_mapView);
             Application.Top.Add(_itemsView);
             Application.Top.Add(_inputView);
+            Application.Top.Add(_gameInfoView);
             Application.Top.Add(_legendView);
+            
+            // Force layout calculation first
+            Application.Top.LayoutSubviews();
+            
+            // AGGRESSIVE FOCUS SETTING - try multiple approaches
+            _inputFieldShouldHaveFocus = true;
+            
+            // Approach 1: Direct focus
+            _inputField.SetFocus();
+            
+            // Approach 2: Through parent
+            _inputView.SetFocus();
+            _inputField.SetFocus();
+            
+            // Approach 3: Make sure it's the most focused
+            Application.Top.SetFocus();
+            _inputField.SetFocus();
+            
+            // Approach 4: Use our robust method
+            EnsureInputFieldHasFocus();
+            
+            Application.Refresh();
         }
         
         private void CreateMenuBar()
@@ -174,15 +250,9 @@ namespace AdventureHouse.Services.AdventureClient
                 new MenuItem("_New Game", "Start a new adventure", () => StartNewGame()),
                 new MenuItem("_Restart Current", "Restart current game", () => RestartGame()),
                 null, // Separator
-                new MenuItem("_Switch Game", "Switch to a different adventure", () => SwitchGame())
-            });
-            
-            var viewMenu = new MenuBarItem("_View", new MenuItem[]
-            {
-                new MenuItem("_Console Terminal", "Open console terminal window", () => OpenTerminalWindow()),
-                new MenuItem("_Refresh", "Refresh display", () => RefreshDisplay()),
-                null,
-                new MenuItem("_Help", "Show help", () => ShowHelp())
+                new MenuItem("_Switch Game", "Switch to a different adventure", () => SwitchGame()),
+                null, // Separator
+                new MenuItem("_Quit", "Exit Adventure Realms", () => Application.RequestStop())
             });
             
             var helpMenu = new MenuBarItem("_Help", new MenuItem[]
@@ -191,12 +261,7 @@ namespace AdventureHouse.Services.AdventureClient
                 new MenuItem("_About", "About Adventure Realms", () => ShowAbout())
             });
             
-            var gameMenu = new MenuBarItem("_Game", new MenuItem[]
-            {
-                new MenuItem("_Quit", "Exit Adventure Realms", () => Application.RequestStop())
-            });
-            
-            _menuBar = new MenuBar(new MenuBarItem[] { playMenu, viewMenu, helpMenu, gameMenu })
+            _menuBar = new MenuBar(new MenuBarItem[] { playMenu, helpMenu })
             {
                 ColorScheme = MenuScheme  // Use MenuScheme for proper colors
             };
@@ -212,12 +277,14 @@ namespace AdventureHouse.Services.AdventureClient
             var gameHeight = (totalHeight * 65) / 100; // 65% for game text
             var bottomHeight = totalHeight - gameHeight; // 35% for items, input and legend
             var itemsHeight = 4; // Fixed height for items box
-            var inputHeight = bottomHeight - itemsHeight; // Remaining space for input
+            var gameInfoHeight = 3; // Fixed height for game info box
+            var inputHeight = bottomHeight - itemsHeight - gameInfoHeight; // Remaining space for input
             
             // Ensure minimum sizes and proper bounds
             gameHeight = Math.Max(gameHeight, 8);
             inputHeight = Math.Max(inputHeight, 3);
             itemsHeight = Math.Max(itemsHeight, 3);
+            gameInfoHeight = Math.Max(gameInfoHeight, 2);
             leftWidth = Math.Max(leftWidth, 40);
             rightWidth = Math.Max(rightWidth, 25);
             
@@ -240,7 +307,18 @@ namespace AdventureHouse.Services.AdventureClient
                 ReadOnly = true,
                 WordWrap = true,
                 ColorScheme = GameScheme,
-                Text = ""
+                Text = "",
+                CanFocus = false  // DISABLE FOCUS to prevent interference
+            };
+            
+            // Add key handler to return to input field when user presses Tab or Enter
+            _gameTextView.KeyPress += (args) =>
+            {
+                // ANY key press in game text should return focus to command input
+                // This ensures users can always get back to typing commands
+                _inputFieldShouldHaveFocus = true;
+                EnsureInputFieldHasFocus();
+                args.Handled = true;
             };
             
             _gameView.Add(_gameTextView);
@@ -263,7 +341,8 @@ namespace AdventureHouse.Services.AdventureClient
                 Height = Dim.Fill(),
                 ReadOnly = true,
                 WordWrap = false,
-                ColorScheme = MapScheme
+                ColorScheme = MapScheme,
+                CanFocus = false  // Disable focus for map area
             };
             
             _mapView.Add(_mapTextView);
@@ -294,19 +373,53 @@ namespace AdventureHouse.Services.AdventureClient
                     HotFocus = new Terminal.Gui.Attribute(Color.White, Color.Black),
                     Disabled = new Terminal.Gui.Attribute(Color.Gray, Color.Black)
                 },
-                Text = "Nothing here."
+                Text = "Nothing here.",
+                CanFocus = false  // Disable focus for items view
             };
             
             _itemsView.Add(_itemsTextView);
             
-            // Input view (bottom-left)
-            _inputView = new FrameView("Command")
+            // Game info view (below items) - green text on black background
+            _gameInfoView = new FrameView("Game")
             {
                 X = 0,
                 Y = 1 + gameHeight + itemsHeight,
                 Width = leftWidth,
+                Height = gameInfoHeight,
+                ColorScheme = BlueScheme
+            };
+            
+            _gameInfoTextView = new TextView()
+            {
+                X = 0,
+                Y = 0,
+                Width = Dim.Fill(),
+                Height = Dim.Fill(),
+                ReadOnly = true,
+                WordWrap = true,
+                ColorScheme = GameInfoScheme,
+                Text = "No game selected",
+                CanFocus = false  // Disable focus for game info view
+            };
+            
+            _gameInfoView.Add(_gameInfoTextView);
+            
+            // Input view (bottom-left) - single line with max 50 characters
+            _inputView = new FrameView("Command")
+            {
+                X = 0,
+                Y = 1 + gameHeight + itemsHeight + gameInfoHeight,
+                Width = leftWidth,
                 Height = inputHeight,
                 ColorScheme = BlueScheme
+            };
+            
+            // Add click handler to the frame itself to set focus when clicked
+            _inputView.MouseClick += (args) =>
+            {
+                _inputFieldShouldHaveFocus = true;
+                EnsureInputFieldHasFocus();
+                args.Handled = true;
             };
             
             _inputField = new TextField("")
@@ -315,7 +428,35 @@ namespace AdventureHouse.Services.AdventureClient
                 Y = 1,
                 Width = Dim.Fill() - 2,
                 Height = 1,
-                ColorScheme = InputScheme
+                ColorScheme = InputScheme,
+                CanFocus = true  // Explicitly enable focus
+            };
+            
+            // Add mouse click handler to ensure focus when clicked
+            _inputField.MouseClick += (args) =>
+            {
+                _inputFieldShouldHaveFocus = true;
+                EnsureInputFieldHasFocus();
+                args.Handled = true;
+            };
+            
+            // Add focus event handlers for the input field
+            _inputField.Enter += (sender) =>
+            {
+                if (_isSettingFocusProgrammatically) return;
+                
+                // When command input gets focus, restore the original frame title
+                _inputView.Title = "Command";
+                _inputFieldShouldHaveFocus = true;
+            };
+            
+            _inputField.Leave += (sender) =>
+            {
+                if (_isSettingFocusProgrammatically) return;
+                
+                // When leaving command input, update the frame title to show focus instruction
+                _inputView.Title = "Command <= Click here to set focus";
+                _inputFieldShouldHaveFocus = false;
             };
             
             _inputField.KeyPress += OnInputKeyPress;
@@ -340,13 +481,15 @@ namespace AdventureHouse.Services.AdventureClient
                 ReadOnly = true,
                 WordWrap = false, // Don't wrap for column formatting
                 ColorScheme = MapScheme,
-                Text = GetMapLegendText()
+                Text = GetMapLegendText(),
+                CanFocus = false  // Disable focus for Keys legend area
             };
             
             _legendView.Add(_legendTextView);
             
-            // Set initial focus to input field
-            _inputField.SetFocus();
+            // Set initial focus to input field using robust management
+            _inputFieldShouldHaveFocus = true;
+            EnsureInputFieldHasFocus();
         }
         
         private void ShowWelcomeScreen()
@@ -359,10 +502,15 @@ TO START: Use Play menu -> New Game
 COMMANDS: n/s/e/w/u/d, look, get/drop item, inv, use item, help
 GAMES: Adventure House, Space Station, Future Family
 
-Type commands in green box below. Map appears on right when playing.";
+Type commands in green box below. Map appears on right when playing.
+
+Copyright (c) Steven Sparks 2025.";
 
             _gameTextView.Text = welcomeText;
-            _gameView.Title = "Welcome"; // Set title for welcome screen
+            
+            // Set both the view title and original title tracking
+            _gameView.Title = "Welcome";
+            _originalGameViewTitle = "Welcome";
             
             _mapTextView.Text = @"MAP AREA
 
@@ -380,6 +528,9 @@ visited rooms.";
             _itemsTextView.Text = "Items will appear here when you enter rooms.";
             _itemsView.Title = "Items";
             
+            // Show no game selected message
+            _gameInfoTextView.Text = "No game selected";
+            
             _gameInProgress = false;
         }
         
@@ -395,16 +546,35 @@ visited rooms.";
                     _gameInProgress = true;
                     UpdateGameDisplay();
                     UpdateMapDisplay();
+                    UpdateGameInfo();
+                    
+                    // AGGRESSIVE FOCUS RECOVERY AFTER GAME START
+                    _inputFieldShouldHaveFocus = true;
+                    Application.Top.LayoutSubviews();
+                    
+                    // Try multiple times with delays
+                    EnsureInputFieldHasFocus();
+                    Application.Refresh();
+                    
+                    // Set up a delayed focus attempt
+                    Application.MainLoop.Invoke(() => {
+                        _inputField.SetFocus();
+                        EnsureInputFieldHasFocus();
+                    });
                 }
                 else
                 {
-                    // User cancelled - show message in game area
+                    // User cancelled - show message in game area and return focus
                     _gameTextView.Text = "Game selection cancelled. Use Play -> New Game to try again.";
+                    _inputFieldShouldHaveFocus = true;
+                    EnsureInputFieldHasFocus();
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.ErrorQuery("Error", $"Failed to start new game: {ex.Message}", "OK");
+                _inputFieldShouldHaveFocus = true;
+                EnsureInputFieldHasFocus();
             }
         }
         
@@ -520,8 +690,17 @@ visited rooms.";
                     throw new InvalidOperationException("Failed to start game session");
                 }
                 
+                // Update player gamer tag from server response
+                if (!string.IsNullOrEmpty(_lastGameResponse.PlayerName))
+                {
+                    _playerGamerTag = _lastGameResponse.PlayerName;
+                }
+                
                 // Clear previous game text when starting new game
                 _gameTextView.Text = "";
+                
+                // Reset room tracking for new game
+                _currentRoomName = "";
                 
                 // Initialize items display
                 _itemsTextView.Text = "Nothing here.";
@@ -542,6 +721,28 @@ visited rooms.";
         
         private void OnInputKeyPress(View.KeyEventEventArgs args)
         {
+            // Remove Tab navigation to game text since it can't be focused anymore
+            // Handle Tab like any other key - just ignore it
+            if (args.KeyEvent.Key == Key.Tab)
+            {
+                args.Handled = true;
+                return;
+            }
+            
+            // Limit input to 50 characters
+            if (args.KeyEvent.Key != Key.Enter && 
+                args.KeyEvent.Key != Key.Backspace && 
+                args.KeyEvent.Key != Key.Delete &&
+                args.KeyEvent.Key != Key.CursorUp &&
+                args.KeyEvent.Key != Key.CursorDown &&
+                args.KeyEvent.Key != Key.CursorLeft &&
+                args.KeyEvent.Key != Key.CursorRight &&
+                _inputField.Text.Length >= 50)
+            {
+                args.Handled = true;
+                return;
+            }
+            
             if (args.KeyEvent.Key == Key.Enter)
             {
                 var command = _inputField.Text.ToString();
@@ -551,6 +752,8 @@ visited rooms.";
                     {
                         MessageBox.Query("No Game", "Please start a game first using Play → New Game", "OK");
                         _inputField.Text = "";
+                        _inputFieldShouldHaveFocus = true;
+                        EnsureInputFieldHasFocus();
                         return;
                     }
                     
@@ -559,6 +762,9 @@ visited rooms.";
                     _historyIndex = _commandHistory.Count;
                     _inputField.Text = "";
                 }
+                // Keep focus on input field after processing command
+                _inputFieldShouldHaveFocus = true;
+                EnsureInputFieldHasFocus();
                 args.Handled = true;
             }
             else if (args.KeyEvent.Key == Key.CursorUp)
@@ -588,7 +794,7 @@ visited rooms.";
             }
         }
         
-        private void ProcessCommand(string command)
+        private void ProcessCommand(String command)
         {
             if (string.IsNullOrEmpty(_currentSessionId) || _currentSessionId == "-1")
             {
@@ -605,16 +811,12 @@ visited rooms.";
             
             try
             {
-                // Add command to history display
-                var existingText = _gameTextView.Text.ToString();
-                _gameTextView.Text = existingText + $"\n> {command}\n";
-                _gameTextView.MoveEnd();
-                
+                // Send command to server without displaying it first
                 _lastGameResponse = _server.PlayGame(request);
                 
                 if (_lastGameResponse.SessionId == "-1")
                 {
-                    _gameTextView.Text += "\n*** GAME SESSION ENDED ***\n";
+                    _gameTextView.Text = "*** GAME SESSION ENDED ***";
                     _currentSessionId = "-1";
                     _gameInProgress = false;
                 }
@@ -622,69 +824,91 @@ visited rooms.";
                 {
                     UpdateGameDisplay();
                     UpdateMapDisplay();
+                    UpdateGameInfo();
                 }
                 
                 if (_lastGameResponse.PlayerDead)
                 {
                     MessageBox.Query("Game Over", "You have died! Game ended.", "OK");
                     _gameInProgress = false;
+                    _inputFieldShouldHaveFocus = true;
+                    EnsureInputFieldHasFocus();
                 }
                 else if (_lastGameResponse.GameCompleted)
                 {
                     MessageBox.Query("Congratulations!", "You have completed the game!", "OK");
                     _gameInProgress = false;
+                    _inputFieldShouldHaveFocus = true;
+                    EnsureInputFieldHasFocus();
                 }
+                
+                // Always use robust focus management
+                _inputFieldShouldHaveFocus = true;
+                EnsureInputFieldHasFocus();
             }
             catch (Exception ex)
             {
-                _gameTextView.Text += $"\n*** ERROR: {ex.Message} ***\n";
-                _gameTextView.MoveEnd();
+                _gameTextView.Text = $"*** ERROR: {ex.Message} ***";
+                _inputFieldShouldHaveFocus = true;
+                EnsureInputFieldHasFocus();
             }
+        }
+        
+        private string FormatCommandAsChat(string command)
+        {
+            // This method is no longer used since we don't display player commands
+            // Left for backward compatibility but returns empty string
+            return "";
         }
         
         private void UpdateGameDisplay()
         {
             if (_lastGameResponse == null) return;
             
-            // Update game view title to show current room name
-            _gameView.Title = _lastGameResponse.RoomName;
+            // Check if this is a room change
+            bool isRoomChange = !string.IsNullOrEmpty(_currentRoomName) && 
+                               _currentRoomName != _lastGameResponse.RoomName;
+            
+            // Update current room tracking
+            _currentRoomName = _lastGameResponse.RoomName;
+            
+            // Store the clean room name as the original title (without any focus messages)
+            _originalGameViewTitle = _lastGameResponse.RoomName;
+            
+            // Update game view title - restore clean title first
+            _gameView.Title = _originalGameViewTitle;
             
             var gameText = new StringBuilder();
             
-            // Add health status (no room name since it's in title)
-            gameText.AppendLine($"Health: {_lastGameResponse.PlayerHealth}");
-            gameText.AppendLine();
-            
-            // Add room description
-            if (!string.IsNullOrEmpty(_lastGameResponse.RoomDescription))
-            {
-                gameText.AppendLine(_lastGameResponse.RoomDescription);
-                gameText.AppendLine();
-            }
-            
-            // Add command response without header - just the response
+            // Prioritize command response over room description to avoid duplication
+            // Command response often contains room description plus additional info
             if (!string.IsNullOrEmpty(_lastGameResponse.CommandResponse))
             {
                 gameText.AppendLine(_lastGameResponse.CommandResponse);
                 gameText.AppendLine();
             }
-            
+            // Only show room description if there's no command response
+            else if (!string.IsNullOrEmpty(_lastGameResponse.RoomDescription))
+            {
+                gameText.AppendLine(_lastGameResponse.RoomDescription);
+                gameText.AppendLine();
+            }
+    
             // Update items in dedicated items box (not in main game text)
             UpdateItemsDisplay();
             
-            // Always append to existing text for scrolling history
-            var existingText = _gameTextView.Text.ToString();
-            if (!string.IsNullOrEmpty(existingText) && _gameInProgress)
-            {
-                _gameTextView.Text = existingText + "\n" + gameText.ToString();
-            }
-            else
-            {
-                _gameTextView.Text = gameText.ToString();
-            }
+            // Always clear the game window and show fresh content (no accumulation)
+            _gameTextView.Text = gameText.ToString();
             
             // Auto-scroll to bottom to show latest content
             _gameTextView.MoveEnd();
+            
+            // Use robust focus management instead of simple SetFocus
+            if (_gameInProgress)
+            {
+                _inputFieldShouldHaveFocus = true;
+                EnsureInputFieldHasFocus();
+            }
         }
         
         private void UpdateItemsDisplay()
@@ -709,6 +933,27 @@ visited rooms.";
             }
         }
         
+        private void UpdateGameInfo()
+        {
+            if (_lastGameResponse == null || !_gameInProgress)
+            {
+                _gameInfoTextView.Text = "No game selected";
+                return;
+            }
+            
+            // Get game details
+            var currentGame = _availableGames.FirstOrDefault(g => g.Id == _currentGameId);
+            if (currentGame == null)
+            {
+                _gameInfoTextView.Text = "Unknown game";
+                return;
+            }
+            
+            // Format: Line 1: Playing [Game Name] and feeling [health], Line 2: By [Author Name]
+            var gameInfo = $"Playing {currentGame.Name} and feeling {_lastGameResponse.PlayerHealth}\nBy Steve Sparks 2019 to 2025!";
+            _gameInfoTextView.Text = gameInfo;
+        }
+        
         private void UpdateMapDisplay()
         {
             if (_lastGameResponse?.MapData == null)
@@ -718,11 +963,11 @@ visited rooms.";
             }
             
             // Create simple ASCII map from discovered rooms
-            var mapText = CreateSimpleAsciiMap(_lastGameResponse.MapData);
+            var mapText = CreateSimpleMap(_lastGameResponse.MapData);
             _mapTextView.Text = mapText;
         }
         
-        private string CreateSimpleAsciiMap(PlayerMapData mapData)
+        private string CreateSimpleMap(PlayerMapData mapData)
         {
             if (mapData.DiscoveredRooms == null || mapData.DiscoveredRooms.Count == 0)
             {
@@ -776,7 +1021,11 @@ visited rooms.";
 . = H-path    inv = Inventory
 : = V-path    look = Examine
 ^ = Up        help = Game help
-v = Down      Enter = Send";
+v = Down      Enter = Send
+
+Click Command box to type
+Focus is auto-managed
+Ready to play!";
         }
         
         private void SwitchGame()
@@ -795,7 +1044,11 @@ v = Down      Enter = Send";
                 _gameInProgress = true;
                 UpdateGameDisplay();
                 UpdateMapDisplay();
+                UpdateGameInfo();
             }
+            // Return focus to input after game selection
+            _inputFieldShouldHaveFocus = true;
+            EnsureInputFieldHasFocus();
         }
         
         private void RestartGame()
@@ -803,6 +1056,8 @@ v = Down      Enter = Send";
             if (_currentGameId == 0)
             {
                 MessageBox.Query("No Game", "Please start a game first using Play → New Game", "OK");
+                _inputFieldShouldHaveFocus = true;
+                EnsureInputFieldHasFocus();
                 return;
             }
             
@@ -810,6 +1065,9 @@ v = Down      Enter = Send";
             _gameInProgress = true;
             UpdateGameDisplay();
             UpdateMapDisplay();
+            UpdateGameInfo();
+            _inputFieldShouldHaveFocus = true;
+            EnsureInputFieldHasFocus();
         }
         
         private void RefreshDisplay()
@@ -818,27 +1076,29 @@ v = Down      Enter = Send";
             {
                 UpdateGameDisplay();
                 UpdateMapDisplay();
+                UpdateGameInfo();
             }
             else
             {
                 ShowWelcomeScreen();
             }
             Application.Refresh();
+            _inputField.SetFocus();
         }
         
         private void ShowHelp()
         {
-            var helpText = @"Adventure Realms - Terminal.Gui Interface
+            var helpText = @"Adventure Realms
 
 GAME COMMANDS:
 - Movement: n, s, e, w, u, d (or full names)
 - Actions: look, get <item>, drop <item>, use <item>
 - Info: inv (inventory), help (game help)
-- Combat: attack <monster> with <weapon>
+- Combat: attack <monster> 
 - Other: eat <item>, read <item>, pet <animal>
 
 INTERFACE:
-- Type commands in the green input field
+- Type commands in the green input field (max 50 chars)
 - Game text appears in the left panel
 - Map shows on the right panel
 - Legend shows keyboard shortcuts
@@ -847,17 +1107,19 @@ MENU OPTIONS:
 - Play → New Game: Start a new adventure
 - Play → Switch Game: Change to different game
 - Play → Restart Current: Restart current game
-- View → Console Terminal: Classic terminal mode
-- View → Help: Show this help";
+- Help → Game Help: Show this help
+- Help → About: About Adventure Realms";
 
             MessageBox.Query("Help", helpText, "OK");
+            _inputFieldShouldHaveFocus = true;
+            EnsureInputFieldHasFocus();
         }
         
         private void ShowAbout()
         {
             var aboutText = @"Adventure Realms v1.0
 
-A collection of classic text adventure games built with .NET 9.
+A collection of classic text adventure games.
 
 Features:
 - Multiple adventure games
@@ -872,43 +1134,137 @@ Games:
 - Space Station: Survive the abandoned station  
 - Future Family: Escape the sky apartment
 
-Built by the Adventure House team using modern .NET technologies.";
+Copyright (c) Steven Sparks 2025.";
 
             MessageBox.Query("About Adventure Realms", aboutText, "OK");
+            _inputFieldShouldHaveFocus = true;
+            EnsureInputFieldHasFocus();
         }
-        
-        private void OpenTerminalWindow()
+
+        private void SetPlayerGamerTag()
         {
-            // Create a terminal window that opens the classic console client
-            var terminalDialog = new Dialog("Console Terminal", 100, 30);
-            terminalDialog.ColorScheme = BlueScheme;
+            // Simple dialog to set gamer tag
+            var gamerTagDialog = new Dialog("Enter Gamer Tag", 50, 8);
+            gamerTagDialog.ColorScheme = BlueScheme;
             
-            var terminalText = new TextView()
+            var label = new Label("Gamer Tag:")
             {
                 X = 1,
-                Y = 1,
-                Width = Dim.Fill() - 2,
-                Height = Dim.Fill() - 4,
-                ReadOnly = true,
-                ColorScheme = BlueScheme,
-                Text = "Console Terminal Mode\n\n" +
-                      "This would open a classic console interface within this window.\n" +
-                      "In a full implementation, this could run the classic AdventureClientService\n" +
-                      "or provide a console-like interface for advanced commands."
+                Y = 1
             };
             
-            var closeButton = new Button("Close")
+            var tagField = new TextField(_playerGamerTag)
             {
-                X = Pos.Center(),
-                Y = Pos.Bottom(terminalText) + 1
+                X = 1,
+                Y = 2,
+                Width = Dim.Fill() - 2,
+                Height = 1
             };
             
-            closeButton.Clicked += () => Application.RequestStop();
+            var okButton = new Button("OK")
+            {
+                X = Pos.Center() - 5,
+                Y = 4,
+                IsDefault = true
+            };
             
-            terminalDialog.Add(terminalText);
-            terminalDialog.Add(closeButton);
+            var cancelButton = new Button("Cancel")
+            {
+                X = Pos.Center() + 2,
+                Y = 4
+            };
             
-            Application.Run(terminalDialog);
+            okButton.Clicked += () =>
+            {
+                if (!string.IsNullOrWhiteSpace(tagField.Text.ToString()))
+                {
+                    _playerGamerTag = tagField.Text.ToString().Trim();
+                }
+                Application.RequestStop();
+            };
+            
+            cancelButton.Clicked += () =>
+            {
+                Application.RequestStop();
+            };
+            
+            gamerTagDialog.Add(label);
+            gamerTagDialog.Add(tagField);
+            gamerTagDialog.Add(okButton);
+            gamerTagDialog.Add(cancelButton);
+            
+            Application.Run(gamerTagDialog);
+        }
+
+        // Add more robust focus tracking fields
+        private bool _inputFieldShouldHaveFocus = true;
+        private bool _isSettingFocusProgrammatically = false;
+        private System.Timers.Timer? _focusMonitorTimer;
+
+        // Add a robust focus management method
+        private void EnsureInputFieldHasFocus()
+        {
+            if (!_inputFieldShouldHaveFocus) return;
+            
+            try
+            {
+                _isSettingFocusProgrammatically = true;
+                
+                // First make sure the input field is focusable
+                if (!_inputField.CanFocus)
+                {
+                    _inputField.CanFocus = true;
+                }
+                
+                // Set focus multiple ways to ensure it works
+                if (_inputField.HasFocus == false)
+                {
+                    _inputField.SetFocus();
+                    
+                    // Also try setting it as the focused control on the parent
+                    if (_inputView != null)
+                    {
+                        _inputView.SetFocus();
+                        _inputField.SetFocus();
+                    }
+                }
+                
+                // Ensure title is correct
+                if (_inputView.Title.ToString() != "Command")
+                {
+                    _inputView.Title = "Command";
+                }
+            }
+            finally
+            {
+                _isSettingFocusProgrammatically = false;
+            }
+        }
+        
+        // Add active focus monitoring system
+        private void StartFocusMonitor()
+        {
+            _focusMonitorTimer = new System.Timers.Timer(100); // Check every 100ms
+            _focusMonitorTimer.Elapsed += (sender, e) =>
+            {
+                // Run focus check on main thread
+                Application.MainLoop.Invoke(() =>
+                {
+                    if (_inputFieldShouldHaveFocus && !_inputField.HasFocus && !_isSettingFocusProgrammatically)
+                    {
+                        // Focus was lost, try to recover it
+                        EnsureInputFieldHasFocus();
+                    }
+                });
+            };
+            _focusMonitorTimer.Start();
+        }
+        
+        private void StopFocusMonitor()
+        {
+            _focusMonitorTimer?.Stop();
+            _focusMonitorTimer?.Dispose();
+            _focusMonitorTimer = null;
         }
     }
 }

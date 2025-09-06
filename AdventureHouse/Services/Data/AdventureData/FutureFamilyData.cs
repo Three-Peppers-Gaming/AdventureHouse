@@ -106,7 +106,7 @@ namespace AdventureHouse.Services.Data.AdventureData
                 
                 new() { Number = 14, Name = "Home Office", Desc = "George's work-from-space office with a Video-Phone connection to Galaxy Widgets Corp. The desk computer shows 47 urgent messages from Mr. Cogswell, each one angrier than the last. Your briefcase sits open, but something important is missing from it.", N = 7, S = 99, E = 15, W = 99, U = 3, D = 99, RoomPoints = 75 },
                 
-                new() { Number = 15, Name = "Nursery", Desc = "Baby's space nursery (though the youngest Spacely kid, Elroy, is 8 and at Space School). Toy rockets and stuffed space creatures float gently in the anti-gravity play area. A mobile of planets spins lazily overhead, playing 'Twinkle, Twinkle, Little Star' in cosmic harmony.", N = 99, S = 99, E = 16, W = 14, U = 4, D = 20, RoomPoints = 25 },
+                new() { Number = 15, Name = "Nursery", Desc = "Baby's space nursery with toy rockets and stuffed space creatures floating in the anti-gravity play area. A mobile of planets spins lazily overhead.", N = 99, S = 99, E = 16, W = 14, U = 4, D = 20, RoomPoints = 25 },
                 
                 new() { Number = 16, Name = "Elevator Shaft", Desc = "The main elevator connecting all apartment levels. The atomic-powered lift plays space-age muzak while it operates. Emergency exits lead to the basement level, and service access goes up to the roof systems.", N = 99, S = 99, E = 99, W = 15, U = 5, D = 13, RoomPoints = 10 },
 
@@ -333,7 +333,7 @@ namespace AdventureHouse.Services.Data.AdventureData
                 { 
                     Key = "ROBOTINA", 
                     Name = "Robotina", 
-                    Description = "Your family's robot maid has gone completely haywire! Her programming is stuck in 'AGGRESSIVE CLEANING MODE' and she's attacking everything with atomic-powered scrub brushes and vacuum attachments. Her optical sensors glow red with robotic fury and she keeps repeating 'MUST CLEAN! MUST ORGANIZE! GEORGE SPACELY IS A MESS!'", 
+                    Description = "Your family's robot maid has gone haywire! Her programming is stuck in 'AGGRESSIVE CLEANING MODE' and she's attacking everything with scrub brushes and vacuum attachments. Her optical sensors glow red with fury!", 
                     RoomNumber = 2, // Family Room - where she should be cleaning
                     ObjectNameThatCanAttackThem = "WRENCH", 
                     AttacksToKill = 3, 
@@ -351,7 +351,7 @@ namespace AdventureHouse.Services.Data.AdventureData
                 { 
                     Key = "MAINTENANCEBOT", 
                     Name = "Maintenance Bot", 
-                    Description = "The building's maintenance robot has suffered a major circuit overload! Sparks fly from its atomic repair systems as it waves welding torches and plasma cutters in dangerous patterns. Its voice module keeps broadcasting 'DANGER! ATOMIC SYSTEMS OVERLOAD! EVACUATE IMMEDIATELY!' in a loop that echoes through the garage.", 
+                    Description = "The building's maintenance robot has suffered a circuit overload! Sparks fly from its atomic repair systems as it waves welding torches and plasma cutters dangerously. It broadcasts 'DANGER! EVACUATE!' in a loop.", 
                     RoomNumber = 10, // Air Car Garage
                     ObjectNameThatCanAttackThem = "REMOTE", 
                     AttacksToKill = 2, 
@@ -369,7 +369,7 @@ namespace AdventureHouse.Services.Data.AdventureData
                 { 
                     Key = "SECURITYBOT", 
                     Name = "Security Bot", 
-                    Description = "The apartment's security robot has activated emergency protocols and considers everyone a threat! Its alarm systems blare warnings while defensive force fields crackle around its atomic-powered chassis. Red laser targeting systems sweep the room as it broadcasts 'INTRUDER ALERT! UNAUTHORIZED PERSONNEL! INITIATING DEFENSIVE MEASURES!'", 
+                    Description = "The apartment's security robot has activated emergency protocols! Its alarm systems blare warnings while defensive force fields crackle around its chassis. Red lasers sweep the room!", 
                     RoomNumber = 13, // Utility Room
                     ObjectNameThatCanAttackThem = "WRENCH", 
                     AttacksToKill = 2, 

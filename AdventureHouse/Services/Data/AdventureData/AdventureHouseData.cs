@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AdventureHouse.Services.AdventureServer.Models;
 using AdventureHouse.Services.AdventureClient.Models;
 using PlayAdventureModel = AdventureHouse.Services.AdventureServer.Models.PlayAdventure;
+using AdventureHouse.Services.Data.AdventureData; // Added import for AdventureData namespace
 
 namespace AdventureHouse.Services.Data.AdventureData
 {
@@ -16,9 +17,13 @@ namespace AdventureHouse.Services.Data.AdventureData
 
         public PlayAdventureModel SetupAdventure(string instanceID)
         {
+            // Get a random gamer tag instead of using "Gamer"
+            var gamerTags = new GamerTags();
+            var randomGamerTag = gamerTags.RandomTag();
+            
             var player = new Player
             {
-                Name = "Gamer",
+                Name = randomGamerTag, // Use random gamer tag instead of "Gamer"
                 Room = _config.StartingRoom, // Should be 20 (Outside)
                 HealthCurrent = _config.MaxHealth,
                 HealthMax = _config.MaxHealth,
@@ -34,7 +39,7 @@ namespace AdventureHouse.Services.Data.AdventureData
                 GameHelp = _config.GetAdventureHelpText(),
                 GameThanks = _config.GetAdventureThankYouText(),
                 InstanceID = instanceID,
-                WelcomeMessage = _config.GetWelcomeMessage("Gamer"),
+                WelcomeMessage = _config.GetWelcomeMessage(randomGamerTag), // Use random gamer tag
                 StartRoom = _config.StartingRoom, // Should be 20 (Outside)
                 MaxHealth = _config.MaxHealth,
                 HealthStep = _config.HealthStep,
@@ -266,7 +271,7 @@ namespace AdventureHouse.Services.Data.AdventureData
                 { 
                     Key = "MOSQUITO", 
                     Name = "Mosquito", 
-                    Description = "A totally gnarly, oversized mosquito buzzing around the room like it escaped from a B-grade horror movie. It looks hungry and you're on the menu!", 
+                    Description = "A totally gnarly, oversized mosquito buzzing around the room like it escaped from a B-grade horror movie.", 
                     RoomNumber = 23, 
                     ObjectNameThatCanAttackThem = "FLYSWATTER", 
                     AttacksToKill = 1, 
