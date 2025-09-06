@@ -1,10 +1,6 @@
 using System;
 using System.Collections.Generic;
-using AdventureHouse.Services.Shared.Models;
-using AdventureHouse.Services.AdventureServer.Models;
 using AdventureHouse.Services.AdventureClient.Models;
-
-
 
 namespace AdventureHouse.Services.Data.AdventureData
 {
@@ -14,46 +10,43 @@ namespace AdventureHouse.Services.Data.AdventureData
     public class SpaceStationConfiguration : IGameConfiguration
     {
         #region Game Identity
-        public string GameName => "Abandoned Space Station: Project Escape";
+        public string GameName => "Abandoned Space Station";
         public string GameVersion => "1.0";
-        public string GameDescription => "Escape from an abandoned space station overrun by mysterious creatures.";
+        public string GameDescription => "Escape from an abandoned space station overrun by mysterious creatures!";
         #endregion
 
         #region Room Display Configuration
-        public Dictionary<string, char> RoomCharacterMapping => new()
+        public Dictionary<string, char> RoomDisplayCharacters => new()
         {
-            ["hibernation chamber"] = 'H',
-            ["command center"] = 'C',
-            ["captain's office"] = 'O',
-            ["secure office"] = 'S',
-            ["robot room"] = 'R',
-            ["captain's quarters"] = 'Q',
-            ["captain's shower"] = 'W',
-            ["crew mess hall"] = 'M',
-            ["crew quarters"] = 'B',
-            ["crew lounge"] = 'L',
-            ["crew medical bay"] = 'D',
-            ["hydroponics lab"] = 'P',
-            ["research lab"] = 'L',
-            ["science computer core"] = 'C',
+            ["hibernation"] = 'H',
+            ["command"] = 'C',
+            ["office"] = 'O',
+            ["secure"] = 'S',
+            ["robot"] = 'R',
+            ["quarters"] = 'Q',
+            ["shower"] = 'W',
+            ["mess"] = 'M',
+            ["bedroom"] = 'B',
+            ["lounge"] = 'L',
+            ["medical"] = 'D',
+            ["hydroponics"] = 'P',
+            ["research"] = 'L',
+            ["computer"] = 'C',
             ["observatory"] = 'V',
-            ["experiment chamber"] = 'E',
-            ["teleport room"] = 'T',
-            ["main engineering"] = 'E',
-            ["power core"] = 'P',
-            ["engine room"] = 'N',
-            ["maintenance bay"] = 'A',
-            ["tool storage"] = 'T',
-            ["spare parts room"] = 'S',
-            ["waste processing"] = 'W',
-            ["escape pod bay"] = 'X',
-            ["command lift"] = '|',
-            ["crew lift"] = '|',
-            ["eng lift"] = '|',
-            ["science lift"] = '|'
+            ["experiment"] = 'E',
+            ["teleport"] = 'T',
+            ["engineering"] = 'E',
+            ["power"] = 'P',
+            ["engine"] = 'N',
+            ["maintenance"] = 'A',
+            ["storage"] = 'S',
+            ["waste"] = 'W',
+            ["escape"] = 'X',
+            ["lift"] = '|',
+            ["exit"] = 'X',
+            ["entrance"] = 'H',
+            ["debug"] = 'D'
         };
-
-        public Dictionary<string, char> RoomDisplayCharacters => RoomCharacterMapping;
 
         public Dictionary<string, char> RoomTypeCharacters => new()
         {
@@ -78,227 +71,74 @@ namespace AdventureHouse.Services.Data.AdventureData
 
         public Dictionary<string, int> RoomNameToNumberMapping => new()
         {
+            ["exit"] = 0,
+            ["escape"] = 0,
             // Level 1 - Command
-            ["hibernation chamber"] = 1,
-            ["command center"] = 2,
-            ["captain's office"] = 3,
-            ["secure office"] = 4,
-            ["robot room"] = 5,
-            ["command lift"] = 6,
+            ["hibernation"] = 1,
+            ["command"] = 2,
+            ["office"] = 3,
+            ["secure"] = 4,
+            ["robot"] = 5,
+            ["commandlift"] = 6,
 
             // Level 2 - Crew  
-            ["crew corridor"] = 7,
-            ["crew mess hall"] = 8,
-            ["captain's quarters"] = 9,
-            ["captain's shower"] = 10,
-            ["crew quarters a"] = 11,
-            ["crew quarters b"] = 12,
-            ["crew quarters c"] = 13,
-            ["crew lounge"] = 14,
-            ["crew medical bay"] = 15,
-            ["crew lift"] = 16,
+            ["corridor"] = 7,
+            ["mess"] = 8,
+            ["quarters"] = 9,
+            ["shower"] = 10,
+            ["quartersa"] = 11,
+            ["quartersb"] = 12,
+            ["quartersc"] = 13,
+            ["lounge"] = 14,
+            ["medical"] = 15,
+            ["crewlift"] = 16,
 
             // Level 3 - Science
-            ["science corridor"] = 17,
-            ["hydroponics lab"] = 18,
-            ["research lab"] = 19,
-            ["science computer core"] = 20,
+            ["science"] = 17,
+            ["hydroponics"] = 18,
+            ["research"] = 19,
+            ["computer"] = 20,
             ["observatory"] = 21,
-            ["experiment chamber"] = 22,
-            ["teleport room"] = 23,
-            ["containment lab"] = 24,
-            ["analysis lab"] = 25,
-            ["science storage"] = 26,
+            ["experiment"] = 22,
+            ["teleport"] = 23,
+            ["containment"] = 24,
+            ["analysis"] = 25,
+            ["storage"] = 26,
 
             // Level 4 - Engineering
-            ["engineering corridor"] = 27,
-            ["main engineering"] = 28,
-            ["power core"] = 29,
-            ["engine room"] = 30,
-            ["maintenance bay"] = 31,
-            ["tool storage"] = 32,
-            ["spare parts room"] = 33,
-            ["waste processing"] = 34,
-            ["escape pod bay"] = 35,
-            ["eng lift"] = 36,
-            ["auxiliary engine"] = 37,
-            ["cooling systems"] = 38,
-            ["reactor room"] = 39,
-            ["airlock chamber"] = 40,
+            ["engineering"] = 27,
+            ["main"] = 28,
+            ["power"] = 29,
+            ["engine"] = 30,
+            ["maintenance"] = 31,
+            ["tools"] = 32,
+            ["parts"] = 33,
+            ["waste"] = 34,
+            ["pod"] = 35,
+            ["englift"] = 36,
+            ["auxiliary"] = 37,
+            ["cooling"] = 38,
+            ["reactor"] = 39,
+            ["airlock"] = 40,
 
 #if DEBUG
-            ["debug station"] = 88
+            ["debug"] = 88
 #endif
         };
         #endregion
 
-        #region Map Legend and Help Text
-        public string MapLegend => MapLegendContent + MapLegendFooter;
-        
-        public string MapLegendContent => @"
-SPACE STATION MAP LEGEND:
-+---+  = Room          @ = Your Location    |H| = Hibernation
-|C  |  = Command       |O| = Captain Office |S| = Secure Room 
-|Q+ |  = Quarters      |M| = Mess Hall      |L| = Lab/Lounge
-|E  |  = Engineering   |P| = Power/Pod      |T| = Teleport
-|R  |  = Robot Room    |D| = Medical Bay    |V| = Observatory
-||  |  = Lift          |A| = Maintenance    |N| = Engine Room
-|W  |  = Waste/Shower  |.| = Other Room     |X| = Escape Pod
-
-LEVELS:
-Level 1: Command Deck    Level 2: Crew Quarters
-Level 3: Science Labs    Level 4: Engineering
-
-PATH CONNECTIONS:
-. . .  = Corridor (East/West)    :     = Vertical passage  
-^      = Lift going Up           v     = Lift going Down
-";
-
-#if DEBUG
-        public string MapLegendDebugAddition => @"|?  |  = Debug Station
-";
-#endif
-
-        public string MapLegendFooter => @"
-Note: Only visited areas and connections are shown.
-Emergency systems may reveal additional pathways.
-";
-
-        public string GetCompleteMapLegend()
-        {
-            var legend = MapLegendContent;
-#if DEBUG
-            legend += MapLegendDebugAddition;
-#endif
-            legend += MapLegendFooter;
-            return legend;
-        }
-        #endregion
-
-        #region Game Help and Story Text
-        public string GetAdventureHelpText()
-        {
-            return "EMERGENCY PROTOCOLS ACTIVATED\r\n\r\n" +
-                   "You have awakened from hibernation aboard the space station to find it " +
-                   "mysteriously abandoned. The emergency lighting casts eerie shadows through " +
-                   "the corridors, and strange sounds echo from the ventilation systems.\r\n\r\n" +
-                   "Your survival depends on finding the ESCAPE POD, but it requires proper " +
-                   "authorization. You'll need to explore the station's four levels:\r\n" +
-                   "• COMMAND DECK (Level 1) - Administrative and control systems\r\n" +
-                   "• CREW QUARTERS (Level 2) - Living spaces and personal areas\r\n" +
-                   "• SCIENCE LABS (Level 3) - Research facilities and experiments\r\n" +
-                   "• ENGINEERING (Level 4) - Power systems and the escape pod\r\n\r\n" +
-                   "Navigation Commands: NORTH, SOUTH, EAST, WEST, UP, DOWN\r\n" +
-                   "Actions: LOOK, GET, USE, EAT, ATTACK, ACTIVATE, READ\r\n" +
-                   "Inventory: INV shows your items, DROP releases items\r\n" +
-                   "Special: The station's robot can be activated to assist you!\r\n\r\n" +
-                   "WARNING: Reports indicate hostile life forms may have emerged from " +
-                   "contaminated experiments. Stay alert and arm yourself appropriately.\r\n\r\n" +
-                   "Emergency systems show limited time before life support fails.\r\n" +
-                   "Find the escape pod authorization and evacuate immediately!\r\n\r\n" +
-                   "Console commands: type \"chelp\" for system help";
-        }
-
-        public string GetAdventureThankYouText()
-        {
-            return "? ESCAPE POD LAUNCHED SUCCESSFULLY! ?\r\n\r\n" +
-                   "CONGRATULATIONS, SURVIVOR!\r\n\r\n" +
-                   "You have successfully escaped the abandoned space station before it " +
-                   "became completely overrun by the mysterious gooplings! Your quick thinking " +
-                   "and resourcefulness saved your life.\r\n\r\n" +
-                   "As you drift safely toward the nearest rescue beacon, you reflect on " +
-                   "the strange events that led to the station's abandonment. The commander's " +
-                   "log revealed the tragic irony - an engineer demoted to cook, attempting " +
-                   "to win back favor by using an antimatter accelerator to bake a birthday " +
-                   "cake, accidentally creating the goopling creatures that doomed the station.\r\n\r\n" +
-                   "Your robot companion's assistance proved invaluable in your escape. " +
-                   "Perhaps in the future, space stations will have better safety protocols... " +
-                   "and stricter kitchen equipment regulations!\r\n\r\n" +
-                   "Thank you for playing 'Abandoned Space Station: Project Escape'!\r\n" +
-                   "May the stars guide you safely home.\r\n\r\n" +
-                   "Created with cosmic appreciation by the Adventure House team.";
-        }
-
-        public string GetWelcomeMessage(string gamerTag)
-        {
-            return $"HIBERNATION CHAMBER LOG: Occupant {gamerTag} awakening...\r\n\r\n" +
-                   "Emergency protocols have been activated. Station status: UNKNOWN.\r\n" +
-                   "All crew personnel are unaccounted for. Life support systems operating " +
-                   "on emergency power.\r\n\r\n" +
-                   "Recommendation: Investigate station status and locate emergency evacuation " +
-                   "procedures immediately.\r\n\r\n" +
-                   $"Good luck, {gamerTag}. The station's fate may depend on your actions.\r\n\r\n" +
-                   "End transmission.\r\n\r\n";
-        }
-        #endregion
-
-        #region Map Level Display Names
-        public Dictionary<MapLevel, string> LevelDisplayNames => new()
-        {
-            [MapLevel.GroundFloor] = "Level 1: Command Deck",
-            [MapLevel.UpperFloor] = "Level 2: Crew Quarters", 
-            [MapLevel.Attic] = "Level 3: Science Labs",
-            [MapLevel.MagicRealm] = "Level 4: Engineering",
-#if DEBUG
-            [MapLevel.DebugLevel] = "Debug Station",
-#endif
-            [MapLevel.Exit] = "Escape Pod - Freedom!"
-        };
-        #endregion
-
-        #region Game Settings and Constants
-        public int StartingRoom => 1; // Hibernation Chamber - Start here, not room 20!
+        #region Game Settings
+        public int StartingRoom => 1; // Hibernation Chamber
         public int MaxHealth => 300;
         public int HealthStep => 3;
         public int StartingPoints => 10;
         public List<string> InitialPointsCheckList => new() { "Awakened" };
 
-        // Special location constants
+        // Constants
         public int InventoryLocation => 9999;
         public int PetFollowLocation => 9998;
         public int NoConnectionValue => 99;
         public char DefaultRoomCharacter => '.';
-        #endregion
-
-        #region Helper Methods
-        public char GetRoomDisplayChar(string roomName)
-        {
-            var cleanName = roomName?.ToLower() ?? string.Empty;
-            
-            // Check exact matches first
-            if (RoomDisplayCharacters.TryGetValue(cleanName, out char exactChar))
-                return exactChar;
-            
-            // Then check partial matches for room types
-            foreach (var (pattern, character) in RoomTypeCharacters)
-            {
-                if (cleanName.Contains(pattern))
-                    return character;
-            }
-            
-            return DefaultRoomCharacter;
-        }
-
-        public int GetRoomNumberFromName(string roomName)
-        {
-            var cleanName = roomName?.ToLower().Trim() ?? string.Empty;
-            return RoomNameToNumberMapping.GetValueOrDefault(cleanName, -1);
-        }
-
-        public string GetLevelDisplayName(MapLevel level)
-        {
-            return LevelDisplayNames.GetValueOrDefault(level, "Unknown Level");
-        }
-
-        public MapLevel GetLevelForRoom(int roomNumber)
-        {
-            return RoomToLevelMapping.GetValueOrDefault(roomNumber, MapLevel.GroundFloor);
-        }
-
-        public (int X, int Y) GetRoomPosition(int roomNumber)
-        {
-            return RoomPositionMapping.GetValueOrDefault(roomNumber, (0, 0));
-        }
         #endregion
 
         #region Map Configuration
@@ -331,7 +171,7 @@ Emergency systems may reveal additional pathways.
             [39] = MapLevel.MagicRealm, [40] = MapLevel.MagicRealm,
 
 #if DEBUG
-            [88] = MapLevel.DebugLevel
+            [88] = MapLevel.Attic
 #endif
         };
 
@@ -341,13 +181,10 @@ Emergency systems may reveal additional pathways.
             [MapLevel.UpperFloor] = (8, 5),     // Crew Quarters
             [MapLevel.Attic] = (8, 6),          // Science Labs
             [MapLevel.MagicRealm] = (10, 7),    // Engineering (largest level)
-#if DEBUG
-            [MapLevel.DebugLevel] = (3, 3),
-#endif
             [MapLevel.Exit] = (3, 3)
         };
 
-        public Dictionary<int, (int X, int Y)> RoomPositionMapping => new()
+        public Dictionary<int, (int X, int Y)> RoomPositions => new()
         {
             // Level 1 - Command Deck Layout (6x4)
             [1] = (1, 1),  // Hibernation Chamber
@@ -405,7 +242,180 @@ Emergency systems may reveal additional pathways.
             [0] = (1, 1)    // Escape Pod Exit
         };
 
-        public Dictionary<int, (int X, int Y)> RoomPositions => RoomPositionMapping;
+        public Dictionary<MapLevel, string> LevelDisplayNames => new()
+        {
+            [MapLevel.GroundFloor] = "Command Deck",
+            [MapLevel.UpperFloor] = "Crew Quarters", 
+            [MapLevel.Attic] = "Science Labs",
+            [MapLevel.MagicRealm] = "Engineering",
+            [MapLevel.Exit] = "Escape Pod!"
+        };
+        #endregion
+
+        #region Interface Properties
+        public Dictionary<string, char> RoomCharacterMapping => RoomDisplayCharacters;
+        public Dictionary<int, (int X, int Y)> RoomPositionMapping => RoomPositions;
+        public string MapLegend => GetCompleteMapLegend();
+        public string MapLegendContent => @"SPACE STATION MAP LEGEND:
+H = Hibernation   C = Command      O = Office       S = Secure/Storage
+Q = Quarters      M = Mess Hall    L = Lab/Lounge   E = Engineering/Experiment
+P = Power/Pod     R = Robot Room   D = Medical      V = Observatory
+T = Teleport      A = Maintenance  N = Engine       W = Waste/Shower
+X = Escape Pod    | = Lift         . = Other Room
+
+LEVELS:
+Command Deck = Administrative and control systems
+Crew Quarters = Living spaces and personal areas  
+Science Labs = Research facilities and experiments
+Engineering = Power systems and escape pod";
+
+        public string MapLegendFooter => @"
+Your goal is to reach the Escape Pod (X) to escape the station!
+Navigate through the four levels and find the authorization needed.";
+        #endregion
+
+        #region Help and Story Text
+        public string GetAdventureHelpText()
+        {
+            return @"=== ABANDONED SPACE STATION ESCAPE ===
+
+EMERGENCY PROTOCOLS ACTIVATED
+
+You have awakened from hibernation aboard the space station to find it mysteriously abandoned. 
+The emergency lighting casts eerie shadows through the corridors, and strange sounds echo from 
+the ventilation systems.
+
+Your survival depends on finding the ESCAPE POD, but it requires proper authorization. 
+You'll need to explore the station's four levels:
+
+• COMMAND DECK (Level 1) - Administrative and control systems
+• CREW QUARTERS (Level 2) - Living spaces and personal areas
+• SCIENCE LABS (Level 3) - Research facilities and experiments
+• ENGINEERING (Level 4) - Power systems and the escape pod
+
+CONTROLS:
+• Move: N, S, E, W, U (up), D (down)
+• Get items: GET [item] or TAKE [item]
+• Use items: USE [item] or specific action verbs
+• Drop items: DROP [item]
+• Look: LOOK or LOOK [item]
+• Inventory: I or INVENTORY
+• Activate robot: ACTIVATE ROBOT
+• Attack creatures: ATTACK [monster] WITH [weapon]
+• Map: MAP (shows current level layout)
+• Help: HELP or ?
+• Quit: QUIT or EXIT
+
+WARNING: Reports indicate hostile life forms may have emerged from contaminated experiments. 
+Stay alert and arm yourself appropriately.
+
+Emergency systems show limited time before life support fails.
+Find the escape pod authorization and evacuate immediately!";
+        }
+
+        public string GetAdventureThankYouText()
+        {
+            return @"?? ESCAPE POD LAUNCHED SUCCESSFULLY! ??
+
+CONGRATULATIONS, SURVIVOR!
+
+You have successfully escaped the abandoned space station before it became completely overrun 
+by the mysterious creatures! Your quick thinking and resourcefulness saved your life.
+
+As you drift safely toward the nearest rescue beacon, you reflect on the strange events that 
+led to the station's abandonment. The commander's log revealed the tragic irony - an engineer 
+demoted to cook, attempting to win back favor by using an antimatter accelerator to bake a 
+birthday cake, accidentally creating the hostile creatures that doomed the station.
+
+Your robot companion's assistance proved invaluable in your escape. Perhaps in the future, 
+space stations will have better safety protocols... and stricter kitchen equipment regulations!
+
+Thank you for playing 'Abandoned Space Station'!
+May the stars guide you safely home.
+
+?? MISSION ACCOMPLISHED! ??";
+        }
+
+        public string GetWelcomeMessage(string gamerTag)
+        {
+            return $@"Welcome to the Abandoned Space Station, {gamerTag}!
+
+?? HIBERNATION CHAMBER LOG: Occupant {gamerTag} awakening... ??
+
+Emergency protocols have been activated. Station status: UNKNOWN.
+All crew personnel are unaccounted for. Life support systems operating on emergency power.
+
+Strange readings detected throughout the station. Multiple system failures reported.
+Hostile life forms may be present.
+
+Recommendation: Investigate station status and locate emergency evacuation procedures immediately.
+
+Your mission: Find the escape pod authorization and evacuate before life support fails!
+
+Good luck, {gamerTag}. The station's fate may depend on your actions.
+
+Type HELP for commands, or start exploring to uncover the mystery!";
+        }
+        #endregion
+
+        #region Interface Implementation
+        public char GetRoomDisplayChar(string roomName)
+        {
+            var lowerName = roomName.ToLower();
+            foreach (var kvp in RoomDisplayCharacters)
+            {
+                if (lowerName.Contains(kvp.Key))
+                    return kvp.Value;
+            }
+            return DefaultRoomCharacter;
+        }
+
+        public string GetLevelDisplayName(MapLevel level)
+        {
+            return LevelDisplayNames.TryGetValue(level, out var name) ? name : level.ToString();
+        }
+
+        public MapLevel GetLevelForRoom(int roomNumber)
+        {
+            return RoomToLevelMapping.TryGetValue(roomNumber, out var level) ? level : MapLevel.GroundFloor;
+        }
+
+        public (int X, int Y) GetRoomPosition(int roomNumber)
+        {
+            return RoomPositions.TryGetValue(roomNumber, out var position) ? position : (1, 1);
+        }
+
+        public int GetRoomNumberFromName(string roomName)
+        {
+            var cleanName = roomName?.ToLower().Trim() ?? string.Empty;
+            
+            // Check exact matches first
+            foreach (var kvp in RoomNameToNumberMapping)
+            {
+                if (cleanName.Contains(kvp.Key))
+                    return kvp.Value;
+            }
+            
+            // Check partial matches for common words
+            var words = cleanName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var word in words)
+            {
+                foreach (var kvp in RoomNameToNumberMapping)
+                {
+                    if (kvp.Key.Contains(word) && word.Length > 2) // Avoid matching very short words
+                    {
+                        return kvp.Value;
+                    }
+                }
+            }
+            
+            return 1; // Default to starting room if no match found
+        }
+
+        public string GetCompleteMapLegend()
+        {
+            return MapLegendContent + MapLegendFooter;
+        }
         #endregion
     }
 }

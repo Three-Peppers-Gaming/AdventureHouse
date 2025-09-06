@@ -10,6 +10,7 @@ namespace AdventureHouse.Services.AdventureServer.GameManagement
         private readonly IMemoryCache _gameCache;
         private readonly AdventureHouseData _adventureHouse = new();
         private readonly SpaceStationData _spaceStation = new();
+        private readonly FutureFamilyData _futureFamilyData = new();
 
         public GameInstanceService(IMemoryCache gameCache)
         {
@@ -31,7 +32,12 @@ namespace AdventureHouse.Services.AdventureServer.GameManagement
                     var spaceStation = _spaceStation.SetupAdventure(tempId);
                     AddToCache(spaceStation);
                     break;
-                    
+
+                case 3:
+                    var futureFamily = _futureFamilyData.SetupAdventure(tempId);    
+                    AddToCache(futureFamily);
+                    break;
+
                 default:
                     // Default to Adventure House
                     var defaultGame = _adventureHouse.SetupAdventure(tempId);

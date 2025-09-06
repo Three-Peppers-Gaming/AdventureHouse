@@ -11,7 +11,7 @@ namespace AdventureHouse.Services.Data.AdventureData
     public class AdventureHouseConfiguration : IGameConfiguration
     {
         #region Game Identity
-        public string GameName => "Adventure House 3.5 (.Net 9.0)";
+        public string GameName => "Adventure House";
         public string GameVersion => "3.5";
         public string GameDescription => "Figure out how to escape from the house.";
         #endregion
@@ -131,42 +131,30 @@ Note: Only visited rooms and paths between them are shown.
 
         public string GetAdventureHelpText()
         {
-            return "You pause and recall your mother's bedtime story:\r\n" +
+            return "You pause and recall your mother's bedtime story:\r\n\r\n" +
                    "Once upon a time a great explorer wandered into a mystery house. " +
-                   "The adventurer visited rooms from the EAST to the WEST. " +
-                   "Going UP and DOWN stairs and ladders looking for items. The hero " +
-                   "took many actions such as LOOKing and GETting items found in their path. " +
+                   "The adventurer visited rooms from EAST to WEST, going UP and DOWN stairs " +
+                   "looking for items. The hero took actions such as LOOKing and GETting items.\r\n\r\n" +
                    "From time to time the hero would USE these items to explore further. " +
-                   "Sometimes these things would need to be used in a specific way. " +
-                   "Fortunately for the adventurer, their backpack has infinite INVentory " +
-                   "space and they could carry almost anything. The adventure seemed never " +
-                   "to end unless a specific exit or item was found. There were times when " +
-                   "the adventurer would die, but since this is a story you can always " +
-                   "RESTART from the beginning. The hero would often get and need to EAT " +
-                   "a snack. The rest of the story fades from your mind, but you do recall " +
-                   "your mom talking about the explorer who would WAVE things " +
-                   "while EATing an apple.\r\n\r\n" +
-                   "Your mother also mentioned that sometimes the adventurer would encounter " +
-                   "dangerous creatures in the house. When this happened, the brave explorer " +
-                   "would need to find the right weapon to ATTACK the beast. Without the proper " +
-                   "weapon, the creatures could not be defeated, and they might strike back! " +
-                   "The explorer could always flee to another room to escape danger.\r\n\r\n" +
-                   "Console help type \"chelp\"";
+                   "The adventurer's backpack has infinite INVentory space. " +
+                   "The hero would often get and need to EAT a snack.\r\n\r\n" +
+                   "Your mom mentioned the explorer would WAVE things while EATing an apple. " +
+                   "Sometimes the adventurer would encounter dangerous creatures. " +
+                   "The brave explorer would ATTACK the beast with the right weapon.\r\n\r\n" +
+                   "Type \"chelp\" for console commands.";
         }
 
         public string GetAdventureThankYouText()
         {
             return "CONGRATULATIONS! YOU WIN! (try the \"Points\" command)\r\n\r\n" +
-                   "You have been able to escape the game before you starved to death!\r\n" +
-                   "You can continue to explore by returning to the house \"west\".\r\n\r\n"
-                   + "We hope you have enjoyed this retro-style adventure game! "
-                   + "We have hidden some fun little surprises in the text and objects. "
-                   + "Or personal favorite is Stormi the kitten following you around the house after you "
-                   + "give her a nice PET. You can always SHOO her away if she is too much of a pest. "
-                   + "If you get a chance to read the SLIP a few times it can make for a few laughs." +
-                   "\r\n\r\n" +
-                   "Have a Great Day and Let is know what you think!\r\n\r\n" +
-                   "\"The Three Peppers\" - Steve, Stevie, and Anabella\r\n\r\n";
+                   "You have escaped the game before you starved to death!\r\n" +
+                   "You can continue to explore by returning to the house \"west\".\r\n\r\n" +
+                   "We hope you enjoyed this retro-style adventure game! " +
+                   "We hidden some fun surprises in the text and objects. " +
+                   "Try PETting Stormi the kitten - she'll follow you around! " +
+                   "You can SHOO her away if needed.\r\n\r\n" +
+                   "Have a Great Day!\r\n" +
+                   "\"The Three Peppers\" - Steve, Stevie, and Anabella";
         }
 
         public string GetWelcomeMessage(string gamerTag)
@@ -317,7 +305,27 @@ Note: Only visited rooms and paths between them are shown.
 
         public int GetRoomNumberFromName(string roomName)
         {
-            return RoomNameToNumberMapping.GetValueOrDefault(roomName?.ToLower() ?? "", -1);
+            var cleanName = roomName?.ToLower().Trim() ?? string.Empty;
+            
+            // Check exact matches first
+            if (RoomNameToNumberMapping.TryGetValue(cleanName, out int exactMatch))
+                return exactMatch;
+            
+            // Check partial matches - look for rooms that contain key words from the room name
+            foreach (var kvp in RoomNameToNumberMapping)
+            {
+                var mappingKey = kvp.Key;
+                var roomNumber = kvp.Value;
+                
+                // If the clean name contains the mapping key or vice versa
+                if (cleanName.Contains(mappingKey) || mappingKey.Contains(cleanName))
+                {
+                    return roomNumber;
+                }
+            }
+            
+            // If no match found, return -1
+            return -1;
         }
         #endregion
     }
