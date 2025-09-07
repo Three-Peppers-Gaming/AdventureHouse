@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "AdventureRealms": {
+      "commandName": "Project",
+      "nativeDebugging": false,
+      "remoteDebugEnabled": false,
+      "sqlDebugging": false
+    }
+  }
+}
