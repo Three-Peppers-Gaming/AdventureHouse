@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run in new Terminal window",
+      "type": "shell",
+      "command": "osascript",
+      "args": [
+        "-e",
+        "tell application \"Terminal\" to do script \"cd '/Users/steve/Documents/GitHub/AdventureRealms'; dotnet run -f net9.0 --project AdventureRealms/AdventureRealms.csproj\""
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}
