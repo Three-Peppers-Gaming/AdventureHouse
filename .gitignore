@@ -422,3 +422,13 @@ Thumbs.db
 # OS generated files
 desktop.ini
 .directory
+
+# Temporary and problematic files
+temp_*
+*temp*
+how*
+# Files with special characters that could cause processing issues
+*"*"*
+*}*
+*{*
+*$*
