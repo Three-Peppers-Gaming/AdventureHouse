@@ -18,6 +18,7 @@ namespace AdventureRealms.Services.AdventureServer
         private readonly AdventureHouseData _adventureHouse = new();
         private readonly SpaceStationData _spaceStation = new();
         private readonly FutureFamilyData _futureFamily = new();
+        private readonly LostInTheWoodsData _lostInTheWoods = new();
         private readonly IGetFortune _getfortune;
         private readonly IGameInstanceService _gameInstanceService;
         private readonly ICommandProcessingService _commandProcessingService;
@@ -74,6 +75,12 @@ namespace AdventureRealms.Services.AdventureServer
                     Name = _futureFamily.GetGameConfiguration().GameName,
                     Ver = _futureFamily.GetGameConfiguration().GameVersion,
                     Desc = _futureFamily.GetGameConfiguration().GameDescription
+                },
+                new Game {
+                    Id = 4,
+                    Name = _lostInTheWoods.GetGameConfiguration().GameName,
+                    Ver = _lostInTheWoods.GetGameConfiguration().GameVersion,
+                    Desc = _lostInTheWoods.GetGameConfiguration().GameDescription
                 }
             };
         }
@@ -311,6 +318,7 @@ namespace AdventureRealms.Services.AdventureServer
                 1 => new AdventureHouseConfiguration(),
                 2 => new SpaceStationConfiguration(),
                 3 => new FutureFamilyConfiguration(),
+                4 => new LostInTheWoodsConfiguration(),
                 _ => new AdventureHouseConfiguration() // Default fallback
             };
         }
@@ -383,6 +391,9 @@ namespace AdventureRealms.Services.AdventureServer
                             break;
                         case 3:
                             playAdventure = _futureFamily.SetupAdventure(playAdventure.InstanceID);
+                            break;
+                        case 4:
+                            playAdventure = _lostInTheWoods.SetupAdventure(playAdventure.InstanceID);
                             break;
                         default:
                             playAdventure = _adventureHouse.SetupAdventure(playAdventure.InstanceID);

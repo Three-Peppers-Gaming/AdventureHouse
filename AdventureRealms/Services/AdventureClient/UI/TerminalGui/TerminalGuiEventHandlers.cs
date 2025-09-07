@@ -200,7 +200,7 @@ namespace AdventureRealms.Services.AdventureClient.UI.TerminalGui
         /// </summary>
         private void UpdateAllDisplays()
         {
-            _uiComponents.UpdateGameDisplay(_gameState.LastGameResponse, _gameState.OriginalGameViewTitle);
+            _uiComponents.UpdateGameDisplay(_gameState.LastGameResponse, _gameState.OriginalGameViewTitle, _gameState.ScrollMode);
             _uiComponents.UpdateItemsDisplay(_gameState.LastGameResponse);
             _uiComponents.UpdateGameInfo(_gameState.LastGameResponse, _gameState.GetCurrentGame(), _gameState.GameInProgress);
             _uiComponents.UpdateMapDisplay(_gameState.LastGameResponse?.MapData);

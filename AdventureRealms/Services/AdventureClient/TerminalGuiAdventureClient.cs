@@ -143,7 +143,9 @@ namespace AdventureRealms.Services.AdventureClient
                 showHelpAction: ShowHelp,
                 showGameWelcomeAction: ShowGameWelcome,
                 showAboutAction: ShowAbout,
-                quitAction: () => Application.RequestStop()
+                quitAction: () => Application.RequestStop(),
+                toggleScrollModeAction: ToggleScrollMode,
+                clearTextAction: ClearGameText
             );
         }
 
@@ -333,6 +335,26 @@ namespace AdventureRealms.Services.AdventureClient
             _focusManager.SetInputFieldShouldHaveFocus(true);
         }
 
+        /// <summary>
+        /// Toggle scroll mode for game text display
+        /// </summary>
+        private void ToggleScrollMode()
+        {
+            _gameState.ScrollMode = !_gameState.ScrollMode;
+            var modeText = _gameState.ScrollMode ? "Scroll Mode Enabled" : "Clear Mode Enabled";
+            MessageBox.Query("Display Mode", modeText, "OK");
+            _focusManager.SetInputFieldShouldHaveFocus(true);
+        }
+
+        /// <summary>
+        /// Clear the game text display
+        /// </summary>
+        private void ClearGameText()
+        {
+            _uiComponents.ClearGameDisplay();
+            _focusManager.SetInputFieldShouldHaveFocus(true);
+        }
+
         #endregion
 
         /// <summary>
@@ -340,7 +362,7 @@ namespace AdventureRealms.Services.AdventureClient
         /// </summary>
         private void UpdateAllDisplays()
         {
-            _uiComponents.UpdateGameDisplay(_gameState.LastGameResponse, _gameState.OriginalGameViewTitle);
+            _uiComponents.UpdateGameDisplay(_gameState.LastGameResponse, _gameState.OriginalGameViewTitle, _gameState.ScrollMode);
             _uiComponents.UpdateItemsDisplay(_gameState.LastGameResponse);
             _uiComponents.UpdateGameInfo(_gameState.LastGameResponse, _gameState.GetCurrentGame(), _gameState.GameInProgress);
             _uiComponents.UpdateMapDisplay(_gameState.LastGameResponse?.MapData);

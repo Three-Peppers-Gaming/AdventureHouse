@@ -36,27 +36,35 @@ namespace AdventureRealms.Services.AdventureClient.UI.TerminalGui
             Action showHelpAction,
             Action showGameWelcomeAction,
             Action showAboutAction,
-            Action quitAction)
+            Action quitAction,
+            Action toggleScrollModeAction,
+            Action clearTextAction)
         {
-            var playMenu = new MenuBarItem("_Play", new MenuItem[]
+            var playMenu = new MenuBarItem("Play", new MenuItem[]
             {
-                new MenuItem("_New Game", "Start a new adventure", startNewGameAction),
-                new MenuItem("_Restart Current", "Restart current game", restartGameAction),
-                null, // Separator
-                new MenuItem("_Switch Game", "Switch to a different adventure", switchGameAction),
-                null, // Separator
-                new MenuItem("_Quit", "Exit Adventure Realms", quitAction)
+                new MenuItem("New Game", "", startNewGameAction),
+                new MenuItem("Restart", "", restartGameAction),
+                new MenuItem("Switch Game", "", switchGameAction),
+                null!, // Separator
+                new MenuItem("Quit", "", quitAction)
             });
-            
-            var helpMenu = new MenuBarItem("_Help", new MenuItem[]
+
+            var viewMenu = new MenuBarItem("View", new MenuItem[]
             {
-                new MenuItem("_Game Help", "Show game help (F1)", showHelpAction),
-                new MenuItem("Game _Welcome", "Show current game's welcome message", showGameWelcomeAction),
-                null, // Separator
-                new MenuItem("_About", "About Adventure Realms", showAboutAction)
+                new MenuItem("Toggle Scroll Mode", "", toggleScrollModeAction),
+                null!, // Separator
+                new MenuItem("Clear Text", "", clearTextAction)
             });
-            
-            MenuBar = new MenuBar(new MenuBarItem[] { playMenu, helpMenu })
+
+            var helpMenu = new MenuBarItem("Help", new MenuItem[]
+            {
+                new MenuItem("Game Help", "", showHelpAction),
+                new MenuItem("Welcome", "", showGameWelcomeAction),
+                null!, // Separator
+                new MenuItem("About", "", showAboutAction)
+            });
+
+            MenuBar = new MenuBar(new MenuBarItem[] { playMenu, viewMenu, helpMenu })
             {
                 ColorScheme = TerminalGuiColorSchemes.MenuScheme
             };
@@ -153,7 +161,7 @@ visited rooms.";
         /// <summary>
         /// Update game display with latest response
         /// </summary>
-        public void UpdateGameDisplay(GamePlayResponse? response, string originalGameViewTitle)
+        public void UpdateGameDisplay(GamePlayResponse? response, string originalGameViewTitle, bool scrollMode = false)
         {
             if (response == null) return;
             
@@ -164,17 +172,35 @@ visited rooms.";
             // Prioritize command response over room description to avoid duplication
             if (!string.IsNullOrEmpty(response.CommandResponse))
             {
-                gameText.AppendLine(response.CommandResponse);
-                gameText.AppendLine();
+                gameText.Append(response.CommandResponse);
             }
             else if (!string.IsNullOrEmpty(response.RoomDescription))
             {
-                gameText.AppendLine(response.RoomDescription);
-                gameText.AppendLine();
+                gameText.Append(response.RoomDescription);
             }
             
-            GameTextView.Text = gameText.ToString();
+            if (scrollMode)
+            {
+                // Append to existing text instead of replacing
+                var existingText = GameTextView.Text.ToString();
+                var separator = string.IsNullOrEmpty(existingText) ? "" : "\n\n";
+                GameTextView.Text = existingText + separator + gameText.ToString().TrimEnd();
+            }
+            else
+            {
+                // Replace text (original behavior)
+                GameTextView.Text = gameText.ToString();
+            }
+            
             GameTextView.MoveEnd();
+        }
+
+        /// <summary>
+        /// Clear the game display text
+        /// </summary>
+        public void ClearGameDisplay()
+        {
+            GameTextView.Text = "";
         }
 
         /// <summary>
@@ -243,17 +269,17 @@ visited rooms.";
             var totalHeight = Math.Max(Application.Driver?.Rows ?? 30, 20) - 1; // Only menu bar
             var leftWidth = (totalWidth * 60) / 100; // 60% for game area
             var rightWidth = totalWidth - leftWidth; // 40% for map area
-            var gameHeight = (totalHeight * 65) / 100; // 65% for game text
-            var bottomHeight = totalHeight - gameHeight; // 35% for items, input and legend
-            var itemsHeight = 4; // Fixed height for items box
-            var gameInfoHeight = 3; // Fixed height for game info box
+            var gameHeight = (totalHeight * 60) / 100; // 60% for game text (reduced back from 62%)
+            var bottomHeight = totalHeight - gameHeight; // 40% for items, input and legend
+            var itemsHeight = 3; // Fixed height for items box
+            var gameInfoHeight = 3; // Fixed height for game info box (increased from 2)
             var inputHeight = bottomHeight - itemsHeight - gameInfoHeight; // Remaining space for input
             
             // Ensure minimum sizes and proper bounds
-            gameHeight = Math.Max(gameHeight, 8);
-            inputHeight = Math.Max(inputHeight, 3);
-            itemsHeight = Math.Max(itemsHeight, 3);
-            gameInfoHeight = Math.Max(gameInfoHeight, 2);
+            gameHeight = Math.Max(gameHeight, 6); // Reduced minimum back from 7
+            inputHeight = Math.Max(inputHeight, 1); // Keep at 1
+            itemsHeight = Math.Max(itemsHeight, 2);
+            gameInfoHeight = Math.Max(gameInfoHeight, 3); // Increased minimum from 2
             leftWidth = Math.Max(leftWidth, 40);
             rightWidth = Math.Max(rightWidth, 25);
 

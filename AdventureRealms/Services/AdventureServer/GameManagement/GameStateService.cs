@@ -75,6 +75,7 @@ namespace AdventureRealms.Services.AdventureServer.GameManagement
                 1 => new AdventureHouseConfiguration(),
                 2 => new SpaceStationConfiguration(),
                 3 => new FutureFamilyConfiguration(),
+                4 => new LostInTheWoodsConfiguration(),
                 _ => new AdventureHouseConfiguration() // Default fallback
             };
         }
@@ -86,6 +87,7 @@ namespace AdventureRealms.Services.AdventureServer.GameManagement
                 1 => new AdventureHouseData().SetupAdventure(instanceId),
                 2 => new SpaceStationData().SetupAdventure(instanceId),
                 3 => new FutureFamilyData().SetupAdventure(instanceId),
+                4 => new LostInTheWoodsData().SetupAdventure(instanceId),
                 _ => new AdventureHouseData().SetupAdventure(instanceId) // Default fallback
             };
         }

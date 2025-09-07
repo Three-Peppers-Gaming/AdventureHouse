@@ -25,6 +25,7 @@ namespace AdventureRealms.Services.AdventureClient.UI.TerminalGui
         public string CurrentRoomName { get; set; } = "";
         public string OriginalGameViewTitle { get; set; } = "Welcome";
         public string CurrentGameWelcomeMessage { get; set; } = "";
+        public bool ScrollMode { get; set; } = true; // Default to scroll mode enabled
 
         /// <summary>
         /// Reset the game state for a new game

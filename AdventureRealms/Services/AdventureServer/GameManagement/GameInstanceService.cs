@@ -11,6 +11,7 @@ namespace AdventureRealms.Services.AdventureServer.GameManagement
         private readonly AdventureHouseData _adventureHouse = new();
         private readonly SpaceStationData _spaceStation = new();
         private readonly FutureFamilyData _futureFamilyData = new();
+        private readonly LostInTheWoodsData _lostInTheWoods = new();
 
         public GameInstanceService(IMemoryCache gameCache)
         {
@@ -36,6 +37,11 @@ namespace AdventureRealms.Services.AdventureServer.GameManagement
                 case 3:
                     var futureFamily = _futureFamilyData.SetupAdventure(tempId);    
                     AddToCache(futureFamily);
+                    break;
+
+                case 4:
+                    var lostInTheWoods = _lostInTheWoods.SetupAdventure(tempId);    
+                    AddToCache(lostInTheWoods);
                     break;
 
                 default:

@@ -26,8 +26,8 @@ namespace AdventureRealms.Services.AdventureClient.UI.TerminalGui
         {
             Normal = new Terminal.Gui.Attribute(Color.White, Color.Black),     // White menu text (lay, elp, ame)
             Focus = new Terminal.Gui.Attribute(Color.White, Color.Black),      // White when selected
-            HotNormal = new Terminal.Gui.Attribute(Color.Green, Color.Black),  // Green hotkeys (P, V, H, G)
-            HotFocus = new Terminal.Gui.Attribute(Color.Red, Color.Black),     // Red hotkeys when selected
+            HotNormal = new Terminal.Gui.Attribute(Color.BrightRed, Color.Black),    // Bright red hotkeys (P, V, H, G)
+            HotFocus = new Terminal.Gui.Attribute(Color.BrightRed, Color.Black),     // Bright red hotkeys when selected
             Disabled = new Terminal.Gui.Attribute(Color.Gray, Color.Black)
         };
         

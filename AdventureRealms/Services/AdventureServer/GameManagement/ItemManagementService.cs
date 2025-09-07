@@ -235,6 +235,8 @@ namespace AdventureRealms.Services.AdventureServer.GameManagement
                     return ProcessHealthAction(playAdventure, commandState, item);
                 case "fortune":
                     return ProcessFortuneAction(playAdventure, commandState, item, getFortune);
+                case "unlock":
+                    return ProcessUnlockAction(playAdventure, commandState, item);
                 default:
                     commandState.Message = "Nothing happens.";
                     return (playAdventure, commandState);
@@ -246,6 +248,12 @@ namespace AdventureRealms.Services.AdventureServer.GameManagement
             var currentHealth = playAdventure.Player.HealthCurrent;
             var newHealth = currentHealth + Convert.ToInt32(item.ActionValue);
             playAdventure.Player.HealthCurrent = newHealth;
+
+            // Remove the consumed item from inventory (move to location 9998 = used)
+            if (item.ActionVerb.ToLower() == "eat")
+            {
+                playAdventure.Items = MoveItem(playAdventure.Items, item.Name, 9998);
+            }
 
             if (currentHealth > newHealth)
             {
@@ -271,6 +279,61 @@ namespace AdventureRealms.Services.AdventureServer.GameManagement
         {
             playAdventure.Player = _playerManagementService.SetPlayerPoints(false, commandState.Modifier, playAdventure);
             commandState.Message = $"You look at the {item.Action} and read: \"{getFortune.ReturnTimeBasedFortune().phrase}\", The text mysteriously fades and disappears.\r\n";
+            return (playAdventure, commandState);
+        }
+
+        private (PlayAdventureModel, CommandState) ProcessUnlockAction(PlayAdventureModel playAdventure, CommandState commandState, Item item)
+        {
+            // ActionValue format: "roomNum|direction|newRoom|newDesc1|newDesc2"
+            var actionParts = item.ActionValue.Split('|');
+            if (actionParts.Length >= 3)
+            {
+                var roomNumber = Convert.ToInt32(actionParts[0]);
+                var direction = actionParts[1].ToUpper();
+                var newRoomConnection = Convert.ToInt32(actionParts[2]);
+
+                // Find and update the room
+                var room = playAdventure.Rooms.FirstOrDefault(r => r.Number == roomNumber);
+                if (room != null)
+                {
+                    // Update the room connection based on direction
+                    switch (direction)
+                    {
+                        case "N": room.N = newRoomConnection; break;
+                        case "S": room.S = newRoomConnection; break;
+                        case "E": room.E = newRoomConnection; break;
+                        case "W": room.W = newRoomConnection; break;
+                        case "U": room.U = newRoomConnection; break;
+                        case "D": room.D = newRoomConnection; break;
+                    }
+
+                    // Update room description if provided
+                    if (actionParts.Length >= 4 && !string.IsNullOrEmpty(actionParts[3]))
+                    {
+                        room.Desc = actionParts[3];
+                    }
+
+                    // Display the action message and success message
+                    commandState.Message = item.Action + "\r\n";
+                    if (actionParts.Length >= 5 && !string.IsNullOrEmpty(actionParts[4]))
+                    {
+                        commandState.Message += actionParts[4] + "\r\n";
+                    }
+
+                    // Award points and consume the key
+                    playAdventure.Player = _playerManagementService.SetPlayerPoints(false, commandState.Modifier, playAdventure);
+                    playAdventure.Items = MoveItem(playAdventure.Items, item.Name, 9998); // Move to used
+                }
+                else
+                {
+                    commandState.Message = "The key doesn't seem to work here.\r\n";
+                }
+            }
+            else
+            {
+                commandState.Message = "The key is damaged and won't work.\r\n";
+            }
+
             return (playAdventure, commandState);
         }
     }
