@@ -36,10 +36,10 @@ namespace AdventureRealms.Services.AdventureClient.UI.TerminalGui
         /// </summary>
         public static readonly ColorScheme InputScheme = new ColorScheme
         {
-            Normal = new Terminal.Gui.Attribute(Color.White, Color.Black),
-            Focus = new Terminal.Gui.Attribute(Color.White, Color.Black),
-            HotNormal = new Terminal.Gui.Attribute(Color.White, Color.Black),
-            HotFocus = new Terminal.Gui.Attribute(Color.White, Color.Black),
+            Normal = new Terminal.Gui.Attribute(Color.BrightGreen, Color.Black),
+            Focus = new Terminal.Gui.Attribute(Color.BrightGreen, Color.Black),
+            HotNormal = new Terminal.Gui.Attribute(Color.BrightGreen, Color.Black),
+            HotFocus = new Terminal.Gui.Attribute(Color.BrightGreen, Color.Black),
             Disabled = new Terminal.Gui.Attribute(Color.Gray, Color.Black)
         };
         

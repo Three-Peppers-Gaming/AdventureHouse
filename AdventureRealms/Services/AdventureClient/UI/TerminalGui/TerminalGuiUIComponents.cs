@@ -269,15 +269,15 @@ visited rooms.";
             var totalHeight = Math.Max(Application.Driver?.Rows ?? 30, 20) - 1; // Only menu bar
             var leftWidth = (totalWidth * 60) / 100; // 60% for game area
             var rightWidth = totalWidth - leftWidth; // 40% for map area
-            var gameHeight = (totalHeight * 65) / 100; // Increased from 60% to 65% for game text (2 more lines)
-            var bottomHeight = totalHeight - gameHeight; // 35% for items, input and legend
+            var gameHeight = (totalHeight * 58) / 100; // Reduced from 65% to 58% to make room for taller command box
+            var bottomHeight = totalHeight - gameHeight; // 42% for items, input and legend
             var itemsHeight = 3; // Fixed height for items box
             var gameInfoHeight = 3; // Fixed height for game info box (increased from 2)
             var inputHeight = bottomHeight - itemsHeight - gameInfoHeight; // Remaining space for input
             
             // Ensure minimum sizes and proper bounds
             gameHeight = Math.Max(gameHeight, 8); // Increased minimum from 6 to 8 (2 more lines)
-            inputHeight = Math.Max(inputHeight, 1); // Keep at 1
+            inputHeight = Math.Max(inputHeight, 4); // Increased to 4 for 2-line input field
             itemsHeight = Math.Max(itemsHeight, 2);
             gameInfoHeight = Math.Max(gameInfoHeight, 3); // Increased minimum from 2
             leftWidth = Math.Max(leftWidth, 40);
@@ -420,9 +420,10 @@ visited rooms.";
                 X = 1,
                 Y = 1,
                 Width = Dim.Fill() - 2,
-                Height = 1,
+                Height = 2,
                 ColorScheme = TerminalGuiColorSchemes.InputScheme,
-                CanFocus = true
+                CanFocus = true,
+                Visible = true
             };
             
             // Focus manager events will be set up later in SetupFocusManager
@@ -505,7 +506,8 @@ visited rooms.";
 ^ = Up        help = Game help
 v = Down      Enter = Send
 
-Click Command box to type";
+Click Command box to type
+Type commands in green box below";
         }
 
         private struct LayoutDimensions

@@ -165,8 +165,8 @@ namespace AdventureRealms.Services.Data.AdventureData
         public string GetAdventureHelpText()
         {
             return "*** Lost in the Woods - A Fairy Tale Adventure ***\r\n\r\n" +
-                   "After enjoying Wolf Stew at Grandma's house, you head home through the forest.\r\n" +
-                   "But the birds have eaten your breadcrumb trail! Now you must find another way home.\r\n\r\n" +
+                   "After enjoying Wolf Stew at Grandma's house, you head home through the forest." +
+                   "But the birds have eaten your breadcrumb trail! Now you must find another way home.\r\n" +
                    "COMMANDS: Use two-word commands like GO NORTH, GET APPLE, USE KEY, EAT BREAD, etc.\r\n" +
                    "MOVEMENT: GO followed by NORTH, SOUTH, EAST, WEST, UP, or DOWN\r\n" +
                    "ITEMS: GET to pick up items, DROP to put them down, INV to see inventory\r\n" +
@@ -181,17 +181,17 @@ namespace AdventureRealms.Services.Data.AdventureData
         public string GetAdventureThankYouText()
         {
             return "*** Congratulations! You made it home safely! ***\r\n\r\n" +
-                   "Through your wit and courage, you found your way through the enchanted forest \r\n" +
-                   "and returned home to safety. The forest spirits smile upon you.\r\n\r\n" +
-                   "Thank you for playing Lost in the Woods!\r\n" +
-                   "Perhaps next time you'll remember to leave better breadcrumbs...";
+                   "Through your wit and courage, you found your way through the enchanted forest " +
+                   "and returned home to safety. The forest spirits smile upon you. " +
+                   "Thank you for playing Lost in the Woods! " +
+                   "Perhaps next time you'll remember to use a GPS...";
         }
 
         public string GetWelcomeMessage(string playerName)
         {
             return $"Welcome {playerName} to the enchanted forest! ***\r\n\r\n" +
-                   "You've just finished a delicious meal of Wolf Stew at Grandma's house, but now\r\n" +
-                   "it's time to head home. Unfortunately, the birds have eaten all your breadcrumbs!\r\n" +
+                   "You've just finished a delicious meal of Wolf Stew at Grandma's house, but now" +
+                   "it's time to head home. Unfortunately, the birds have eaten all your breadcrumbs! " +
                    "You'll need to find another way through the forest to reach your home clearing.";
         }
         #endregion

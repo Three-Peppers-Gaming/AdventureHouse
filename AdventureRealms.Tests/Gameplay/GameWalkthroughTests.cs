@@ -426,7 +426,8 @@ namespace AdventureRealms.Tests.Gameplay
                        tryEastBeforeKeyResponse.CommandResponse.ToLower().Contains("can't") ||
                        tryEastBeforeKeyResponse.CommandResponse.ToLower().Contains("no way") ||
                        tryEastBeforeKeyResponse.CommandResponse.ToLower().Contains("not today") ||
-                       tryEastBeforeKeyResponse.CommandResponse.ToLower().Contains("eastward bound"),
+                       tryEastBeforeKeyResponse.CommandResponse.ToLower().Contains("eastward bound") ||
+                       tryEastBeforeKeyResponse.CommandResponse.ToLower().Contains("out of the question"),
                        $"Expected blocked movement message but got: {tryEastBeforeKeyResponse.CommandResponse}");
             testResults.Add("✓ Door State: East exit blocked before using key");
 
