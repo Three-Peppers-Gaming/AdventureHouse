@@ -77,7 +77,7 @@ namespace AdventureRealms.Services.Data.AdventureData
                 new() { Number = 0, Name = "Exit!", Desc = "Congratulations! You've made it home safely! Your family rushes out to greet you, relieved that you found your way back through the enchanted forest. The adventure is complete!", N = 99, S = 99, E = 99, W = 28, U = 99, D = 99, RoomPoints = 200 },
 
                 // Starting point - Grandma's House
-                new() { Number = 1, Name = "Grandma's House", Desc = "You're standing outside Grandma's cozy cottage, your belly still warm from the delicious Wolf Stew. The forest path stretches east into the woods. You can see your BBGun leaning against the porch and a sandwich wrapped in cloth on the table.", N = 99, S = 99, E = 2, W = 99, U = 99, D = 99, RoomPoints = 0 },
+                new() { Number = 1, Name = "Grandma's House", Desc = "You're standing outside Grandma's cozy cottage, your belly still warm from the delicious Wolf Stew. The forest path stretches east into the woods. The porch has a comfortable old rocking chair and a small table.", N = 99, S = 99, E = 2, W = 99, U = 99, D = 99, RoomPoints = 0 },
 
                 // Main forest path
                 new() { Number = 2, Name = "Forest Path", Desc = "A well-worn dirt path winds through tall pine trees. Sunlight filters through the canopy above, creating dancing shadows on the forest floor. The path continues east deeper into the woods, or you can head west back to Grandma's.", N = 12, S = 13, E = 3, W = 1, U = 99, D = 99, RoomPoints = 5 },

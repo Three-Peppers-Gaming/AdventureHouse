@@ -179,6 +179,15 @@ AdventureRealms/
 - xUnit (for testing)
 - MemoryCache (for session management)
 
+## Platform-Specific Notes
+
+### Windows-Only Projects (Optional)
+The repository includes optional Windows-specific packaging projects that have been moved to separate folders:
+- `AdventureRealms.Package.WINDOWS_ONLY/` - Windows Application Packaging Project (.wapproj)
+- `Setup.WINDOWS_ONLY/` - Windows Installer Project (.vdproj)
+
+These are only needed if you want to create Windows Store packages or MSI installers. The main Adventure Realms application is fully cross-platform and doesn't require these projects.
+
 ## License
 
 Free to use for non-commercial purposes.

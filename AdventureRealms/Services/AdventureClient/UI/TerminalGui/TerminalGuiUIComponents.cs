@@ -269,14 +269,14 @@ visited rooms.";
             var totalHeight = Math.Max(Application.Driver?.Rows ?? 30, 20) - 1; // Only menu bar
             var leftWidth = (totalWidth * 60) / 100; // 60% for game area
             var rightWidth = totalWidth - leftWidth; // 40% for map area
-            var gameHeight = (totalHeight * 60) / 100; // 60% for game text (reduced back from 62%)
-            var bottomHeight = totalHeight - gameHeight; // 40% for items, input and legend
+            var gameHeight = (totalHeight * 65) / 100; // Increased from 60% to 65% for game text (2 more lines)
+            var bottomHeight = totalHeight - gameHeight; // 35% for items, input and legend
             var itemsHeight = 3; // Fixed height for items box
             var gameInfoHeight = 3; // Fixed height for game info box (increased from 2)
             var inputHeight = bottomHeight - itemsHeight - gameInfoHeight; // Remaining space for input
             
             // Ensure minimum sizes and proper bounds
-            gameHeight = Math.Max(gameHeight, 6); // Reduced minimum back from 7
+            gameHeight = Math.Max(gameHeight, 8); // Increased minimum from 6 to 8 (2 more lines)
             inputHeight = Math.Max(inputHeight, 1); // Keep at 1
             itemsHeight = Math.Max(itemsHeight, 2);
             gameInfoHeight = Math.Max(gameInfoHeight, 3); // Increased minimum from 2
@@ -505,9 +505,7 @@ visited rooms.";
 ^ = Up        help = Game help
 v = Down      Enter = Send
 
-Click Command box to type
-Focus is auto-managed
-Ready to play!";
+Click Command box to type";
         }
 
         private struct LayoutDimensions

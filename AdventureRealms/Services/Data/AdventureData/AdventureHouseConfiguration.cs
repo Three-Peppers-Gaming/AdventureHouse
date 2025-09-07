@@ -131,35 +131,35 @@ Note: Only visited rooms and paths between them are shown.
 
         public string GetAdventureHelpText()
         {
-            return "You pause and recall your mother's bedtime story:\r\n\r\n" +
+            return "You pause and recall your mother's bedtime story: " +
                    "Once upon a time a great explorer wandered into a mystery house. " +
                    "The adventurer visited rooms from EAST to WEST, going UP and DOWN stairs " +
-                   "looking for items. The hero took actions such as LOOKing and GETting items.\r\n\r\n" +
+                   "looking for items. The hero took actions such as LOOKing and GETting items. " +
                    "From time to time the hero would USE these items to explore further. " +
                    "The adventurer's backpack has infinite INVentory space. " +
-                   "The hero would often get and need to EAT a snack.\r\n\r\n" +
+                   "The hero would often get and need to EAT a snack. " +
                    "Your mom mentioned the explorer would WAVE things while EATing an apple. " +
                    "Sometimes the adventurer would encounter dangerous creatures. " +
-                   "The brave explorer would ATTACK the beast with the right weapon.\r\n\r\n" +
+                   "The brave explorer would ATTACK the beast with the right weapon. " +
                    "Type \"chelp\" for console commands.";
         }
 
         public string GetAdventureThankYouText()
         {
-            return "CONGRATULATIONS! YOU WIN! (try the \"Points\" command)\r\n\r\n" +
-                   "You have escaped the game before you starved to death!\r\n" +
-                   "You can continue to explore by returning to the house \"west\".\r\n\r\n" +
+            return "CONGRATULATIONS! YOU WIN! (try the \"Points\" command) " +
+                   "You have escaped the game before you starved to death! " +
+                   "You can continue to explore by returning to the house \"west\". " +
                    "We hope you enjoyed this retro-style adventure game! " +
                    "We hidden some fun surprises in the text and objects. " +
                    "Try PETting Stormi the kitten - she'll follow you around! " +
-                   "You can SHOO her away if needed.\r\n\r\n" +
-                   "Have a Great Day!\r\n" +
+                   "You can SHOO her away if needed. " +
+                   "Have a Great Day! " +
                    "\"The Three Peppers\" - Steve, Stevie, and Anabella";
         }
 
         public string GetWelcomeMessage(string gamerTag)
         {
-            return $"Dear {gamerTag}, \r\n\r\nThis is a simple 2 word adventure game. Use simple but HELPful commands to find your way out before you die.\r\n\r\nGood Luck!\r\n\r\nThe Management.\r\n\r\n\r\n";
+            return $"Dear {gamerTag}, This is a simple 2 word adventure game. Use simple but HELPful commands to find your way out before you die. Good Luck! The Management.";
         }
         #endregion
 

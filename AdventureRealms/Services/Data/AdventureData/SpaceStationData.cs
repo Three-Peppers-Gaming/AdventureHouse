@@ -96,7 +96,7 @@ namespace AdventureRealms.Services.Data.AdventureData
                     N = 3, S = 99, E = 99, W = 99, U = 99, D = 99 },
 
                 new Room { Number = 5, RoomPoints = 100, Name = "Robot Room", 
-                    Desc = "A specialized maintenance room housing the station's service robot. The robot sits dormant in its charging station, awaiting activation commands.", 
+                    Desc = "A specialized maintenance room designed for robotic systems. Advanced charging stations and diagnostic equipment line the walls. Service ports and data connections suggest this is where automated systems are maintained.", 
                     N = 2, S = 6, E = 99, W = 99, U = 3, D = 99 },
 
                 new Room { Number = 6, RoomPoints = 10, Name = "Command Lift", 
@@ -125,7 +125,7 @@ namespace AdventureRealms.Services.Data.AdventureData
                     N = 99, S = 99, E = 12, W = 99, U = 99, D = 99 },
 
                 new Room { Number = 12, RoomPoints = 20, Name = "Crew Quarters B", 
-                    Desc = "Another crew sleeping area. A datapad lies open on one of the beds, displaying what appears to be a personal journal entry.", 
+                    Desc = "Another crew sleeping area with bunk beds and personal storage lockers. The room shows signs of a hasty evacuation, with personal belongings scattered about.", 
                     N = 99, S = 99, E = 13, W = 11, U = 99, D = 99 },
 
                 new Room { Number = 13, RoomPoints = 20, Name = "Crew Quarters C", 
