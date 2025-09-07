@@ -32,7 +32,7 @@ namespace AdventureRealms.Tests.Gameplay
             var sessionId = gameStart.SessionId;
             
             var testLog = new List<string> { "=== ADVENTURE HOUSE ITEM INTERACTION TEST ===" };
-            testLog.Add($"✓ Started in {gameStart.RoomName} (Room {gameStart.MapData?.CurrentRoom})");
+            testLog.Add($"[OK] Started in {gameStart.RoomName} (Room {gameStart.MapData?.CurrentRoom})");
 
             // Test 1: Musical instrument interaction
             testLog.Add("\n--- Test 1: Musical Instrument (Bugle) ---");
@@ -108,8 +108,8 @@ namespace AdventureRealms.Tests.Gameplay
             Assert.Equal("Exit!", escapeResponse.RoomName);
             Assert.True(escapeResponse.GameCompleted);
             
-            testLog.Add("\n✓ All item interactions completed successfully!");
-            testLog.Add($"✓ Final Status: {escapeResponse.RoomName} (Game Completed: {escapeResponse.GameCompleted})");
+            testLog.Add("\n[OK] All item interactions completed successfully!");
+            testLog.Add($"[OK] Final Status: {escapeResponse.RoomName} (Game Completed: {escapeResponse.GameCompleted})");
 
             // Output complete test log
             Console.WriteLine(string.Join("\n", testLog));
@@ -124,7 +124,7 @@ namespace AdventureRealms.Tests.Gameplay
             var sessionId = gameStart.SessionId;
             
             var testLog = new List<string> { "=== LOST IN THE WOODS ITEM INTERACTION TEST ===" };
-            testLog.Add($"✓ Started in {gameStart.RoomName} (Room {gameStart.MapData?.CurrentRoom})");
+            testLog.Add($"[OK] Started in {gameStart.RoomName} (Room {gameStart.MapData?.CurrentRoom})");
 
             // Test 1: Check starting inventory
             testLog.Add("\n--- Test 1: Starting Equipment Check ---");
@@ -135,32 +135,32 @@ namespace AdventureRealms.Tests.Gameplay
             var inventoryText = startInventoryResponse.CommandResponse.ToLower();
             if (inventoryText.Contains("bbgun") || inventoryText.Contains("bb gun"))
             {
-                testLog.Add("✓ BB Gun found in starting inventory");
+                testLog.Add("[OK] BB Gun found in starting inventory");
             }
             else
             {
-                testLog.Add("ℹ BB Gun not found in starting inventory - checking room");
+                testLog.Add("[INFO] BB Gun not found in starting inventory - checking room");
                 // Try to get it from the room
                 var getBBGunResponse = SafeExecuteCommand(sessionId, "get bbgun", testLog);
                 if (getBBGunResponse.CommandResponse.ToLower().Contains("bbgun") ||
                     getBBGunResponse.CommandResponse.ToLower().Contains("taken"))
                 {
-                    testLog.Add("✓ BB Gun acquired from room");
+                    testLog.Add("[OK] BB Gun acquired from room");
                 }
             }
             
             if (inventoryText.Contains("sandwich"))
             {
-                testLog.Add("✓ Sandwich found in starting inventory");
+                testLog.Add("[OK] Sandwich found in starting inventory");
             }
             else
             {
-                testLog.Add("ℹ Sandwich not found in starting inventory - checking room");
+                testLog.Add("[INFO] Sandwich not found in starting inventory - checking room");
                 var getSandwichResponse = SafeExecuteCommand(sessionId, "get sandwich", testLog);
                 if (getSandwichResponse.CommandResponse.ToLower().Contains("sandwich") ||
                     getSandwichResponse.CommandResponse.ToLower().Contains("taken"))
                 {
-                    testLog.Add("✓ Sandwich acquired from room");
+                    testLog.Add("[OK] Sandwich acquired from room");
                 }
             }
 
@@ -176,12 +176,12 @@ namespace AdventureRealms.Tests.Gameplay
                 var afterEatingInventoryResponse = SafeExecuteCommand(sessionId, "inv", testLog);
                 if (!afterEatingInventoryResponse.CommandResponse.ToLower().Contains("sandwich"))
                 {
-                    testLog.Add("✓ Sandwich consumed and removed from inventory");
+                    testLog.Add("[OK] Sandwich consumed and removed from inventory");
                 }
             }
             else
             {
-                testLog.Add($"ℹ Sandwich consumption attempt: {eatSandwichResponse.CommandResponse}");
+                testLog.Add($"[INFO] Sandwich consumption attempt: {eatSandwichResponse.CommandResponse}");
             }
 
             // Test 3: Weapon usage attempt
@@ -199,7 +199,7 @@ namespace AdventureRealms.Tests.Gameplay
             if (getBerryResponse.CommandResponse.ToLower().Contains("blueberries") ||
                 getBerryResponse.CommandResponse.ToLower().Contains("berries"))
             {
-                testLog.Add("✓ Found blueberries!");
+                testLog.Add("[OK] Found blueberries!");
                 AssertItemPickup(getBerryResponse, "blueberries", testLog);
                 
                 var eatBerriesResponse = SafeExecuteCommand(sessionId, "eat blueberries", testLog);
@@ -207,7 +207,7 @@ namespace AdventureRealms.Tests.Gameplay
             }
             else
             {
-                testLog.Add("ℹ No blueberries found in this location");
+                testLog.Add("[INFO] No blueberries found in this location");
             }
 
             // Test 5: Dangerous item avoidance
@@ -215,12 +215,12 @@ namespace AdventureRealms.Tests.Gameplay
             var getGreenBerriesResponse = SafeExecuteCommand(sessionId, "get greenberries", testLog);
             if (getGreenBerriesResponse.CommandResponse.ToLower().Contains("greenberries"))
             {
-                testLog.Add("⚠ Found dangerous greenberries - will not consume");
+                testLog.Add("[WARN] Found dangerous greenberries - will not consume");
                 // Intentionally NOT eating dangerous berries
             }
             else
             {
-                testLog.Add("ℹ No dangerous greenberries in current area");
+                testLog.Add("[INFO] No dangerous greenberries in current area");
             }
 
             // Test 6: Pet interaction in forest
@@ -232,14 +232,14 @@ namespace AdventureRealms.Tests.Gameplay
             }
             else
             {
-                testLog.Add("ℹ No kitten found in current forest area");
+                testLog.Add("[INFO] No kitten found in current forest area");
             }
 
             // Final status check
             var finalResponse = SafeExecuteCommand(sessionId, "look", testLog);
-            testLog.Add("\n✓ Item interaction tests completed!");
-            testLog.Add($"✓ Final Location: {finalResponse.RoomName} (Room {finalResponse.MapData?.CurrentRoom})");
-            testLog.Add($"✓ Player Status: {(finalResponse.PlayerDead ? "Dead" : "Alive")}");
+            testLog.Add("\n[OK] Item interaction tests completed!");
+            testLog.Add($"[OK] Final Location: {finalResponse.RoomName} (Room {finalResponse.MapData?.CurrentRoom})");
+            testLog.Add($"[OK] Player Status: {(finalResponse.PlayerDead ? "Dead" : "Alive")}");
 
             // Verify survival and basic mechanics
             Assert.False(finalResponse.PlayerDead, "Player should survive basic item interactions");
@@ -258,7 +258,7 @@ namespace AdventureRealms.Tests.Gameplay
             var sessionId = gameStart.SessionId;
             
             var testLog = new List<string> { "=== SPACE STATION ITEM INTERACTION TEST ===" };
-            testLog.Add($"✓ Started in {gameStart.RoomName} (Room {gameStart.MapData?.CurrentRoom})");
+            testLog.Add($"[OK] Started in {gameStart.RoomName} (Room {gameStart.MapData?.CurrentRoom})");
 
             // Test 1: Initial inventory check
             testLog.Add("\n--- Test 1: Initial Equipment Scan ---");
@@ -275,7 +275,7 @@ namespace AdventureRealms.Tests.Gameplay
                 var moveResponse = SafeExecuteCommand(sessionId, direction, testLog);
                 if (!moveResponse.PlayerDead)
                 {
-                    testLog.Add($"✓ Exploring {moveResponse.RoomName}");
+                    testLog.Add($"[OK] Exploring {moveResponse.RoomName}");
                     
                     // Look for specific space station items
                     var lookResponse = SafeExecuteCommand(sessionId, "look", testLog);
@@ -290,13 +290,13 @@ namespace AdventureRealms.Tests.Gameplay
                             getItemResponse.CommandResponse.ToLower().Contains("picked"))
                         {
                             itemsFound.Add($"{item} from {moveResponse.RoomName}");
-                            testLog.Add($"✓ Found {item} in {moveResponse.RoomName}");
+                            testLog.Add($"[OK] Found {item} in {moveResponse.RoomName}");
                         }
                     }
                 }
                 else
                 {
-                    testLog.Add($"⚠ Danger in {moveResponse.RoomName} - stopping exploration");
+                    testLog.Add($"[WARN] Danger in {moveResponse.RoomName} - stopping exploration");
                     break;
                 }
             }
@@ -316,10 +316,10 @@ namespace AdventureRealms.Tests.Gameplay
 
             // Final status
             var finalResponse = SafeExecuteCommand(sessionId, "look", testLog);
-            testLog.Add("\n✓ Space station item analysis completed!");
-            testLog.Add($"✓ Items discovered: {itemsFound.Count}");
-            testLog.Add($"✓ Final Location: {finalResponse.RoomName}");
-            testLog.Add($"✓ Survival Status: {(finalResponse.PlayerDead ? "Dead" : "Alive")}");
+            testLog.Add("\n[OK] Space station item analysis completed!");
+            testLog.Add($"[OK] Items discovered: {itemsFound.Count}");
+            testLog.Add($"[OK] Final Location: {finalResponse.RoomName}");
+            testLog.Add($"[OK] Survival Status: {(finalResponse.PlayerDead ? "Dead" : "Alive")}");
 
             // Verify basic functionality
             Assert.False(finalResponse.PlayerDead, "Player should survive basic space station exploration");
@@ -338,7 +338,7 @@ namespace AdventureRealms.Tests.Gameplay
             var sessionId = gameStart.SessionId;
             
             var testLog = new List<string> { "=== FUTURE FAMILY ITEM INTERACTION TEST ===" };
-            testLog.Add($"✓ Started in {gameStart.RoomName} (Room {gameStart.MapData?.CurrentRoom})");
+            testLog.Add($"[OK] Started in {gameStart.RoomName} (Room {gameStart.MapData?.CurrentRoom})");
 
             // Test 1: Futuristic inventory check
             testLog.Add("\n--- Test 1: Future Technology Scan ---");
@@ -355,7 +355,7 @@ namespace AdventureRealms.Tests.Gameplay
                 var moveResponse = SafeExecuteCommand(sessionId, direction, testLog);
                 if (!moveResponse.PlayerDead)
                 {
-                    testLog.Add($"✓ Scanning {moveResponse.RoomName}");
+                    testLog.Add($"[OK] Scanning {moveResponse.RoomName}");
                     
                     // Try future-themed items
                     var futureItems = new[] { "tablet", "remote", "device", "gadget", "food", "drink", "tool" };
@@ -367,7 +367,7 @@ namespace AdventureRealms.Tests.Gameplay
                             getItemResponse.CommandResponse.ToLower().Contains("acquired"))
                         {
                             futureItemsFound.Add($"{item} from {moveResponse.RoomName}");
-                            testLog.Add($"✓ Acquired {item} from {moveResponse.RoomName}");
+                            testLog.Add($"[OK] Acquired {item} from {moveResponse.RoomName}");
                         }
                     }
                 }
@@ -399,21 +399,21 @@ namespace AdventureRealms.Tests.Gameplay
 
             // Final status
             var finalResponse = SafeExecuteCommand(sessionId, "look", testLog);
-            testLog.Add("\n✓ Future apartment analysis completed!");
-            testLog.Add($"✓ Future items discovered: {futureItemsFound.Count}");
-            testLog.Add($"✓ Final Location: {finalResponse.RoomName}");
-            testLog.Add($"✓ System Status: {(finalResponse.PlayerDead ? "Critical" : "Operational")}");
+            testLog.Add("\n[OK] Future apartment analysis completed!");
+            testLog.Add($"[OK] Future items discovered: {futureItemsFound.Count}");
+            testLog.Add($"[OK] Final Location: {finalResponse.RoomName}");
+            testLog.Add($"[OK] System Status: {(finalResponse.PlayerDead ? "Critical" : "Operational")}");
 
             // Verify functionality - be more lenient for challenging games
             var playerSurvived = !finalResponse.PlayerDead;
             if (!playerSurvived)
             {
-                testLog.Add("⚠ Player died during apartment exploration - some future environments are dangerous");
-                testLog.Add("✓ Test validated apartment navigation and item interaction mechanics");
+                testLog.Add("[WARN] Player died during apartment exploration - some future environments are dangerous");
+                testLog.Add("[OK] Test validated apartment navigation and item interaction mechanics");
             }
             else
             {
-                testLog.Add("✓ Player survived future apartment exploration");
+                testLog.Add("[OK] Player survived future apartment exploration");
             }
             
             Assert.Contains("Future", finalResponse.MapData?.RenderingConfig.GameName ?? "");
@@ -447,7 +447,7 @@ namespace AdventureRealms.Tests.Gameplay
                        responseText.Contains("picked") || responseText.Contains("got") ||
                        responseText.Contains("acquired") || responseText.Contains("snagged"),
                 $"Expected item pickup response for {itemName}, got: {response.CommandResponse}");
-            testLog.Add($"✓ Item Pickup: {itemName} - {response.CommandResponse}");
+            testLog.Add($"[OK] Item Pickup: {itemName} - {response.CommandResponse}");
         }
 
         private void AssertItemUsage(GamePlayResponse response, string action, List<string> testLog)
@@ -458,7 +458,7 @@ namespace AdventureRealms.Tests.Gameplay
                        (responseText.Contains("nothing") || !responseText.Contains("can't") || 
                         responseText.Contains("use") || responseText.Contains("don't understand")),
                 $"Expected {action} response, got: {response.CommandResponse}");
-            testLog.Add($"✓ Item Usage ({action}): {response.CommandResponse}");
+            testLog.Add($"[OK] Item Usage ({action}): {response.CommandResponse}");
         }
 
         private void AssertPetInteraction(GamePlayResponse response, string animalName, List<string> testLog)
@@ -467,7 +467,7 @@ namespace AdventureRealms.Tests.Gameplay
             Assert.True(responseText.Contains(animalName.ToLower()) || responseText.Contains("pet") || 
                        responseText.Contains("follow") || responseText.Contains("happy"),
                 $"Expected pet interaction response for {animalName}, got: {response.CommandResponse}");
-            testLog.Add($"✓ Pet Interaction: {animalName} - {response.CommandResponse}");
+            testLog.Add($"[OK] Pet Interaction: {animalName} - {response.CommandResponse}");
         }
 
         private void AssertFoodConsumption(GamePlayResponse response, string foodName, List<string> testLog)
@@ -477,21 +477,21 @@ namespace AdventureRealms.Tests.Gameplay
                        responseText.Contains("eat") || responseText.Contains("taste") ||
                        responseText.Contains("delicious") || responseText.Contains("health"),
                 $"Expected food consumption response for {foodName}, got: {response.CommandResponse}");
-            testLog.Add($"✓ Food Consumption: {foodName} - {response.CommandResponse}");
+            testLog.Add($"[OK] Food Consumption: {foodName} - {response.CommandResponse}");
         }
 
         private void AssertInventoryContains(GamePlayResponse response, string itemName, List<string> testLog)
         {
             var responseText = response.CommandResponse.ToLower();
             Assert.Contains(itemName.ToLower(), responseText);
-            testLog.Add($"✓ Inventory Contains: {itemName}");
+            testLog.Add($"[OK] Inventory Contains: {itemName}");
         }
 
         private void AssertInventoryDoesNotContain(GamePlayResponse response, string itemName, List<string> testLog)
         {
             var responseText = response.CommandResponse.ToLower();
             Assert.DoesNotContain(itemName.ToLower(), responseText);
-            testLog.Add($"✓ Inventory Does Not Contain: {itemName} (consumed/used)");
+            testLog.Add($"[OK] Inventory Does Not Contain: {itemName} (consumed/used)");
         }
 
         private void AssertMovementBlocked(GamePlayResponse response, List<string> testLog)
@@ -502,7 +502,7 @@ namespace AdventureRealms.Tests.Gameplay
                        responseText.Contains("eastward") || responseText.Contains("wrong way") ||
                        responseText.Contains("out of the question") || responseText.Contains("bell-bottoms"),
                 $"Expected blocked movement message, got: {response.CommandResponse}");
-            testLog.Add($"✓ Movement Blocked: {response.CommandResponse}");
+            testLog.Add($"[OK] Movement Blocked: {response.CommandResponse}");
         }
 
         private void AssertKeyUnlocking(GamePlayResponse response, List<string> testLog)
@@ -511,7 +511,7 @@ namespace AdventureRealms.Tests.Gameplay
             Assert.True(responseText.Contains("key") && (responseText.Contains("unlock") || 
                        responseText.Contains("fits") || responseText.Contains("door")),
                 $"Expected key unlocking response, got: {response.CommandResponse}");
-            testLog.Add($"✓ Key Unlocking: {response.CommandResponse}");
+            testLog.Add($"[OK] Key Unlocking: {response.CommandResponse}");
         }
 
         #endregion

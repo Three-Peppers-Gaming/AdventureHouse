@@ -35,7 +35,7 @@ namespace AdventureRealms.Tests.Gameplay
             Assert.Equal(20, gameStart.MapData?.CurrentRoom);
 
             var testLog = new List<string> { "=== ADVENTURE HOUSE COMPLETE WALKTHROUGH ===" };
-            testLog.Add($"✓ Started in {gameStart.RoomName} (Room {gameStart.MapData?.CurrentRoom})");
+            testLog.Add($"[OK] Started in {gameStart.RoomName} (Room {gameStart.MapData?.CurrentRoom})");
 
             // Phase 1: Gather essential items from Attic (Room 20)
             testLog.Add("\n--- Phase 1: Collect Items from Attic ---");
@@ -130,7 +130,7 @@ namespace AdventureRealms.Tests.Gameplay
             {
                 // Navigation pattern may be different, try North again or try looking around
                 var adaptLookResponse = SafeExecuteCommand(sessionId, "look", testLog);
-                testLog.Add($"⚠ Navigation adjustment needed. Current room: {toMainEntranceResponse.RoomName}");
+                testLog.Add($"[WARN] Navigation adjustment needed. Current room: {toMainEntranceResponse.RoomName}");
                 // If we're still in Downstairs Hallway, the entrance should be North
                 var retryNorthResponse = SafeExecuteCommand(sessionId, "n", testLog);
                 if (retryNorthResponse.RoomName == "Main Entrance")
@@ -168,10 +168,10 @@ namespace AdventureRealms.Tests.Gameplay
 
             // Final validation
             testLog.Add("\n--- FINAL VALIDATION ---");
-            testLog.Add($"✓ Game Completed: {escapeResponse.GameCompleted}");
-            testLog.Add($"✓ Player Alive: {!escapeResponse.PlayerDead}");
-            testLog.Add($"✓ Final Room: {escapeResponse.RoomName} (Room {escapeResponse.MapData?.CurrentRoom})");
-            testLog.Add($"✓ Rooms Visited: {escapeResponse.MapData?.VisitedRoomCount}");
+            testLog.Add($"[OK] Game Completed: {escapeResponse.GameCompleted}");
+            testLog.Add($"[OK] Player Alive: {!escapeResponse.PlayerDead}");
+            testLog.Add($"[OK] Final Room: {escapeResponse.RoomName} (Room {escapeResponse.MapData?.CurrentRoom})");
+            testLog.Add($"[OK] Rooms Visited: {escapeResponse.MapData?.VisitedRoomCount}");
 
             // Output complete test log
             Console.WriteLine(string.Join("\n", testLog));
@@ -192,7 +192,7 @@ namespace AdventureRealms.Tests.Gameplay
             var sessionId = gameStart.SessionId;
 
             var testLog = new List<string> { "=== SPACE STATION COMPLETE WALKTHROUGH ===" };
-            testLog.Add($"✓ Started in {gameStart.RoomName} (Room {gameStart.MapData?.CurrentRoom})");
+            testLog.Add($"[OK] Started in {gameStart.RoomName} (Room {gameStart.MapData?.CurrentRoom})");
 
             // Phase 1: Initial exploration and item gathering
             testLog.Add("\n--- Phase 1: Initial Exploration ---");
@@ -216,7 +216,7 @@ namespace AdventureRealms.Tests.Gameplay
                 
                 if (roomsVisited.Add(currentRoom))
                 {
-                    explorationHistory.Add($"✓ Discovered new room: {moveResponse.RoomName} (Room {currentRoom})");
+                    explorationHistory.Add($"[OK] Discovered new room: {moveResponse.RoomName} (Room {currentRoom})");
                     
                     // Look around each new room
                     var lookNewRoomResponse = SafeExecuteCommand(sessionId, "look", testLog);
@@ -226,14 +226,14 @@ namespace AdventureRealms.Tests.Gameplay
                     if (!string.IsNullOrEmpty(getItemsResponse.CommandResponse) && 
                         !getItemsResponse.CommandResponse.ToLower().Contains("nothing"))
                     {
-                        testLog.Add($"✓ Found items in {moveResponse.RoomName}: {getItemsResponse.CommandResponse}");
+                        testLog.Add($"[OK] Found items in {moveResponse.RoomName}: {getItemsResponse.CommandResponse}");
                     }
                 }
                 
                 // Stop if player dies
                 if (moveResponse.PlayerDead)
                 {
-                    testLog.Add($"⚠ Player died in {moveResponse.RoomName}");
+                    testLog.Add($"[WARN] Player died in {moveResponse.RoomName}");
                     break;
                 }
             }
@@ -254,7 +254,7 @@ namespace AdventureRealms.Tests.Gameplay
                 
                 if (roomsVisited.Add(currentRoom))
                 {
-                    explorationHistory.Add($"✓ Advanced exploration found: {moveResponse.RoomName} (Room {currentRoom})");
+                    explorationHistory.Add($"[OK] Advanced exploration found: {moveResponse.RoomName} (Room {currentRoom})");
                 }
                 
                 if (moveResponse.PlayerDead || moveResponse.GameCompleted)
@@ -268,9 +268,9 @@ namespace AdventureRealms.Tests.Gameplay
             
             testLog.Add("\n--- EXPLORATION RESULTS ---");
             testLog.AddRange(explorationHistory);
-            testLog.Add($"✓ Total Rooms Visited: {roomsVisited.Count}");
-            testLog.Add($"✓ Player Survived: {!finalResponse.PlayerDead}");
-            testLog.Add($"✓ Game Name: {finalResponse.MapData?.RenderingConfig.GameName}");
+            testLog.Add($"[OK] Total Rooms Visited: {roomsVisited.Count}");
+            testLog.Add($"[OK] Player Survived: {!finalResponse.PlayerDead}");
+            testLog.Add($"[OK] Game Name: {finalResponse.MapData?.RenderingConfig.GameName}");
 
             // Output complete test log
             Console.WriteLine(string.Join("\n", testLog));
@@ -290,7 +290,7 @@ namespace AdventureRealms.Tests.Gameplay
             var sessionId = gameStart.SessionId;
 
             var testLog = new List<string> { "=== FUTURE FAMILY COMPLETE WALKTHROUGH ===" };
-            testLog.Add($"✓ Started in {gameStart.RoomName} (Room {gameStart.MapData?.CurrentRoom})");
+            testLog.Add($"[OK] Started in {gameStart.RoomName} (Room {gameStart.MapData?.CurrentRoom})");
 
             // Phase 1: Initial apartment exploration
             testLog.Add("\n--- Phase 1: Apartment Layout Discovery ---");
@@ -323,7 +323,7 @@ namespace AdventureRealms.Tests.Gameplay
                 
                 if (command != "look" && command != "get all" && roomsVisited.Add(currentRoom))
                 {
-                    testLog.Add($"✓ {description}: Discovered {response.RoomName} (Room {currentRoom})");
+                    testLog.Add($"[OK] {description}: Discovered {response.RoomName} (Room {currentRoom})");
                 }
                 
                 if (command == "get all" && !string.IsNullOrEmpty(response.CommandResponse) && 
@@ -342,16 +342,16 @@ namespace AdventureRealms.Tests.Gameplay
             testLog.Add("\n--- Phase 3: Item Interactions ---");
             if (itemsFound.Any())
             {
-                testLog.Add("✓ Items found during exploration:");
+                testLog.Add("[OK] Items found during exploration:");
                 testLog.AddRange(itemsFound);
                 
                 // Test inventory management
                 var checkInventoryResponse = SafeExecuteCommand(sessionId, "inv", testLog);
-                testLog.Add($"✓ Final inventory: {checkInventoryResponse.CommandResponse}");
+                testLog.Add($"[OK] Final inventory: {checkInventoryResponse.CommandResponse}");
             }
             else
             {
-                testLog.Add("ℹ No collectible items found in apartment");
+                testLog.Add("[INFO] No collectible items found in apartment");
             }
 
             // Phase 4: Advanced navigation patterns
@@ -365,7 +365,7 @@ namespace AdventureRealms.Tests.Gameplay
                 
                 if (roomsVisited.Add(currentRoom))
                 {
-                    testLog.Add($"✓ Advanced nav discovered: {response.RoomName} (Room {currentRoom})");
+                    testLog.Add($"[OK] Advanced nav discovered: {response.RoomName} (Room {currentRoom})");
                 }
                 
                 if (response.PlayerDead || response.GameCompleted)
@@ -378,10 +378,10 @@ namespace AdventureRealms.Tests.Gameplay
             var finalResponse = SafeExecuteCommand(sessionId, "look", testLog);
             
             testLog.Add("\n--- APARTMENT EXPLORATION RESULTS ---");
-            testLog.Add($"✓ Total Rooms Visited: {roomsVisited.Count}");
-            testLog.Add($"✓ Player Status: {(finalResponse.PlayerDead ? "Dead" : "Alive")}");
-            testLog.Add($"✓ Game Completed: {finalResponse.GameCompleted}");
-            testLog.Add($"✓ Game Name: {finalResponse.MapData?.RenderingConfig.GameName}");
+            testLog.Add($"[OK] Total Rooms Visited: {roomsVisited.Count}");
+            testLog.Add($"[OK] Player Status: {(finalResponse.PlayerDead ? "Dead" : "Alive")}");
+            testLog.Add($"[OK] Game Completed: {finalResponse.GameCompleted}");
+            testLog.Add($"[OK] Game Name: {finalResponse.MapData?.RenderingConfig.GameName}");
 
             // Output complete test log
             Console.WriteLine(string.Join("\n", testLog));
@@ -401,7 +401,7 @@ namespace AdventureRealms.Tests.Gameplay
             var sessionId = gameStart.SessionId;
 
             var testLog = new List<string> { "=== LOST IN THE WOODS COMPLETE WALKTHROUGH ===" };
-            testLog.Add($"✓ Started in {gameStart.RoomName} (Room {gameStart.MapData?.CurrentRoom})");
+            testLog.Add($"[OK] Started in {gameStart.RoomName} (Room {gameStart.MapData?.CurrentRoom})");
 
             // Phase 1: Starting at Grandma's House - collect initial items
             testLog.Add("\n--- Phase 1: Gather Items at Grandma's House ---");
@@ -414,22 +414,22 @@ namespace AdventureRealms.Tests.Gameplay
                 getBBGunResponse.CommandResponse.ToLower().Contains("bb gun") ||
                 getBBGunResponse.CommandResponse.ToLower().Contains("taken"))
             {
-                testLog.Add("✓ Collected BB Gun for protection");
+                testLog.Add("[OK] Collected BB Gun for protection");
             }
             else
             {
-                testLog.Add($"⚠ BB Gun collection: {getBBGunResponse.CommandResponse}");
+                testLog.Add($"[WARN] BB Gun collection: {getBBGunResponse.CommandResponse}");
             }
 
             var getSandwichResponse = SafeExecuteCommand(sessionId, "get sandwich", testLog);
             if (getSandwichResponse.CommandResponse.ToLower().Contains("sandwich") ||
                 getSandwichResponse.CommandResponse.ToLower().Contains("taken"))
             {
-                testLog.Add("✓ Collected Sandwich for sustenance");
+                testLog.Add("[OK] Collected Sandwich for sustenance");
             }
             else
             {
-                testLog.Add($"⚠ Sandwich collection: {getSandwichResponse.CommandResponse}");
+                testLog.Add($"[WARN] Sandwich collection: {getSandwichResponse.CommandResponse}");
             }
 
             // Check inventory after initial collection
@@ -473,7 +473,7 @@ namespace AdventureRealms.Tests.Gameplay
                         !response.CommandResponse.ToLower().Contains("missing"))
                     {
                         itemsCollected.Add($"{currentLocation}: {response.CommandResponse}");
-                        testLog.Add($"✓ Found item: {response.CommandResponse}");
+                        testLog.Add($"[OK] Found item: {response.CommandResponse}");
                     }
                     continue;
                 }
@@ -482,26 +482,26 @@ namespace AdventureRealms.Tests.Gameplay
                 roomsVisited.Add(currentRoom);
                 currentLocation = response.RoomName;
                 
-                testLog.Add($"✓ {description}: {response.RoomName} (Room {currentRoom})");
+                testLog.Add($"[OK] {description}: {response.RoomName} (Room {currentRoom})");
                 
                 // Check for immediate danger indicators
                 var responseText = response.CommandResponse.ToLower();
                 if (responseText.Contains("spider") || responseText.Contains("danger") || 
                     responseText.Contains("threatens") || responseText.Contains("attacking"))
                 {
-                    testLog.Add($"⚠ Danger detected in {response.RoomName}, attempting to retreat");
+                    testLog.Add($"[WARN] Danger detected in {response.RoomName}, attempting to retreat");
                     combatEncounters.Add($"Room {currentRoom}: Danger detected - {response.CommandResponse}");
                     
                     // Try to retreat immediately
                     var retreatResponse = SafeExecuteCommand(sessionId, "w", testLog); // Try west first
                     if (retreatResponse.PlayerDead)
                     {
-                        testLog.Add($"💀 Could not retreat from {response.RoomName}");
+                        testLog.Add($"[DEAD] Could not retreat from {response.RoomName}");
                         break;
                     }
                     else
                     {
-                        testLog.Add($"✓ Successfully retreated to {retreatResponse.RoomName}");
+                        testLog.Add($"[OK] Successfully retreated to {retreatResponse.RoomName}");
                         currentLocation = retreatResponse.RoomName;
                     }
                 }
@@ -509,14 +509,14 @@ namespace AdventureRealms.Tests.Gameplay
                 // Stop if player dies
                 if (response.PlayerDead)
                 {
-                    testLog.Add($"💀 Player died in {response.RoomName}");
+                    testLog.Add($"[DEAD] Player died in {response.RoomName}");
                     break;
                 }
                 
                 // Stop if we somehow reach the goal
                 if (currentRoom == 29 || response.RoomName == "Home Clearing")
                 {
-                    testLog.Add("🏠 SUCCESS: Reached Home Clearing!");
+                    testLog.Add("[HOME] SUCCESS: Reached Home Clearing!");
                     break;
                 }
             }
@@ -525,10 +525,10 @@ namespace AdventureRealms.Tests.Gameplay
             var finalResponse = SafeExecuteCommand(sessionId, "look", testLog);
             
             testLog.Add("\n--- FOREST JOURNEY RESULTS ---");
-            testLog.Add($"✓ Total Rooms Visited: {roomsVisited.Count}");
-            testLog.Add($"✓ Final Location: {finalResponse.RoomName} (Room {finalResponse.MapData?.CurrentRoom})");
-            testLog.Add($"✓ Player Status: {(finalResponse.PlayerDead ? "Dead" : "Alive")}");
-            testLog.Add($"✓ Game Completed: {finalResponse.GameCompleted}");
+            testLog.Add($"[OK] Total Rooms Visited: {roomsVisited.Count}");
+            testLog.Add($"[OK] Final Location: {finalResponse.RoomName} (Room {finalResponse.MapData?.CurrentRoom})");
+            testLog.Add($"[OK] Player Status: {(finalResponse.PlayerDead ? "Dead" : "Alive")}");
+            testLog.Add($"[OK] Game Completed: {finalResponse.GameCompleted}");
             
             if (itemsCollected.Any())
             {
@@ -549,8 +549,8 @@ namespace AdventureRealms.Tests.Gameplay
             var playerSurvived = !finalResponse.PlayerDead;
             if (!playerSurvived)
             {
-                testLog.Add("⚠ Player died during forest exploration - this is expected in a challenging adventure");
-                testLog.Add("✓ Test validated forest mechanics: navigation, combat detection, item interaction");
+                testLog.Add("[WARN] Player died during forest exploration - this is expected in a challenging adventure");
+                testLog.Add("[OK] Test validated forest mechanics: navigation, combat detection, item interaction");
             }
             
             Assert.True(roomsVisited.Count >= 3, $"Should visit at least 3 forest locations, visited {roomsVisited.Count}");
@@ -559,14 +559,14 @@ namespace AdventureRealms.Tests.Gameplay
             // If we reached Room 29 (Home Clearing), the game should be completed
             if (finalResponse.MapData?.CurrentRoom == 29)
             {
-                testLog.Add("🎉 PERFECT: Successfully completed the forest journey!");
+                testLog.Add("[SUCCESS] PERFECT: Successfully completed the forest journey!");
                 Assert.True(finalResponse.GameCompleted || finalResponse.RoomName == "Home Clearing", 
                     "Game should be completed when reaching Home Clearing");
             }
             else if (playerSurvived)
             {
-                testLog.Add("✓ Player survived exploration but didn't reach the final destination");
-                testLog.Add("✓ This demonstrates the challenging nature of the forest adventure");
+                testLog.Add("[OK] Player survived exploration but didn't reach the final destination");
+                testLog.Add("[OK] This demonstrates the challenging nature of the forest adventure");
             }
         }
 
@@ -586,7 +586,7 @@ namespace AdventureRealms.Tests.Gameplay
                 var gameStart = _server.PlayGame(newGameRequest);
                 var sessionId = gameStart.SessionId;
                 
-                testLog.Add($"✓ Started in {gameStart.RoomName}");
+                testLog.Add($"[OK] Started in {gameStart.RoomName}");
 
                 // Test essential commands
                 var essentialCommands = new[]
@@ -609,11 +609,11 @@ namespace AdventureRealms.Tests.Gameplay
                         if (response != null && !string.IsNullOrEmpty(response.CommandResponse))
                         {
                             successCount++;
-                            testLog.Add($"  ✓ {command}: {description}");
+                            testLog.Add($"  [OK] {command}: {description}");
                         }
                         else
                         {
-                            testLog.Add($"  ⚠ {command}: No response");
+                            testLog.Add($"  [WARN] {command}: No response");
                         }
                     }
                     catch (Exception ex)
@@ -622,7 +622,7 @@ namespace AdventureRealms.Tests.Gameplay
                     }
                 }
 
-                testLog.Add($"✓ Game {game.Name}: {successCount}/{essentialCommands.Length} commands successful");
+                testLog.Add($"[OK] Game {game.Name}: {successCount}/{essentialCommands.Length} commands successful");
                 
                 // Validate game data integrity
                 var finalCheck = SafeExecuteCommand(sessionId, "look", testLog);
@@ -630,7 +630,7 @@ namespace AdventureRealms.Tests.Gameplay
                 Assert.NotNull(finalCheck.MapData);
                 Assert.False(string.IsNullOrEmpty(finalCheck.GameName));
                 
-                testLog.Add($"✓ Game data integrity confirmed for {game.Name}");
+                testLog.Add($"[OK] Game data integrity confirmed for {game.Name}");
             }
 
             // Output complete test log
@@ -655,13 +655,13 @@ namespace AdventureRealms.Tests.Gameplay
                 
                 if (response == null)
                 {
-                    testLog.Add($"⚠ Command '{command}' returned null response");
+                    testLog.Add($"[WARN] Command '{command}' returned null response");
                     return new GamePlayResponse { SessionId = sessionId, CommandResponse = "No response" };
                 }
                 
                 if (response.SessionId == "-1")
                 {
-                    testLog.Add($"⚠ Command '{command}' ended session");
+                    testLog.Add($"[WARN] Command '{command}' ended session");
                 }
                 
                 return response;
@@ -678,7 +678,7 @@ namespace AdventureRealms.Tests.Gameplay
             var responseText = response.CommandResponse.ToLower();
             Assert.True(responseText.Contains(itemName.ToLower()) || responseText.Contains("got") || responseText.Contains("taken"),
                 $"Expected item pickup response for {itemName}, got: {response.CommandResponse}");
-            testLog.Add($"✓ Item Pickup: {itemName} - {response.CommandResponse}");
+            testLog.Add($"[OK] Item Pickup: {itemName} - {response.CommandResponse}");
         }
 
         private void AssertPetInteraction(GamePlayResponse response, string animalName, List<string> testLog)
@@ -686,28 +686,28 @@ namespace AdventureRealms.Tests.Gameplay
             var responseText = response.CommandResponse.ToLower();
             Assert.True(responseText.Contains(animalName.ToLower()) || responseText.Contains("pet") || responseText.Contains("follow"),
                 $"Expected pet interaction response for {animalName}, got: {response.CommandResponse}");
-            testLog.Add($"✓ Pet Interaction: {animalName} - {response.CommandResponse}");
+            testLog.Add($"[OK] Pet Interaction: {animalName} - {response.CommandResponse}");
         }
 
         private void AssertInventoryContains(GamePlayResponse response, string itemName, List<string> testLog)
         {
             var responseText = response.CommandResponse.ToLower();
             Assert.Contains(itemName.ToLower(), responseText);
-            testLog.Add($"✓ Inventory Contains: {itemName}");
+            testLog.Add($"[OK] Inventory Contains: {itemName}");
         }
 
         private void AssertInventoryDoesNotContain(GamePlayResponse response, string itemName, List<string> testLog)
         {
             var responseText = response.CommandResponse.ToLower();
             Assert.DoesNotContain(itemName.ToLower(), responseText);
-            testLog.Add($"✓ Inventory Does Not Contain: {itemName} (consumed)");
+            testLog.Add($"[OK] Inventory Does Not Contain: {itemName} (consumed)");
         }
 
         private void AssertRoomTransition(GamePlayResponse response, string expectedRoomName, int expectedRoomNumber, List<string> testLog)
         {
             Assert.Equal(expectedRoomName, response.RoomName);
             Assert.Equal(expectedRoomNumber, response.MapData?.CurrentRoom);
-            testLog.Add($"✓ Room Transition: {expectedRoomName} (Room {expectedRoomNumber})");
+            testLog.Add($"[OK] Room Transition: {expectedRoomName} (Room {expectedRoomNumber})");
         }
 
         private void AssertItemConsumption(GamePlayResponse response, string itemName, string expectedMessage, List<string> testLog)
@@ -715,7 +715,7 @@ namespace AdventureRealms.Tests.Gameplay
             var responseText = response.CommandResponse.ToLower();
             Assert.True(responseText.Contains(expectedMessage.ToLower()) || responseText.Contains("eat") || responseText.Contains("consume"),
                 $"Expected consumption message for {itemName}, got: {response.CommandResponse}");
-            testLog.Add($"✓ Item Consumption: {itemName} - {response.CommandResponse}");
+            testLog.Add($"[OK] Item Consumption: {itemName} - {response.CommandResponse}");
         }
 
         private void AssertMovementBlocked(GamePlayResponse response, List<string> testLog)
@@ -726,14 +726,14 @@ namespace AdventureRealms.Tests.Gameplay
                        responseText.Contains("not today") || responseText.Contains("eastward bound") ||
                        responseText.Contains("out of the question") || responseText.Contains("bell-bottoms"),
                 $"Expected blocked movement message, got: {response.CommandResponse}");
-            testLog.Add($"✓ Movement Blocked: {response.CommandResponse}");
+            testLog.Add($"[OK] Movement Blocked: {response.CommandResponse}");
         }
 
         private void AssertKeyUsage(GamePlayResponse response, List<string> testLog)
         {
             var responseText = response.CommandResponse.ToLower();
             Assert.Contains("key fits perfectly", responseText);
-            testLog.Add($"✓ Key Usage: {response.CommandResponse}");
+            testLog.Add($"[OK] Key Usage: {response.CommandResponse}");
         }
 
         private void AssertGameCompletion(GamePlayResponse response, string expectedRoomName, int expectedRoomNumber, List<string> testLog)
@@ -742,7 +742,7 @@ namespace AdventureRealms.Tests.Gameplay
             Assert.Equal(expectedRoomNumber, response.MapData?.CurrentRoom);
             Assert.True(response.GameCompleted);
             Assert.False(response.PlayerDead);
-            testLog.Add($"✓ Game Completion: {expectedRoomName} (Room {expectedRoomNumber})");
+            testLog.Add($"[OK] Game Completion: {expectedRoomName} (Room {expectedRoomNumber})");
         }
 
         #endregion

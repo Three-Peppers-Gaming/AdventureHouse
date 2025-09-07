@@ -288,23 +288,23 @@ the ventilation systems.
 Your survival depends on finding the ESCAPE POD, but it requires proper authorization. 
 You'll need to explore the station's four levels:
 
-• COMMAND DECK (Level 1) - Administrative and control systems
-• CREW QUARTERS (Level 2) - Living spaces and personal areas
-• SCIENCE LABS (Level 3) - Research facilities and experiments
-• ENGINEERING (Level 4) - Power systems and the escape pod
+* COMMAND DECK (Level 1) - Administrative and control systems
+* CREW QUARTERS (Level 2) - Living spaces and personal areas
+* SCIENCE LABS (Level 3) - Research facilities and experiments
+* ENGINEERING (Level 4) - Power systems and the escape pod
 
 CONTROLS:
-• Move: N, S, E, W, U (up), D (down)
-• Get items: GET [item] or TAKE [item]
-• Use items: USE [item] or specific action verbs
-• Drop items: DROP [item]
-• Look: LOOK or LOOK [item]
-• Inventory: I or INVENTORY
-• Activate robot: ACTIVATE ROBOT
-• Attack creatures: ATTACK [monster] WITH [weapon]
-• Map: MAP (shows current level layout)
-• Help: HELP or ?
-• Quit: QUIT or EXIT
+* Move: N, S, E, W, U (up), D (down)
+* Get items: GET [item] or TAKE [item]
+* Use items: USE [item] or specific action verbs
+* Drop items: DROP [item]
+* Look: LOOK or LOOK [item]
+* Inventory: I or INVENTORY
+* Activate robot: ACTIVATE ROBOT
+* Attack creatures: ATTACK [monster] WITH [weapon]
+* Map: MAP (shows current level layout)
+* Help: HELP or ?
+* Quit: QUIT or EXIT
 
 WARNING: Reports indicate hostile life forms may have emerged from contaminated experiments. 
 Stay alert and arm yourself appropriately.

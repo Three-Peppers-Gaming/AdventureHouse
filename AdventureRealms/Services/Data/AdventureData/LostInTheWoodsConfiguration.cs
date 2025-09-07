@@ -149,7 +149,7 @@ namespace AdventureRealms.Services.Data.AdventureData
             [MapLevel.Exit] = "Safety!"
         };
 
-        public string MapLegend => "🌲 Lost in the Woods Map Legend 🌲\r\n" +
+        public string MapLegend => "*** Lost in the Woods Map Legend ***\r\n" +
                                   "G = Grandma's House   F = Forest Areas    C = Clearings\r\n" +
                                   "~ = Creek/Water       = = Bridge          X = Cave\r\n" +
                                   "T = Big Trees         B = Berry Patches   H = Home\r\n" +
@@ -164,7 +164,7 @@ namespace AdventureRealms.Services.Data.AdventureData
         #region Story Text
         public string GetAdventureHelpText()
         {
-            return "🌲 Lost in the Woods - A Fairy Tale Adventure 🌲\r\n\r\n" +
+            return "*** Lost in the Woods - A Fairy Tale Adventure ***\r\n\r\n" +
                    "After enjoying Wolf Stew at Grandma's house, you head home through the forest.\r\n" +
                    "But the birds have eaten your breadcrumb trail! Now you must find another way home.\r\n\r\n" +
                    "COMMANDS: Use two-word commands like GO NORTH, GET APPLE, USE KEY, EAT BREAD, etc.\r\n" +
@@ -180,17 +180,16 @@ namespace AdventureRealms.Services.Data.AdventureData
 
         public string GetAdventureThankYouText()
         {
-            return "🏠 Congratulations! You made it home safely! 🏠\r\n\r\n" +
-                   "After a perilous journey through the enchanted forest, dodging spiders and wolves,\r\n" +
-                   "collecting berries and helping a lost kitten, you've finally reached the safety\r\n" +
-                   "of your own clearing. The warm lights of home welcome you back from your adventure.\r\n\r\n" +
+            return "*** Congratulations! You made it home safely! ***\r\n\r\n" +
+                   "Through your wit and courage, you found your way through the enchanted forest \r\n" +
+                   "and returned home to safety. The forest spirits smile upon you.\r\n\r\n" +
                    "Thank you for playing Lost in the Woods!\r\n" +
-                   "Perhaps next time you'll remember to leave better breadcrumbs... 🍞";
+                   "Perhaps next time you'll remember to leave better breadcrumbs...";
         }
 
         public string GetWelcomeMessage(string playerName)
         {
-            return $"Welcome {playerName} to the enchanted forest! 🌲\r\n\r\n" +
+            return $"Welcome {playerName} to the enchanted forest! ***\r\n\r\n" +
                    "You've just finished a delicious meal of Wolf Stew at Grandma's house, but now\r\n" +
                    "it's time to head home. Unfortunately, the birds have eaten all your breadcrumbs!\r\n" +
                    "You'll need to find another way through the forest to reach your home clearing.";
